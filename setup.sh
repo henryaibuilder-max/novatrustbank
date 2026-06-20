@@ -1,90 +1,70 @@
 #!/usr/bin/env bash
 # =============================================================================
-# setup.sh — NovaPlusBank local development setup
-# Run once after cloning, or any time you pull schema changes.
-# For DEBUG=True (local), nothing extra is needed for static files —
-# Django's built-in dev server serves them automatically.
+# setup.sh — NovaPlusBank setup
+# Works for both local dev and Render production.
 # =============================================================================
 
 set -euo pipefail
 
-# ---------------------------------------------------------------------------
-# Helpers
-# ---------------------------------------------------------------------------
 info()  { echo -e "\033[1;34m[INFO]\033[0m  $*"; }
 ok()    { echo -e "\033[1;32m[ OK ]\033[0m  $*"; }
 warn()  { echo -e "\033[1;33m[WARN]\033[0m  $*"; }
 die()   { echo -e "\033[1;31m[ERR ]\033[0m  $*" >&2; exit 1; }
 
 # ---------------------------------------------------------------------------
-# 0. Ensure we're in the project root (same directory as manage.py)
+# 0. Project root
 # ---------------------------------------------------------------------------
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
-
-[[ -f manage.py ]] || die "manage.py not found. Run this script from the project root."
+[[ -f manage.py ]] || die "manage.py not found. Run from project root."
 
 # ---------------------------------------------------------------------------
-# 1. Determine DEBUG mode from .env (default: True for local)
+# 1. Determine DEBUG
+#    Priority: environment variable > .env file > default True (local)
 # ---------------------------------------------------------------------------
-DEBUG_VALUE="True"
-if [[ -f .env ]]; then
+if [[ -n "${DEBUG:-}" ]]; then
+    # Already set in environment (Render sets this via dashboard env vars)
+    DEBUG_VALUE="$DEBUG"
+elif [[ -f .env ]]; then
     _debug=$(grep -E '^DEBUG=' .env | cut -d= -f2 | tr -d '[:space:]"'"'" || true)
-    [[ -n "$_debug" ]] && DEBUG_VALUE="$_debug"
+    DEBUG_VALUE="${_debug:-True}"
+else
+    DEBUG_VALUE="True"
 fi
 
 info "DEBUG = $DEBUG_VALUE"
 
 # ---------------------------------------------------------------------------
-# 2. Python / venv check
+# 2. Python / venv
 # ---------------------------------------------------------------------------
 if [[ -d .venv ]]; then
-    info "Activating existing virtual environment (.venv)"
-    # shellcheck disable=SC1091
+    info "Activating virtual environment (.venv)"
     source .venv/bin/activate
 elif command -v python3 &>/dev/null; then
-    warn "No .venv found — using system python3. Consider: python3 -m venv .venv"
+    warn "No .venv found — using system python3."
 else
-    die "python3 not found. Please install Python 3.10+."
+    die "python3 not found."
 fi
 
 # ---------------------------------------------------------------------------
-# 3. Install / upgrade dependencies
+# 3. Dependencies
 # ---------------------------------------------------------------------------
-info "Installing Python dependencies..."
-
-if [[ -f requirements.txt ]]; then
+info "Installing dependencies..."
+if [[ -f pyproject.toml ]] && command -v uv &>/dev/null; then
+    uv sync
+elif [[ -f requirements.txt ]]; then
     pip install --quiet --upgrade pip
     pip install --quiet -r requirements.txt
 else
-    warn "requirements.txt not found — skipping pip install."
+    warn "No pyproject.toml or requirements.txt found — skipping."
 fi
-
-# Make sure django-environ is available (needed by settings.py)
-python -c "import environ" 2>/dev/null || {
-    info "Installing django-environ..."
-    pip install --quiet django-environ
-}
-
-# Make sure whitenoise is available (needed in prod; harmless in dev)
-python -c "import whitenoise" 2>/dev/null || {
-    info "Installing whitenoise..."
-    pip install --quiet whitenoise
-}
-
-# Make sure psycopg2 is available (needed in prod; harmless in dev)
-python -c "import psycopg2" 2>/dev/null || {
-    info "Installing psycopg2-binary..."
-    pip install --quiet psycopg2-binary
-}
-
 ok "Dependencies ready."
 
 # ---------------------------------------------------------------------------
-# 4. Ensure a .env file exists for local dev
+# 4. Create .env for local dev only (never on Render — it has env vars set)
 # ---------------------------------------------------------------------------
-if [[ ! -f .env ]]; then
-    warn ".env not found. Creating a minimal local .env with DEBUG=True..."
+if [[ ! -f .env && "$DEBUG_VALUE" != "False" && "$DEBUG_VALUE" != "0" ]]; then
+    warn ".env not found. Creating minimal local .env..."
     cat > .env <<'EOF'
 DEBUG=True
 SECRET_KEY=django-insecure-local-dev-key-change-me
@@ -93,32 +73,29 @@ SITE_ID=1
 DEFAULT_FROM_EMAIL=NovaPlusBank <noreply@novaplusbank.com>
 TIME_ZONE=UTC
 EOF
-    ok ".env created. Edit it to add production values when needed."
+    ok ".env created for local dev."
 fi
 
 # ---------------------------------------------------------------------------
-# 5. Run migrations
+# 5. Migrations
 # ---------------------------------------------------------------------------
-info "Running database migrations..."
+info "Running migrations..."
 python manage.py migrate --run-syncdb
 ok "Migrations complete."
 
 # ---------------------------------------------------------------------------
-# 6. Static files
-#    - DEBUG=True  → Django dev server serves static files automatically.
-#                    collectstatic is NOT needed and would clutter the repo.
-#    - DEBUG=False → collectstatic is required (WhiteNoise serves from STATIC_ROOT).
+# 6. Static files — only in production
 # ---------------------------------------------------------------------------
 if [[ "$DEBUG_VALUE" == "False" || "$DEBUG_VALUE" == "0" ]]; then
-    info "Production mode: running collectstatic..."
+    info "Production: running collectstatic..."
     python manage.py collectstatic --noinput
-    ok "Static files collected to staticfiles/."
+    ok "Static files collected."
 else
-    info "Development mode: skipping collectstatic (Django dev server handles it)."
+    info "Dev mode: skipping collectstatic."
 fi
 
 # ---------------------------------------------------------------------------
-# 7. Create a default superuser (local only, skipped in prod)
+# 7. Superuser — local only
 # ---------------------------------------------------------------------------
 if [[ "$DEBUG_VALUE" == "True" || "$DEBUG_VALUE" == "1" ]]; then
     info "Creating superuser (if none exists)..."
@@ -133,14 +110,9 @@ else:
 "
 fi
 
-# ---------------------------------------------------------------------------
-# Done
-# ---------------------------------------------------------------------------
 echo ""
 ok "Setup complete!"
 if [[ "$DEBUG_VALUE" == "True" || "$DEBUG_VALUE" == "1" ]]; then
-    echo ""
-    echo "  Start the dev server with:"
-    echo "    python manage.py runserver"
+    echo "  Run: python manage.py runserver"
     echo ""
 fi
