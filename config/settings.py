@@ -4,28 +4,42 @@ Django settings for config project.
 
 from pathlib import Path
 import os
-import environ
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Read .env file
-env = environ.Env(
-    DEBUG=(bool, False),
-    TIME_ZONE=(str, 'UTC'),
-    SITE_ID=(int, 1),
-)
-environ.Env.read_env(BASE_DIR / '.env')
+load_dotenv(BASE_DIR / '.env')
+
+def _env(key, default=None):
+    return os.environ.get(key, default)
+
+def _env_bool(key, default=False):
+    val = os.environ.get(key)
+    if val is None:
+        return default
+    return val.strip().lower() in ('true', '1', 'yes')
+
+def _env_int(key, default=0):
+    val = os.environ.get(key)
+    return int(val) if val is not None else default
+
+def _env_list(key, default=None):
+    val = os.environ.get(key)
+    if val is None:
+        return default or []
+    return [v.strip() for v in val.split(',') if v.strip()]
 
 # ------------------------------------------------------------------
 # Core
 # ------------------------------------------------------------------
 
-SECRET_KEY = env('SECRET_KEY', default='django-insecure-c24ior8s(7k4sa&vwlj2cxn0l7eqr6&rrb!==t(i)d6u1&4$oe')
+SECRET_KEY = _env('SECRET_KEY', 'django-insecure-c24ior8s(7k4sa&vwlj2cxn0l7eqr6&rrb!==t(i)d6u1&4$oe')
 
-DEBUG = env('DEBUG')
+DEBUG = _env_bool('DEBUG', default=True)
 
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['*'])
+ALLOWED_HOSTS = _env_list('ALLOWED_HOSTS', default=['*'])
 
 
 # ------------------------------------------------------------------
@@ -102,13 +116,13 @@ else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
-            'NAME': env('DB_NAME'),
-            'USER': env('DB_USER'),
-            'PASSWORD': env('DB_PASSWORD'),
-            'HOST': env('DB_HOST'),
-            'PORT': env('DB_PORT', default='5432'),
+            'NAME': _env('DB_NAME'),
+            'USER': _env('DB_USER'),
+            'PASSWORD': _env('DB_PASSWORD'),
+            'HOST': _env('DB_HOST'),
+            'PORT': _env('DB_PORT', '5432'),
             'OPTIONS': {
-                'sslmode': env('DB_SSLMODE', default='require'),
+                'sslmode': _env('DB_SSLMODE', 'require'),
             },
         }
     }
@@ -131,7 +145,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # ------------------------------------------------------------------
 
 LANGUAGE_CODE = 'en-us'
-TIME_ZONE = env('TIME_ZONE')
+TIME_ZONE = _env('TIME_ZONE', 'UTC')
 USE_I18N = True
 USE_TZ = True
 
@@ -164,7 +178,7 @@ AUTHENTICATION_BACKENDS = [
     'allauth.account.auth_backends.AuthenticationBackend',
 ]
 
-SITE_ID = env('SITE_ID')
+SITE_ID = _env_int('SITE_ID', default=1)
 
 LOGIN_URL = 'account_login'
 LOGIN_REDIRECT_URL = 'core:dashboard'
@@ -189,23 +203,10 @@ if DEBUG:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 else:
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-    EMAIL_HOST = env('EMAIL_HOST', default='smtp.sendgrid.net')
-    EMAIL_PORT = env.int('EMAIL_PORT', default=587)
+    EMAIL_HOST = _env('EMAIL_HOST', 'smtp.sendgrid.net')
+    EMAIL_PORT = _env_int('EMAIL_PORT', default=587)
     EMAIL_USE_TLS = True
-    EMAIL_HOST_USER = env('EMAIL_HOST_USER', default='')
-    EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', default='')
+    EMAIL_HOST_USER = _env('EMAIL_HOST_USER', '')
+    EMAIL_HOST_PASSWORD = _env('EMAIL_HOST_PASSWORD', '')
 
-DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL', default='NovaPlusBank <noreply@novaplusbank.com>')
-
-
-# ------------------------------------------------------------------
-# Security (production only)
-# ------------------------------------------------------------------
-
-if not DEBUG:
-    SECURE_HSTS_SECONDS = 31536000          # 1 year
-    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-    SECURE_HSTS_PRELOAD = True
-    SECURE_SSL_REDIRECT = True
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
+DEFAULT_FROM_EMAIL = _env('DEFAULT_FROM_EMAIL', 'NovaPlusBank <noreply@novaplusbank.com>')
