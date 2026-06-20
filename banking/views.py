@@ -172,9 +172,26 @@ def transactions(request):
     if date_to:
         qs = qs.filter(created_at__date__lte=date_to)
 
+    # Build reference → ChatSession map
+    references = list(qs.values_list('reference', flat=True))
+    sessions = ChatSession.objects.filter(account=account)
+
+    tx_sessions = {}
+    for s in sessions:
+        payload = s.meta_payload
+        if isinstance(payload, str):
+            try:
+                payload = json.loads(payload)
+            except (json.JSONDecodeError, TypeError):
+                continue
+        ref = payload.get('reference') if isinstance(payload, dict) else None
+        if ref and ref in references:
+            tx_sessions[ref] = s
+
     return render(request, 'dashboard/transactions.html', {
         'account':      account,
         'transactions': qs,
+        'tx_sessions':  tx_sessions,
         'filters': {
             'type':     tx_type,
             'category': category,
@@ -301,45 +318,46 @@ def international_transfer(request):
     account = _get_account(request.user)
 
     if request.method == 'POST':
-        recipient_name    = request.POST.get('recipient_name', '').strip()
-        recipient_bank    = request.POST.get('recipient_bank', '').strip()
-        recipient_account = request.POST.get('recipient_account', '').strip()
-        recipient_country = request.POST.get('recipient_country', '').strip()
-        swift_bic         = request.POST.get('swift_bic', '').strip()
-        iban              = request.POST.get('iban', '').strip()
-        description       = request.POST.get('description', '').strip()
-        raw_amount_sent   = request.POST.get('amount_sent', '').strip()
-        password          = request.POST.get('password', '')
+        payment_method   = request.POST.get('payment_method_type', 'wire').strip()
+        recipient_name   = request.POST.get('recipient_name', '').strip()
+        recipient_acct   = request.POST.get('account_identifier_primary', '').strip()
+        routing_code     = request.POST.get('account_identifier_secondary', '').strip()
+        settlement_ccy   = request.POST.get('settlement_currency', 'USD').strip()
+        description      = request.POST.get('description', '').strip()
+        raw_amount       = request.POST.get('amount', '').strip()
+        password         = request.POST.get('password', '')
 
         errors = []
 
-        if not recipient_name or not recipient_bank or not recipient_account:
-            errors.append('Recipient layout credentials are fully required.')
-        if not swift_bic:
-            errors.append('SWIFT/BIC routing code is mandatory.')
+        if not recipient_name:
+            errors.append('Recipient name is required.')
+        if not recipient_acct:
+            errors.append('Account / wallet / handle identifier is required.')
+        if not routing_code:
+            errors.append('Routing code / secondary identifier is required.')
         if not password:
-            errors.append('Account password authorization signature required.')
+            errors.append('Account password is required.')
 
         try:
-            amount_sent = Decimal(raw_amount_sent)
-            if amount_sent < Decimal('50.00'):
-                errors.append('Minimum international ledger allocation is $50.00.')
+            amount_sent = Decimal(raw_amount)
+            if amount_sent < Decimal('10.00'):
+                errors.append('Minimum transfer amount is $10.00.')
         except (InvalidOperation, ValueError):
             amount_sent = None
-            errors.append('Enter a valid transmission execution amount.')
+            errors.append('Enter a valid transfer amount.')
 
         if not errors:
             user = authenticate(email=request.user.email, password=password)
             if user is None:
-                errors.append('Authentication validation challenge failed.')
+                errors.append('Incorrect account password.')
 
         if not errors:
             if amount_sent > account.balance:
-                errors.append(f'Insufficient clear balance. Available: ${account.balance:,.2f}.')
-            
+                errors.append(f'Insufficient balance. Available: ${account.balance:,.2f}.')
+
             daily_used = _daily_used(account)
             if amount_sent > (account.daily_limit - daily_used):
-                errors.append('Global structural velocity volume limits reached for today.')
+                errors.append('Daily transfer limit reached.')
 
         if errors:
             for err in errors:
@@ -353,16 +371,15 @@ def international_transfer(request):
             with db_transaction.atomic():
                 transfer = InternationalTransfer.objects.create(
                     sender=account,
+                    payment_method=payment_method,
                     recipient_name=recipient_name,
-                    recipient_bank=recipient_bank,
-                    recipient_account=recipient_account,
-                    recipient_country=recipient_country,
-                    swift_bic=swift_bic,
-                    iban=iban,
+                    recipient_account=recipient_acct,
+                    routing_code=routing_code,
+                    settlement_currency=settlement_ccy,
                     amount_sent=amount_sent,
                     source_currency=account.currency,
                     description=description,
-                    status=InternationalTransfer.STATUS_PENDING_REVIEW
+                    status=InternationalTransfer.STATUS_PENDING_REVIEW,
                 )
 
                 Transaction.objects.create(
@@ -372,23 +389,21 @@ def international_transfer(request):
                     amount=amount_sent,
                     currency=account.currency,
                     balance_after=account.balance,
-                    description=description or f'International wire transfer to {recipient_name}',
+                    description=description or f'International transfer to {recipient_name}',
                     counterpart_name=recipient_name,
-                    counterpart_account=recipient_account,
+                    counterpart_account=recipient_acct,
                     status=Transaction.STATUS_PENDING,
-                    reference=transfer.reference
+                    reference=transfer.reference,
                 )
 
             session = _open_verification_session(account, transfer, "International Transfer")
-            messages.success(request, f'Wire transfer routing established. Reference: {transfer.reference}.')
+            messages.success(request, f'Transfer submitted. Reference: {transfer.reference}.')
             return redirect('banking:support_chat_detail', support_id=session.support_id)
 
         except Exception:
-            messages.error(request, 'Processing runtime error deploying wire parameters.')
+            messages.error(request, 'A processing error occurred. Please try again.')
 
     return render(request, 'dashboard/transfer_international.html', {'account': account})
-
-
 # ─────────────────────────────────────────────
 #  OTP Redemption View (Money Movement)
 # ─────────────────────────────────────────────

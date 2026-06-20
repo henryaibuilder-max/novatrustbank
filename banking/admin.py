@@ -42,9 +42,9 @@ class LocalTransferAdmin(admin.ModelAdmin):
 
 @admin.register(InternationalTransfer)
 class InternationalTransferAdmin(admin.ModelAdmin):
-    list_display  = ('reference', 'sender', 'recipient_name', 'amount_sent', 'source_currency', 'target_currency', 'status')
-    list_filter   = ('status', 'source_currency', 'target_currency')
-    search_fields = ('reference', 'recipient_name', 'recipient_account', 'swift_bic', 'iban')
+    list_display  = ('reference', 'sender', 'recipient_name', 'payment_method', 'amount_sent', 'source_currency', 'settlement_currency', 'status')
+    list_filter   = ('status', 'payment_method', 'source_currency', 'settlement_currency')
+    search_fields = ('reference', 'recipient_name', 'recipient_account', 'routing_code')
     readonly_fields = ('reference', 'created_at')
 
 

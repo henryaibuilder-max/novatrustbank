@@ -139,6 +139,7 @@
       <form id="transfer-form" method="POST" action="{% url 'banking:international_transfer' %}" class="flex flex-col gap-6 font-sans">
         {% csrf_token %}
         <input type="hidden" name="payment_method_type" id="hidden-method-type" value="">
+        <input type="hidden" name="action_name" value="International Transfer" />
 
         <!-- Balance Overview Element -->
         <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 flex items-center justify-between">
@@ -371,9 +372,9 @@
         <button type="button" onclick="handlePreviewModalToggle(false)" class="w-full sm:w-1/3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md text-xs font-semibold transition-colors border-none cursor-pointer">
           Edit Fields
         </button>
-        <a href="/dashboard/support/chat/" class="w-full sm:flex-1 py-2 bg-blue-900 hover:bg-[#0e2645] text-white rounded-md text-xs font-bold transition-colors text-center no-underline flex items-center justify-center gap-1.5 shadow-sm">
+        <button type="submit" form="transfer-form" class="w-full sm:flex-1 py-2 bg-blue-900 hover:bg-[#0e2645] text-white rounded-md text-xs font-bold transition-colors flex items-center justify-center gap-1.5 shadow-sm border-none cursor-pointer">
           <i class="fa-solid fa-headset"></i> Connect Live Support
-        </a>
+        </button>
       </div>
 
     </div>

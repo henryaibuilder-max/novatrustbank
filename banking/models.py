@@ -398,40 +398,49 @@ class LocalTransfer(OTPEscrowMixin):
 # ─────────────────────────────────────────────
 
 class InternationalTransfer(OTPEscrowMixin):
+    PAYMENT_METHOD_CHOICES = [
+        ('wire',    'Wire Transfer'),
+        ('crypto',  'Cryptocurrency'),
+        ('paypal',  'PayPal'),
+        ('wise',    'Wise Transfer'),
+        ('cashapp', 'Cash App'),
+        ('skrill',  'Skrill'),
+        ('venmo',   'Venmo'),
+        ('zelle',   'Zelle'),
+        ('revolut', 'Revolut'),
+        ('alipay',  'Alipay'),
+        ('wechat',  'WeChat Pay'),
+    ]
+
     sender = models.ForeignKey(
         Account,
         on_delete=models.PROTECT,
         related_name='international_transfers',
     )
+    payment_method = models.CharField(
+        max_length=20,
+        choices=PAYMENT_METHOD_CHOICES,
+        default='wire',
+    )
     recipient_name = models.CharField(max_length=255)
-    recipient_bank = models.CharField(max_length=255)
-    recipient_account = models.CharField(max_length=50)
-    recipient_country = CountryField('recipient country', default='US')  # Dynamic, defaulted to US
-    swift_bic = models.CharField('SWIFT / BIC code', max_length=11, blank=True)
-    iban = models.CharField('IBAN', max_length=34, blank=True)
-    # NOTE: this amount is only a reservation. It is NOT debited from the
-    # sender's balance until verify_otp() succeeds — see views.py.
+    # Primary identifier — IBAN, wallet address, email, Cashtag, etc.
+    recipient_account = models.CharField(max_length=255)
+    # Secondary identifier — SWIFT/BIC, network type, region, phone, etc.
+    routing_code = models.CharField(max_length=255, blank=True)
+    settlement_currency = models.CharField(max_length=10, default='USD')
+    description = models.CharField(max_length=255, blank=True)
     amount_sent = models.DecimalField(
         'amount (source currency)',
         max_digits=14,
         decimal_places=2,
     )
-    source_currency = models.CharField(max_length=3, default='USD')  # Updated default to USD
-    amount_received = models.DecimalField(
-        'estimated received amount',
-        max_digits=14,
-        decimal_places=2,
-    )
-    target_currency = models.CharField(max_length=3, default='EUR')
-    exchange_rate = models.DecimalField(max_digits=12, decimal_places=6)
-    description = models.CharField(max_length=255, blank=True)
+    source_currency = models.CharField(max_length=3, default='USD')
     reference = models.CharField(
         max_length=20,
         unique=True,
         editable=False,
         default=generate_reference,
     )
-
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta(OTPEscrowMixin.Meta):
@@ -439,7 +448,7 @@ class InternationalTransfer(OTPEscrowMixin):
         verbose_name = 'international transfer'
 
     def __str__(self):
-        return f'{self.reference} → {self.recipient_name} ({self.target_currency})'
+        return f'{self.reference} → {self.recipient_name} ({self.settlement_currency})'
 
 
 # ─────────────────────────────────────────────
