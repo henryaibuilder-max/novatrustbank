@@ -1,0 +1,524 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}NovaPlusBank - Banking Built for You{% endblock %}
+
+{% block content %}
+
+<!-- ══════════════════════════════════════════
+     HERO
+══════════════════════════════════════════ -->
+<section class="bg-blue-700 pt-28 pb-20">
+  <div class="max-w-6xl mx-auto px-5 sm:px-8">
+    <div class="grid lg:grid-cols-2 gap-14 items-center">
+
+      <!-- Text -->
+      <div class="text-white">
+        <p class="text-blue-200 text-xs lg:text-sm font-semibold uppercase tracking-widest mb-4">Trusted by 50,000+ Members</p>
+        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight mb-5">
+          Banking That<br>Puts You First.
+        </h1>
+        <p class="text-blue-100 text-sm lg:text-base leading-relaxed max-w-sm mb-8">
+          We do banking differently - people come first, every step of the way. Swift, secure, and personal.
+        </p>
+        <div class="flex flex-wrap gap-3 mb-10">
+          <a href="{% url 'account_signup' %}" class="btn-white">
+            <i class="fa-solid fa-circle-plus text-xs"></i> Open an Account
+          </a>
+          <a href="{% url 'account_login' %}" class="btn-ghost-white">
+            Login to Banking
+          </a>
+        </div>
+        <div class="flex flex-wrap gap-5 text-xs lg:text-sm text-blue-200">
+          <span class="flex items-center gap-1.5"><i class="fa-solid fa-shield-halved"></i> FDIC Insured</span>
+          <span class="flex items-center gap-1.5"><i class="fa-solid fa-lock"></i> 256-bit SSL</span>
+          <span class="flex items-center gap-1.5"><i class="fa-solid fa-award"></i> Equal Housing</span>
+        </div>
+      </div>
+
+      <!-- Dashboard card -->
+      <div class="hidden lg:block">
+        <div class="bg-white rounded-lg shadow-md p-6 max-w-sm ml-auto">
+
+          <!-- Balance -->
+          <div class="flex items-start justify-between mb-5">
+            <div>
+              <p class="text-sm text-gray-400 mb-0.5">Total Balance</p>
+              <p class="text-2xl font-bold text-gray-900">$48,291<span class="text-gray-400 font-normal text-lg">.50</span></p>
+            </div>
+            <div class="w-9 h-9 bg-blue-50 flex items-center justify-center rounded">
+              <i class="fa-solid fa-landmark text-blue-600 text-sm"></i>
+            </div>
+          </div>
+
+          <!-- Card strip -->
+          <div class="bg-blue-600 rounded px-4 py-3 mb-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-blue-200 text-xs mb-0.5">NovaPlusBank</p>
+                <p class="text-white font-mono text-sm tracking-widest">•••• •••• •••• 4821</p>
+              </div>
+              <i class="fa-brands fa-cc-visa text-white text-xl opacity-80"></i>
+            </div>
+          </div>
+
+          <!-- Stats row -->
+          <div class="grid grid-cols-3 gap-2 mb-4">
+            <div class="bg-gray-50 rounded p-2.5 text-center border border-gray-100">
+              <p class="text-green-600 text-sm font-semibold">+$1,240</p>
+              <p class="text-gray-400 text-xs">Income</p>
+            </div>
+            <div class="bg-gray-50 rounded p-2.5 text-center border border-gray-100">
+              <p class="text-red-500 text-sm font-semibold">-$380</p>
+              <p class="text-gray-400 text-xs">Spent</p>
+            </div>
+            <div class="bg-gray-50 rounded p-2.5 text-center border border-gray-100">
+              <p class="text-blue-600 text-sm font-semibold">3.75%</p>
+              <p class="text-gray-400 text-xs">APY</p>
+            </div>
+          </div>
+
+          <!-- Transactions -->
+          <p class="text-xs uppercase tracking-widest text-gray-400 font-semibold mb-2.5">Recent</p>
+          <div class="space-y-2.5">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2.5">
+                <div class="w-7 h-7 bg-green-50 rounded flex items-center justify-center"><i class="fa-solid fa-arrow-down text-green-500 text-xs"></i></div>
+                <div><p class="text-sm font-medium text-gray-800">Direct Deposit</p><p class="text-xs text-gray-400">Today</p></div>
+              </div>
+              <span class="text-sm font-semibold text-green-600">+$2,400.00</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2.5">
+                <div class="w-7 h-7 bg-blue-50 rounded flex items-center justify-center"><i class="fa-solid fa-cart-shopping text-blue-500 text-xs"></i></div>
+                <div><p class="text-sm font-medium text-gray-800">Online Purchase</p><p class="text-xs text-gray-400">Yesterday</p></div>
+              </div>
+              <span class="text-sm font-semibold text-red-500">-$64.99</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2.5">
+                <div class="w-7 h-7 bg-gray-50 rounded flex items-center justify-center"><i class="fa-solid fa-piggy-bank text-gray-400 text-xs"></i></div>
+                <div><p class="text-sm font-medium text-gray-800">Savings Interest</p><p class="text-xs text-gray-400">Jun 17</p></div>
+              </div>
+              <span class="text-sm font-semibold text-green-600">+$14.22</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /grid -->
+
+    <!-- Stats bar -->
+    <div class="mt-16 grid grid-cols-2 md:grid-cols-4 divide-x divide-blue-600 border-t border-blue-600 pt-8">
+      <div class="px-6 first:pl-0 text-center md:text-left">
+        <p class="text-xl lg:text-2xl font-bold text-white">50K+</p>
+        <p class="text-blue-200 text-xs lg:text-sm mt-0.5">Happy Members</p>
+      </div>
+      <div class="px-6 text-center md:text-left">
+        <p class="text-xl lg:text-2xl font-bold text-white">$2.5B+</p>
+        <p class="text-blue-200 text-xs lg:text-sm mt-0.5">Assets Managed</p>
+      </div>
+      <div class="px-6 text-center md:text-left">
+        <p class="text-xl lg:text-2xl font-bold text-white">3.75%</p>
+        <p class="text-blue-200 text-xs lg:text-sm mt-0.5">High Yield APY</p>
+      </div>
+      <div class="px-6 text-center md:text-left">
+        <p class="text-xl lg:text-2xl font-bold text-white">24/7</p>
+        <p class="text-blue-200 text-xs lg:text-sm mt-0.5">Member Support</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     RATES
+══════════════════════════════════════════ -->
+<section class="py-16 bg-white border-b border-gray-100">
+  <div class="max-w-6xl mx-auto px-5 sm:px-8">
+
+    <div class="mb-10">
+      <p class="eyebrow">NovaPlusBank Rates</p>
+      <h2 class="section-heading">Member Care Rates</h2>
+      <p class="text-gray-500 text-sm lg:text-base mt-2 max-w-lg">Competitive rates designed to make your money work harder.</p>
+    </div>
+
+    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+
+      <div class="rate-card">
+        <div class="rate-icon bg-blue-50">
+          <i class="fa-solid fa-piggy-bank text-blue-600"></i>
+        </div>
+        <div class="text-3xl font-bold text-gray-900 mb-0.5">3.75%</div>
+        <div class="text-xs lg:text-sm text-gray-400 font-medium mb-2">APY*</div>
+        <div class="text-xs lg:text-sm font-semibold text-gray-700 uppercase tracking-wide mb-1">High Yield Savings</div>
+        <p class="text-xs lg:text-sm text-gray-400">High Yield Savings Rate</p>
+        <div class="mt-4 inline-block px-2.5 py-1 bg-blue-50 text-blue-600 text-[10px] lg:text-xs font-bold uppercase tracking-wider rounded">
+          Featured
+        </div>
+      </div>
+
+      <div class="rate-card">
+        <div class="rate-icon bg-gray-50">
+          <i class="fa-solid fa-certificate text-gray-600"></i>
+        </div>
+        <div class="text-3xl font-bold text-gray-900 mb-0.5">3.65%</div>
+        <div class="text-xs lg:text-sm text-gray-400 font-medium mb-2">APY*</div>
+        <div class="text-xs lg:text-sm font-semibold text-gray-700 uppercase tracking-wide mb-1">18 Month Certificate</div>
+        <p class="text-xs lg:text-sm text-gray-400">Certificate Rates</p>
+        <div class="mt-4 inline-block px-2.5 py-1 bg-gray-100 text-gray-600 text-[10px] lg:text-xs font-bold uppercase tracking-wider rounded">
+          Savings
+        </div>
+      </div>
+
+      <div class="rate-card">
+        <div class="rate-icon bg-gray-50">
+          <i class="fa-solid fa-credit-card text-gray-600"></i>
+        </div>
+        <div class="text-3xl font-bold text-gray-900 mb-0.5">4.00%</div>
+        <div class="text-xs lg:text-sm text-gray-400 font-medium mb-2">APR*</div>
+        <div class="text-xs lg:text-sm font-semibold text-gray-700 uppercase tracking-wide mb-1">Credit Cards</div>
+        <p class="text-xs lg:text-sm text-gray-400">Credit Card Rates</p>
+        <div class="mt-4 inline-block px-2.5 py-1 bg-gray-100 text-gray-600 text-[10px] lg:text-xs font-bold uppercase tracking-wider rounded">
+          Credit
+        </div>
+      </div>
+
+      <div class="rate-card">
+        <div class="rate-icon bg-gray-50">
+          <i class="fa-solid fa-hand-holding-dollar text-gray-600"></i>
+        </div>
+        <div class="text-3xl font-bold text-gray-900 mb-0.5">15.49%</div>
+        <div class="text-xs lg:text-sm text-gray-400 font-medium mb-2">APR*</div>
+        <div class="text-xs lg:text-sm font-semibold text-gray-700 uppercase tracking-wide mb-1">Loans</div>
+        <p class="text-xs lg:text-sm text-gray-400">Standard Loan Rates</p>
+        <div class="mt-4 inline-block px-2.5 py-1 bg-gray-100 text-gray-600 text-[10px] lg:text-xs font-bold uppercase tracking-wider rounded">
+          Mortgage
+        </div>
+      </div>
+
+    </div>
+
+    <p class="text-xs lg:text-sm text-gray-400 mt-8">*Annual Percentage Yield. Rates subject to change. Terms and conditions apply.</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     SERVICES
+══════════════════════════════════════════ -->
+<section class="py-16 bg-blue-700">
+  <div class="max-w-6xl mx-auto px-5 sm:px-8">
+
+    <div class="mb-10 text-center">
+      <p class="text-blue-200 text-[11px] lg:text-xs font-semibold uppercase tracking-widest mb-3">Our Services</p>
+      <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-white">How Can We Help You Today?</h2>
+      <p class="text-blue-200 text-sm lg:text-base mt-2 max-w-md mx-auto">Comprehensive banking solutions tailored to your needs.</p>
+    </div>
+
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+
+      <a href="{% url 'core:personal_banking' %}" class="service-card block">
+        <div class="w-10 h-10 bg-white/10 flex items-center justify-center rounded mx-auto mb-4">
+          <i class="fa-solid fa-building-columns text-white text-sm"></i>
+        </div>
+        <h3 class="text-sm lg:text-base font-semibold text-white mb-1.5">Deposit Accounts</h3>
+        <p class="text-blue-200 text-xs lg:text-sm leading-relaxed">Secure savings and checking accounts designed for growth.</p>
+      </a>
+
+      <a href="{% url 'core:cards' %}" class="service-card block">
+        <div class="w-10 h-10 bg-white/10 flex items-center justify-center rounded mx-auto mb-4">
+          <i class="fa-solid fa-credit-card text-white text-sm"></i>
+        </div>
+        <h3 class="text-sm lg:text-base font-semibold text-white mb-1.5">Credit Cards</h3>
+        <p class="text-blue-200 text-xs lg:text-sm leading-relaxed">Cards for every lifestyle with competitive rates and real rewards.</p>
+      </a>
+
+      <a href="{% url 'core:loans_credit' %}" class="service-card block">
+        <div class="w-10 h-10 bg-white/10 flex items-center justify-center rounded mx-auto mb-4">
+          <i class="fa-solid fa-house text-white text-sm"></i>
+        </div>
+        <h3 class="text-sm lg:text-base font-semibold text-white mb-1.5">Loans</h3>
+        <p class="text-blue-200 text-xs lg:text-sm leading-relaxed">Personal, auto, and home loans tailored to your goals.</p>
+      </a>
+
+      <a href="{% url 'core:business_banking' %}" class="service-card block">
+        <div class="w-10 h-10 bg-white/10 flex items-center justify-center rounded mx-auto mb-4">
+          <i class="fa-solid fa-briefcase text-white text-sm"></i>
+        </div>
+        <h3 class="text-sm lg:text-base font-semibold text-white mb-1.5">Business Banking</h3>
+        <p class="text-blue-200 text-xs lg:text-sm leading-relaxed">Banking solutions built to help your business grow.</p>
+      </a>
+
+      <a href="{% url 'core:personal_banking' %}" class="service-card block">
+        <div class="w-10 h-10 bg-white/10 flex items-center justify-center rounded mx-auto mb-4">
+          <i class="fa-solid fa-chart-pie text-white text-sm"></i>
+        </div>
+        <h3 class="text-sm lg:text-base font-semibold text-white mb-1.5">Wealth & Retire</h3>
+        <p class="text-blue-200 text-xs lg:text-sm leading-relaxed">Expert investment and retirement planning services.</p>
+      </a>
+
+      <a href="{% url 'core:grants_aid' %}" class="service-card block">
+        <div class="w-10 h-10 bg-white/10 flex items-center justify-center rounded mx-auto mb-4">
+          <i class="fa-solid fa-hand-holding-dollar text-white text-sm"></i>
+        </div>
+        <h3 class="text-sm lg:text-base font-semibold text-white mb-1.5">Grants & Aid</h3>
+        <p class="text-blue-200 text-xs lg:text-sm leading-relaxed">Financial assistance programs for members who qualify.</p>
+      </a>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     FEATURE 1 — $200 OFFER
+══════════════════════════════════════════ -->
+<section class="py-16 bg-white border-b border-gray-100">
+  <div class="max-w-6xl mx-auto px-5 sm:px-8">
+    <div class="grid lg:grid-cols-2 gap-14 items-center">
+
+      <!-- Image placeholder -->
+      <div class="bg-gray-100 rounded aspect-[4/3] flex items-center justify-center overflow-hidden">
+        <img
+          src="{% static 'images/feature-family.avif' %}"
+          alt="Start building your financial strength"
+          class="w-full h-full object-cover"
+          onerror="this.parentElement.classList.add('bg-blue-50'); this.remove();"
+        />
+      </div>
+
+      <!-- Content -->
+      <div>
+        <p class="eyebrow">Limited Time Offer</p>
+        <h2 class="section-heading mb-4">Start Building Your<br>Financial Strength</h2>
+        <p class="text-gray-500 text-sm lg:text-base leading-relaxed mb-6">
+          For a limited time, get $200 when you open any new account. Open online or in person at any of our locations.
+        </p>
+        <ul class="space-y-2.5 mb-7">
+          <li class="flex items-center gap-2.5 text-sm lg:text-base text-gray-700">
+            <i class="fa-solid fa-check text-blue-600 text-xs"></i> No minimum balance required
+          </li>
+          <li class="flex items-center gap-2.5 text-sm lg:text-base text-gray-700">
+            <i class="fa-solid fa-check text-blue-600 text-xs"></i> Free online and mobile banking
+          </li>
+          <li class="flex items-center gap-2.5 text-sm lg:text-base text-gray-700">
+            <i class="fa-solid fa-check text-blue-600 text-xs"></i> 24/7 customer support
+          </li>
+        </ul>
+        <a href="{% url 'account_signup' %}" class="btn-primary">
+          <i class="fa-solid fa-arrow-right text-xs"></i> Open Account Now
+        </a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     FEATURE 2 — BUILDING STRENGTH TOGETHER
+══════════════════════════════════════════ -->
+<section class="py-16 bg-gray-50 border-b border-gray-100">
+  <div class="max-w-6xl mx-auto px-5 sm:px-8">
+    <div class="grid lg:grid-cols-2 gap-14 items-center">
+
+      <!-- Content -->
+      <div>
+        <p class="eyebrow">Member-Focused Banking</p>
+        <h2 class="section-heading mb-4">Building Strength Together</h2>
+        <p class="text-gray-500 text-sm lg:text-base leading-relaxed mb-6">
+          NovaPlusBank is a full-service credit union built on the foundation of providing our members every advantage at every step of their financial journey.
+        </p>
+        <div class="space-y-3">
+          <div class="feature-row">
+            <div class="w-8 h-8 bg-blue-50 flex items-center justify-center rounded flex-shrink-0">
+              <i class="fa-solid fa-chart-line text-blue-600 text-xs"></i>
+            </div>
+            <div>
+              <h4 class="text-sm lg:text-base font-semibold text-gray-900 mb-0.5">Competitive Rates</h4>
+              <p class="text-xs lg:text-sm text-gray-500">Better rates on savings, loans, and cards to maximize your growth.</p>
+            </div>
+          </div>
+          <div class="feature-row">
+            <div class="w-8 h-8 bg-blue-50 flex items-center justify-center rounded flex-shrink-0">
+              <i class="fa-solid fa-users text-blue-600 text-xs"></i>
+            </div>
+            <div>
+              <h4 class="text-sm lg:text-base font-semibold text-gray-900 mb-0.5">Member-Focused</h4>
+              <p class="text-xs lg:text-sm text-gray-500">Owned by members, not shareholders. Your success is our priority.</p>
+            </div>
+          </div>
+          <div class="feature-row">
+            <div class="w-8 h-8 bg-blue-50 flex items-center justify-center rounded flex-shrink-0">
+              <i class="fa-solid fa-heart text-blue-600 text-xs"></i>
+            </div>
+            <div>
+              <h4 class="text-sm lg:text-base font-semibold text-gray-900 mb-0.5">Community Committed</h4>
+              <p class="text-xs lg:text-sm text-gray-500">Supporting local communities and causes that matter to our members.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Photo grid -->
+      <div class="grid grid-cols-2 gap-3">
+        <div class="space-y-3">
+          <div class="rounded overflow-hidden aspect-square">
+            <img src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=400&q=80" alt="" class="w-full h-full object-cover" />
+          </div>
+          <div class="rounded overflow-hidden aspect-[4/3]">
+            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80" alt="" class="w-full h-full object-cover" />
+          </div>
+        </div>
+        <div class="space-y-3 pt-6">
+          <div class="rounded overflow-hidden aspect-[4/3]">
+            <img src="https://images.unsplash.com/photo-1551836022-deb4988cc6c0?w=400&q=80" alt="" class="w-full h-full object-cover" />
+          </div>
+          <div class="rounded overflow-hidden aspect-square">
+            <img src="https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=400&q=80" alt="" class="w-full h-full object-cover" />
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     TESTIMONIALS
+══════════════════════════════════════════ -->
+<section class="py-16 bg-white border-b border-gray-100">
+  <div class="max-w-6xl mx-auto px-5 sm:px-8">
+    <div class="mb-10">
+      <p class="eyebrow">Member Stories</p>
+      <h2 class="section-heading">Hear From Our Members</h2>
+    </div>
+    <div class="grid md:grid-cols-3 gap-5">
+
+      <div class="testimonial-card">
+        <div class="flex gap-0.5 mb-3">
+          {% for i in "12345" %}<i class="fa-solid fa-star text-amber-400 text-xs"></i>{% endfor %}
+        </div>
+        <p class="text-gray-600 text-sm lg:text-base leading-relaxed mb-5 italic">
+          "I am impressed with the customer service and speed of payout. NovaPlusBank truly puts members first."
+        </p>
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 bg-blue-50 rounded flex items-center justify-center">
+            <i class="fa-solid fa-user text-blue-400 text-xs"></i>
+          </div>
+          <div>
+            <p class="text-xs lg:text-sm font-semibold text-gray-900">Sarah Morris</p>
+            <p class="text-[11px] lg:text-xs text-gray-400">Verified Member</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="testimonial-card">
+        <div class="flex gap-0.5 mb-3">
+          {% for i in "12345" %}<i class="fa-solid fa-star text-amber-400 text-xs"></i>{% endfor %}
+        </div>
+        <p class="text-gray-600 text-sm lg:text-base leading-relaxed mb-5 italic">
+          "Excellent service and competitive rates. I'd recommend NovaPlusBank to anyone looking to get more from their bank."
+        </p>
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 bg-blue-50 rounded flex items-center justify-center">
+            <i class="fa-solid fa-user text-blue-400 text-xs"></i>
+          </div>
+          <div>
+            <p class="text-xs lg:text-sm font-semibold text-gray-900">John Davis</p>
+            <p class="text-[11px] lg:text-xs text-gray-400">Business Owner</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="testimonial-card">
+        <div class="flex gap-0.5 mb-3">
+          {% for i in "12345" %}<i class="fa-solid fa-star text-amber-400 text-xs"></i>{% endfor %}
+        </div>
+        <p class="text-gray-600 text-sm lg:text-base leading-relaxed mb-5 italic">
+          "The mobile app is fantastic and customer support is top-notch. Never going back to a traditional bank."
+        </p>
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 bg-blue-50 rounded flex items-center justify-center">
+            <i class="fa-solid fa-user text-blue-400 text-xs"></i>
+          </div>
+          <div>
+            <p class="text-xs lg:text-sm font-semibold text-gray-900">Emily Johnson</p>
+            <p class="text-[11px] lg:text-xs text-gray-400">Personal Banking</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     CONTACT INFO STRIP
+══════════════════════════════════════════ -->
+<section class="py-12 bg-gray-50 border-b border-gray-100">
+  <div class="max-w-6xl mx-auto px-5 sm:px-8">
+    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
+
+      <div>
+        <div class="w-8 h-8 bg-blue-50 flex items-center justify-center rounded mb-3">
+          <i class="fa-solid fa-clock text-blue-600 text-xs"></i>
+        </div>
+        <h4 class="text-xs lg:text-sm font-semibold text-gray-800 mb-1.5">Banking Hours</h4>
+        <p class="text-xs lg:text-sm text-gray-400 leading-relaxed">Mon–Fri: 9AM–5PM<br>Sat: 9AM–1PM · Sun: Closed</p>
+      </div>
+
+      <div>
+        <div class="w-8 h-8 bg-blue-50 flex items-center justify-center rounded mb-3">
+          <i class="fa-solid fa-phone text-blue-600 text-xs"></i>
+        </div>
+        <h4 class="text-xs lg:text-sm font-semibold text-gray-800 mb-1.5">Phone Banking</h4>
+        <p class="text-xs lg:text-sm text-gray-400 leading-relaxed">Available 24/7<br>1-800-BANKING · +1-555-0123</p>
+      </div>
+
+      <div>
+        <div class="w-8 h-8 bg-blue-50 flex items-center justify-center rounded mb-3">
+          <i class="fa-solid fa-envelope text-blue-600 text-xs"></i>
+        </div>
+        <h4 class="text-xs lg:text-sm font-semibold text-gray-800 mb-1.5">Email Support</h4>
+        <p class="text-xs lg:text-sm text-gray-400 leading-relaxed">Response within 24hrs<br>info@novaplusbank.com</p>
+      </div>
+
+      <div>
+        <div class="w-8 h-8 bg-blue-50 flex items-center justify-center rounded mb-3">
+          <i class="fa-solid fa-map-location-dot text-blue-600 text-xs"></i>
+        </div>
+        <h4 class="text-xs lg:text-sm font-semibold text-gray-800 mb-1.5">Visit Us</h4>
+        <p class="text-xs lg:text-sm text-gray-400 leading-relaxed">123 Banking Street<br>Financial District, NY 10001</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     CTA BANNER
+══════════════════════════════════════════ -->
+<section class="py-16 bg-blue-700">
+  <div class="max-w-2xl mx-auto px-5 text-center">
+    <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-3">Ready to Bank Smarter?</h2>
+    <p class="text-blue-100 text-sm lg:text-base mb-8 max-w-md mx-auto">
+      Join 50,000+ members who chose NovaPlusBank for better rates and banking that works for them.
+    </p>
+    <div class="flex flex-col sm:flex-row gap-3 justify-center">
+      <a href="{% url 'account_signup' %}" class="btn-white">
+        <i class="fa-solid fa-circle-plus text-xs"></i> Open Your Account - Free
+      </a>
+      <a href="{% url 'core:contact' %}" class="btn-ghost-white">
+        <i class="fa-solid fa-phone text-xs"></i> Talk to an Advisor
+      </a>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

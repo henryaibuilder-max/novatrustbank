@@ -1,0 +1,105 @@
+{% load static %}
+<nav
+  x-data="{ open: false, scrolled: false }"
+  @scroll.window="scrolled = window.scrollY > 10"
+  :class="scrolled ? 'shadow-sm' : ''"
+  class="fixed top-0 inset-x-0 z-50 bg-white border-b border-gray-200 transition-shadow duration-200"
+>
+  <div class="max-w-6xl mx-auto px-5 sm:px-8">
+    <div class="flex items-center justify-between h-16">
+
+      <!-- Logo -->
+      <a href="{% url 'core:home' %}" class="flex items-center gap-2 group">
+        <div class="w-7 h-7 bg-blue-600 flex items-center justify-center rounded">
+          <i class="fa-solid fa-landmark text-white text-xs"></i>
+        </div>
+        <span class="text-sm lg:text-base font-700 text-gray-900 tracking-tight font-bold">
+          NovaPlus<span class="text-blue-600">Bank</span>
+        </span>
+      </a>
+
+      <!-- Desktop Nav -->
+      <div class="hidden lg:flex items-center gap-0.5">
+        <a href="{% url 'core:home' %}" class="nav-link{% if request.resolver_match.url_name == 'home' %} active{% endif %}">Home</a>
+        <a href="{% url 'core:about' %}" class="nav-link{% if request.resolver_match.url_name == 'about' %} active{% endif %}">About</a>
+
+        <div class="relative" x-data="{ dropOpen: false }" @mouseenter="dropOpen = true" @mouseleave="dropOpen = false">
+          <button class="nav-link inline-flex items-center gap-1{% if is_service_page %} active{% endif %}">
+            Services
+            <i class="fa-solid fa-chevron-down text-[9px] lg:text-[10px] text-gray-400 transition-transform duration-200" :class="dropOpen && 'rotate-180'"></i>
+          </button>
+          <div
+            x-show="dropOpen"
+            x-transition:enter="transition ease-out duration-150"
+            x-transition:enter-start="opacity-0 translate-y-1"
+            x-transition:enter-end="opacity-100 translate-y-0"
+            x-transition:leave="transition ease-in duration-100"
+            x-transition:leave-start="opacity-100 translate-y-0"
+            x-transition:leave-end="opacity-0 translate-y-1"
+            class="absolute top-full left-1/2 -translate-x-1/2 mt-1 w-52 bg-white border border-gray-200 rounded shadow-md p-1.5"
+          >
+            <a href="{% url 'core:personal_banking' %}" class="dropdown-link"><i class="fa-solid fa-user w-3.5 text-gray-400"></i> Personal Banking</a>
+            <a href="{% url 'core:business_banking' %}" class="dropdown-link"><i class="fa-solid fa-briefcase w-3.5 text-gray-400"></i> Business Banking</a>
+            <a href="{% url 'core:loans_credit' %}" class="dropdown-link"><i class="fa-solid fa-handshake w-3.5 text-gray-400"></i> Loans & Credit</a>
+            <a href="{% url 'core:cards' %}" class="dropdown-link"><i class="fa-solid fa-credit-card w-3.5 text-gray-400"></i> Cards</a>
+            <a href="{% url 'core:grants_aid' %}" class="dropdown-link"><i class="fa-solid fa-hand-holding-dollar w-3.5 text-gray-400"></i> Grants & Aid</a>
+          </div>
+        </div>
+
+        <a href="{% url 'core:contact' %}" class="nav-link{% if request.resolver_match.url_name == 'contact' %} active{% endif %}">Contact</a>
+      </div>
+
+      <!-- Desktop Actions -->
+      <div class="hidden lg:flex items-center gap-3">
+        {% if user.is_authenticated %}
+          <a href="{% url 'core:dashboard' %}" class="nav-link">Dashboard</a>
+          <a href="{% url 'account_logout' %}" class="btn-primary">Sign Out</a>
+        {% else %}
+          <a href="{% url 'account_login' %}" class="nav-link">Login</a>
+          <a href="{% url 'account_signup' %}" class="btn-primary">Open Account</a>
+        {% endif %}
+      </div>
+
+      <!-- Mobile Burger -->
+      <button
+        @click="open = !open"
+        class="lg:hidden p-2 text-gray-500 hover:text-gray-800 transition-colors"
+        aria-label="Toggle menu"
+      >
+        <i class="fa-solid fa-bars text-base" x-show="!open"></i>
+        <i class="fa-solid fa-xmark text-base" x-show="open" style="display:none;"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile Menu -->
+  <div
+    x-show="open"
+    x-transition:enter="transition ease-out duration-200"
+    x-transition:enter-start="opacity-0 -translate-y-2"
+    x-transition:enter-end="opacity-100 translate-y-0"
+    x-transition:leave="transition ease-in duration-100"
+    x-transition:leave-start="opacity-100 translate-y-0"
+    x-transition:leave-end="opacity-0 -translate-y-2"
+    class="lg:hidden border-t border-gray-100 bg-white px-5 py-3 space-y-0.5"
+    style="display:none;"
+  >
+    <a href="{% url 'core:home' %}" class="mobile-nav-link">Home</a>
+    <a href="{% url 'core:about' %}" class="mobile-nav-link">About</a>
+    <a href="{% url 'core:personal_banking' %}" class="mobile-nav-link">Personal Banking</a>
+    <a href="{% url 'core:business_banking' %}" class="mobile-nav-link">Business Banking</a>
+    <a href="{% url 'core:loans_credit' %}" class="mobile-nav-link">Loans & Credit</a>
+    <a href="{% url 'core:cards' %}" class="mobile-nav-link">Cards</a>
+    <a href="{% url 'core:grants_aid' %}" class="mobile-nav-link">Grants & Aid</a>
+    <a href="{% url 'core:contact' %}" class="mobile-nav-link">Contact</a>
+    <div class="pt-3 border-t border-gray-100 flex gap-2">
+      {% if user.is_authenticated %}
+        <a href="{% url 'core:dashboard' %}" class="flex-1 py-2.5 text-center text-xs font-semibold text-blue-600 border border-blue-200 rounded hover:bg-blue-50 transition-colors">Dashboard</a>
+        <a href="{% url 'account_logout' %}" class="flex-1 py-2.5 text-center text-xs font-semibold text-white bg-blue-600 rounded hover:bg-blue-700 transition-colors">Sign Out</a>
+      {% else %}
+        <a href="{% url 'account_login' %}" class="flex-1 py-2.5 text-center text-xs font-semibold text-blue-600 border border-blue-200 rounded hover:bg-blue-50 transition-colors">Login</a>
+        <a href="{% url 'account_signup' %}" class="flex-1 py-2.5 text-center text-xs font-semibold text-white bg-blue-600 rounded hover:bg-blue-700 transition-colors">Open Account</a>
+      {% endif %}
+    </div>
+  </div>
+</nav>

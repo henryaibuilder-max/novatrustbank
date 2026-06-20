@@ -1,0 +1,89 @@
+{% load static %}
+<footer class="bg-gray-900 text-white">
+  <div class="max-w-6xl mx-auto px-5 sm:px-8 pt-14 pb-8">
+    <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
+
+      <!-- Brand -->
+      <div class="lg:col-span-1">
+        <div class="flex items-center gap-2 mb-4">
+          <div class="w-6 h-6 bg-blue-500 flex items-center justify-center rounded">
+            <i class="fa-solid fa-landmark text-white text-[10px]"></i>
+          </div>
+          <span class="text-sm lg:text-base font-bold">NovaPlus<span class="text-blue-400">Bank</span></span>
+        </div>
+        <p class="text-xs lg:text-sm text-gray-400 leading-relaxed mb-5">
+          Banking built around people. Secure, modern, and always working for you.
+        </p>
+        <div class="flex gap-2">
+          <a href="#" class="footer-social"><i class="fa-brands fa-facebook-f"></i></a>
+          <a href="#" class="footer-social"><i class="fa-brands fa-x-twitter"></i></a>
+          <a href="#" class="footer-social"><i class="fa-brands fa-linkedin-in"></i></a>
+          <a href="#" class="footer-social"><i class="fa-brands fa-instagram"></i></a>
+        </div>
+      </div>
+
+      <!-- Services -->
+      <div>
+        <h4 class="text-[11px] lg:text-xs font-semibold uppercase tracking-widest text-gray-500 mb-4">Services</h4>
+        <ul class="space-y-2.5">
+          <li><a href="{% url 'core:personal_banking' %}" class="footer-link">Personal Banking</a></li>
+          <li><a href="{% url 'core:business_banking' %}" class="footer-link">Business Banking</a></li>
+          <li><a href="{% url 'core:cards' %}" class="footer-link">Credit Cards</a></li>
+          <li><a href="{% url 'core:loans_credit' %}" class="footer-link">Loans & Mortgages</a></li>
+          <li><a href="{% url 'core:grants_aid' %}" class="footer-link">Grants & Aid</a></li>
+        </ul>
+      </div>
+
+      <!-- Company -->
+      <div>
+        <h4 class="text-[11px] lg:text-xs font-semibold uppercase tracking-widest text-gray-500 mb-4">Company</h4>
+        <ul class="space-y-2.5">
+          <li><a href="{% url 'core:about' %}" class="footer-link">About Us</a></li>
+          <li><a href="{% url 'core:careers' %}" class="footer-link">Careers</a></li>
+          <li><a href="{% url 'core:contact' %}" class="footer-link">Contact</a></li>
+          <li><a href="{% url 'core:privacy_policy' %}" class="footer-link">Privacy Policy</a></li>
+          <li><a href="{% url 'core:terms_of_service' %}" class="footer-link">Terms of Service</a></li>
+        </ul>
+      </div>
+
+      <!-- Contact -->
+      <div>
+        <h4 class="text-[11px] lg:text-xs font-semibold uppercase tracking-widest text-gray-500 mb-4">Contact Us</h4>
+        <ul class="space-y-3 text-xs lg:text-sm text-gray-400">
+          <li class="flex gap-2.5">
+            <i class="fa-solid fa-location-dot mt-0.5 text-gray-500 flex-shrink-0"></i>
+            <span>123 Banking Street, Financial District<br>New York, NY 10001</span>
+          </li>
+          <li class="flex gap-2.5">
+            <i class="fa-solid fa-phone mt-0.5 text-gray-500 flex-shrink-0"></i>
+            <span>1-800-BANKING</span>
+          </li>
+          <li class="flex gap-2.5">
+            <i class="fa-solid fa-envelope mt-0.5 text-gray-500 flex-shrink-0"></i>
+            <span>info@novaplusbank.com</span>
+          </li>
+          <li class="flex gap-2.5">
+            <i class="fa-solid fa-clock mt-0.5 text-gray-500 flex-shrink-0"></i>
+            <span>Mon–Fri 9AM–5PM &nbsp;·&nbsp; Sat 9AM–1PM</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Bottom Bar -->
+    <div class="border-t border-gray-800 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs lg:text-sm text-gray-500">
+      <p>&copy; {% now "Y" %} NovaPlusBank. All rights reserved. FDIC Insured · Equal Housing Lender.</p>
+      <p>Routing #: 251480576 &nbsp;·&nbsp; 256-bit SSL</p>
+    </div>
+  </div>
+</footer>
+
+<!-- Mobile fixed CTA -->
+<div class="lg:hidden fixed bottom-0 inset-x-0 z-40 flex border-t border-gray-200 bg-white">
+  <a href="{% url 'account_login' %}" class="flex-1 py-3.5 flex items-center justify-center gap-1.5 text-blue-600 text-xs font-semibold hover:bg-gray-50 transition-colors">
+    <i class="fa-solid fa-right-to-bracket text-[11px]"></i> Login
+  </a>
+  <a href="{% url 'account_signup' %}" class="flex-1 py-3.5 flex items-center justify-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold transition-colors">
+    <i class="fa-solid fa-user-plus text-[11px]"></i> Open Account
+  </a>
+</div>

@@ -1,0 +1,360 @@
+{% extends "dashboard_base.html" %}
+{% load static %}
+
+{% block title %}Deposit — NovaPlusBank{% endblock %}
+{% block topbar_title %}Fund Your Account{% endblock %}
+{% block nav_deposit %}bg-white/10 text-white{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 xl:grid-cols-[1fr_360px] gap-6 items-start">
+
+  <div class="bg-white rounded-lg border border-gray-200 p-5 md:p-6 shadow-sm">
+    
+    <div id="selection-hub">
+      <div class="mb-5 pb-4 border-b border-gray-100">
+        <h1 class="text-sm font-bold text-gray-900">Account Funding Options</h1>
+        <p class="text-xs text-gray-400 mt-0.5">Select a primary allocation channel or alternative liquidity network to credit your balance ledger.</p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+        <div onclick="selectDepositRoute('transfer')" 
+             class="border border-gray-200 rounded-xl p-4 cursor-pointer transition-all hover:border-blue-400 hover:shadow-sm flex flex-col justify-between h-36 group">
+          <div class="flex items-start justify-between">
+            <div class="w-8 h-8 rounded-lg flex items-center justify-center text-sm bg-blue-50 text-blue-700 group-hover:bg-blue-100"><i class="fa-solid fa-building-columns"></i></div>
+            <span class="text-[0.6rem] font-bold px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 uppercase tracking-wide">Direct Wire</span>
+          </div>
+          <div>
+            <h3 class="text-xs font-bold text-gray-900 mb-0.5">Bank Transfer</h3>
+            <p class="text-[0.68rem] text-gray-400 leading-tight">Generate custom multi-currency ledger routing entries.</p>
+          </div>
+        </div>
+
+        <div onclick="selectDepositRoute('card')" 
+             class="border border-gray-200 rounded-xl p-4 cursor-pointer transition-all hover:border-indigo-400 hover:shadow-sm flex flex-col justify-between h-36 group">
+          <div class="flex items-start justify-between">
+            <div class="w-8 h-8 rounded-lg flex items-center justify-center text-sm bg-indigo-50 text-indigo-700 group-hover:bg-indigo-100"><i class="fa-regular fa-credit-card"></i></div>
+            <span class="text-[0.6rem] font-bold px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-700 uppercase tracking-wide">Instant</span>
+          </div>
+          <div>
+            <h3 class="text-xs font-bold text-gray-900 mb-0.5">Card Funding</h3>
+            <p class="text-[0.68rem] text-gray-400 leading-tight">Top-up instantly using global card clearing networks.</p>
+          </div>
+        </div>
+
+        <div onclick="selectDepositRoute('ussd')" 
+             class="border border-gray-200 rounded-xl p-4 cursor-pointer transition-all hover:border-amber-400 hover:shadow-sm flex flex-col justify-between h-36 group">
+          <div class="flex items-start justify-between">
+            <div class="w-8 h-8 rounded-lg flex items-center justify-center text-sm bg-amber-50 text-amber-700 group-hover:bg-amber-100"><i class="fa-solid fa-mobile-screen"></i></div>
+            <span class="text-[0.6rem] font-bold px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 uppercase tracking-wide">Mobile Dial</span>
+          </div>
+          <div>
+            <h3 class="text-xs font-bold text-gray-900 mb-0.5">USSD Code</h3>
+            <p class="text-[0.68rem] text-gray-400 leading-tight">Execute secure mobile network sequence allocations.</p>
+          </div>
+        </div>
+
+        <div onclick="selectDepositRoute('crypto')" 
+             class="border border-gray-200 rounded-xl p-4 cursor-pointer transition-all hover:border-slate-700 hover:shadow-sm flex flex-col justify-between h-36 group">
+          <div class="flex items-start justify-between">
+            <div class="w-8 h-8 rounded-lg flex items-center justify-center text-sm bg-slate-100 text-slate-800 group-hover:bg-slate-200"><i class="fa-solid fa-bitcoin-sign"></i></div>
+            <span class="text-[0.6rem] font-bold px-1.5 py-0.5 rounded bg-slate-100 text-slate-800 uppercase tracking-wide">Crypto</span>
+          </div>
+          <div>
+            <h3 class="text-xs font-bold text-gray-900 mb-0.5">Digital Assets</h3>
+            <p class="text-[0.68rem] text-gray-400 leading-tight">Inject blockchain capital tokens directly into your account.</p>
+          </div>
+        </div>
+
+        <div onclick="selectDepositRoute('paypal')" 
+             class="border border-gray-200 rounded-xl p-4 cursor-pointer transition-all hover:border-blue-500 hover:shadow-sm flex flex-col justify-between h-36 group">
+          <div class="flex items-start justify-between">
+            <div class="w-8 h-8 rounded-lg flex items-center justify-center text-sm bg-blue-100 text-blue-800 group-hover:bg-blue-200"><i class="fa-brands fa-paypal"></i></div>
+            <span class="text-[0.6rem] font-bold px-1.5 py-0.5 rounded bg-blue-100 text-blue-800 uppercase tracking-wide">E-Wallet</span>
+          </div>
+          <div>
+            <h3 class="text-xs font-bold text-gray-900 mb-0.5">PayPal Node</h3>
+            <p class="text-[0.68rem] text-gray-400 leading-tight">Bridge electronic wallet balances over our settlement nodes.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <h2 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Additional Alternative Funding Channels</h2>
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          <button onclick="selectDepositRoute('skrill')" class="flex items-center gap-2.5 p-2.5 border border-gray-200 rounded-lg text-left hover:border-purple-400 transition-all bg-white cursor-pointer group">
+            <div class="w-7 h-7 rounded bg-purple-50 text-purple-700 flex items-center justify-center text-xs group-hover:bg-purple-100"><i class="fa-solid fa-wallet"></i></div>
+            <span class="text-xs font-bold text-gray-800">Skrill Wallet</span>
+          </button>
+          <button onclick="selectDepositRoute('venmo')" class="flex items-center gap-2.5 p-2.5 border border-gray-200 rounded-lg text-left hover:border-blue-400 transition-all bg-white cursor-pointer group">
+            <div class="w-7 h-7 rounded bg-blue-50 text-blue-600 flex items-center justify-center text-xs group-hover:bg-blue-100"><i class="fa-brands fa-vimeo-v"></i></div>
+            <span class="text-xs font-bold text-gray-800">Venmo Network</span>
+          </button>
+          <button onclick="selectDepositRoute('zelle')" class="flex items-center gap-2.5 p-2.5 border border-gray-200 rounded-lg text-left hover:border-purple-400 transition-all bg-white cursor-pointer group">
+            <div class="w-7 h-7 rounded bg-purple-50 text-purple-800 flex items-center justify-center text-xs group-hover:bg-purple-100"><i class="fa-solid fa-bolt"></i></div>
+            <span class="text-xs font-bold text-gray-800">Zelle Transfer</span>
+          </button>
+          <button onclick="selectDepositRoute('wise')" class="flex items-center gap-2.5 p-2.5 border border-gray-200 rounded-lg text-left hover:border-green-400 transition-all bg-white cursor-pointer group">
+            <div class="w-7 h-7 rounded bg-green-50 text-green-700 flex items-center justify-center text-xs group-hover:bg-green-100"><i class="fa-solid fa-arrow-right-arrow-left"></i></div>
+            <span class="text-xs font-bold text-gray-800">Wise Balance</span>
+          </button>
+          <button onclick="selectDepositRoute('alipay')" class="flex items-center gap-2.5 p-2.5 border border-gray-200 rounded-lg text-left hover:border-cyan-400 transition-all bg-white cursor-pointer group">
+            <div class="w-7 h-7 rounded bg-cyan-50 text-cyan-600 flex items-center justify-center text-xs group-hover:bg-cyan-100"><i class="fa-brands fa-alipay"></i></div>
+            <span class="text-xs font-bold text-gray-800">Alipay Global</span>
+          </button>
+          <button onclick="selectDepositRoute('wechat')" class="flex items-center gap-2.5 p-2.5 border border-gray-200 rounded-lg text-left hover:border-emerald-400 transition-all bg-white cursor-pointer group">
+            <div class="w-7 h-7 rounded bg-emerald-50 text-emerald-600 flex items-center justify-center text-xs group-hover:bg-emerald-100"><i class="fa-brands fa-weixin"></i></div>
+            <span class="text-xs font-bold text-gray-800">WeChat Pay</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="form-hub" class="hidden">
+      <div class="flex items-center justify-between mb-5 pb-4 border-b border-gray-100">
+        <div>
+          <h1 id="dynamic-headline" class="text-sm font-bold text-gray-900">Liquidity Deposit Pipeline</h1>
+          <p id="dynamic-subtext" class="text-xs text-gray-400 mt-0.5">Specify desired target metrics to initialize your manual clearance token.</p>
+        </div>
+        <button type="button" onclick="clearDepositHash()" class="px-3 py-1.5 text-xs font-bold bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-md transition-colors border-none cursor-pointer flex items-center gap-1">
+          <i class="fa-solid fa-arrow-left-long"></i> Change Route
+        </button>
+      </div>
+
+      <form id="deposit-form" class="flex flex-col gap-6 font-sans">
+        <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 flex items-center justify-between">
+          <div>
+            <p class="text-[0.65rem] font-bold text-gray-400 uppercase tracking-wider">Current Account Balance</p>
+            <p class="text-sm font-bold text-gray-900 mt-0.5">${{ account.balance|default:"0.00" }}</p>
+          </div>
+          <span id="dynamic-badge" class="text-[0.65rem] font-bold px-2 py-0.5 rounded bg-blue-50 text-blue-700 uppercase tracking-wide">TRANSFER</span>
+        </div>
+
+        <div class="flex flex-col gap-4">
+          <div class="flex items-center gap-2">
+            <div class="w-5 h-5 rounded-full bg-blue-700 text-white text-[0.6rem] font-black flex items-center justify-center shrink-0">1</div>
+            <h2 class="text-xs font-bold text-gray-900 uppercase tracking-wider">Intended Deposit Amount</h2>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="flex flex-col gap-1">
+              <label class="text-xs font-semibold text-gray-700">Amount to Credit ($)</label>
+              <div class="relative">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500 font-bold text-xs">$</span>
+                <input type="number" id="f-amount" step="0.01" min="10.00"
+                  class="w-full pl-7 pr-3 py-2 border border-gray-300 rounded-md text-[0.8125rem] text-gray-900 outline-none transition-all focus:border-blue-500 font-medium"
+                  placeholder="0.00" required />
+              </div>
+            </div>
+
+            <div class="flex flex-col gap-1">
+              <label class="text-xs font-semibold text-gray-700">Deposit Ingest Currency</label>
+              <div class="relative">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400 text-xs pointer-events-none"><i class="fa-solid fa-money-bill-transfer"></i></span>
+                <select id="f-currency-type"
+                  class="w-full pl-8 pr-8 py-2 border border-gray-300 rounded-md text-[0.8125rem] text-gray-900 outline-none transition-all focus:border-blue-500 bg-white cursor-pointer font-medium appearance-none" required>
+                  <option value="USD">US Dollar ($)</option>
+                  <option value="EUR">Euro (€)</option>
+                  <option value="GBP">British Pound Sterling (£)</option>
+                  <option value="NGN">Nigerian Naira (₦)</option>
+                </select>
+                <span class="absolute inset-y-0 right-3 flex items-center pointer-events-none text-gray-400 text-xs"><i class="fa-solid fa-chevron-down"></i></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-2 border-t border-gray-100">
+          <button type="button" onclick="handlePreviewModalToggle(true)"
+            class="w-full py-2.5 bg-[#1e4a82] hover:bg-[#163867] text-white border-none rounded-md text-xs font-bold transition-colors shadow-sm flex items-center justify-center gap-2 cursor-pointer">
+            <i class="fa-solid fa-headset"></i> Generate Channel Clearance Token
+          </button>
+        </div>
+      </form>
+    </div>
+
+  </div>
+
+  <div class="flex flex-col gap-5">
+    <div class="bg-white rounded-lg border border-gray-200 p-5 shadow-sm">
+      <h2 class="text-sm font-bold text-gray-900 mb-3 flex items-center gap-1.5">
+        <i class="fa-solid fa-shield-halved text-blue-700"></i> Funding Verification
+      </h2>
+      <ul class="text-[0.72rem] text-gray-500 list-none pl-0 flex flex-col gap-2.5 font-medium m-0">
+        <li class="flex items-start gap-2">
+          <i class="fa-solid fa-circle-check text-green-600 mt-0.5 shrink-0"></i>
+          <span>All alternative funding networks operate strictly via manual ledger clearance protocols.</span>
+        </li>
+        <li class="flex items-start gap-2">
+          <i class="fa-solid fa-circle-check text-green-600 mt-0.5 shrink-0"></i>
+          <span>To protect client liquidity, an authentication key must be generated before funding references deploy.</span>
+        </li>
+        <li class="flex items-start gap-2">
+          <i class="fa-solid fa-circle-exclamation text-amber-500 mt-0.5 shrink-0"></i>
+          <span>Always confirm active network addresses with live clearing support desks prior to transferring high volume balances.</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div id="deposit-modal-screen" class="hidden fixed inset-0 bg-gray-900/40 backdrop-blur-sm items-center justify-center z-50 p-4 opacity-0 pointer-events-none transition-opacity duration-300">
+  <div class="bg-white w-full max-w-md rounded-lg border border-gray-200 shadow-xl overflow-hidden scale-95 transition-transform duration-300" id="deposit-modal-content-box">
+    
+    <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
+      <h3 class="text-xs font-bold text-gray-900 uppercase tracking-wider flex items-center gap-1.5">
+        <i class="fa-solid fa-calculator text-blue-700"></i> Funding Authorization
+      </h3>
+      <button type="button" onclick="handlePreviewModalToggle(false)" class="text-gray-400 hover:text-gray-700 text-xs p-1 bg-transparent border-none cursor-pointer">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <div class="p-5 flex flex-col gap-4 font-sans">
+      
+      <div class="flex flex-col gap-2.5 divide-y divide-gray-100 text-[0.78rem]">
+        <div class="flex items-center justify-between pt-1">
+          <span class="text-gray-400 font-medium">Pipeline Target:</span>
+          <span class="font-bold text-blue-800" id="prev-method">—</span>
+        </div>
+        <div class="flex items-center justify-between pt-2.5">
+          <span class="text-gray-400 font-medium">Ingest Currency Node:</span>
+          <span class="font-mono font-bold text-gray-800" id="prev-currency">—</span>
+        </div>
+      </div>
+
+      <div class="bg-gray-50 border border-gray-200/60 p-3.5 rounded-lg flex items-center justify-between text-[0.72rem] font-medium text-gray-500">
+        <span>Target Balance Credit:</span>
+        <span class="text-blue-900 font-black font-mono text-base" id="prev-amount">$0.00</span>
+      </div>
+
+      <div class="bg-amber-50 border border-amber-200 p-3 rounded-md flex gap-2">
+        <i class="fa-solid fa-circle-exclamation text-amber-600 text-xs mt-0.5 shrink-0"></i>
+        <div class="flex flex-col gap-0.5">
+          <h4 class="text-[0.7rem] font-bold text-amber-900">Verification Request Initialized</h4>
+          <p class="text-[0.65rem] text-amber-800 leading-normal font-medium">
+            To generate secure ledger account allocation references or scan tags for this network pipeline, please forward this intent request to our automated live desk team now.
+          </p>
+        </div>
+      </div>
+
+      <div class="flex flex-col sm:flex-row gap-2.5 pt-2">
+        <button type="button" onclick="handlePreviewModalToggle(false)" class="w-full sm:w-1/3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md text-xs font-semibold transition-colors border-none cursor-pointer">
+          Adjust Value
+        </button>
+        <a href="/dashboard/support/chat/" class="w-full sm:flex-1 py-2 bg-blue-900 hover:bg-[#0e2645] text-white rounded-md text-xs font-bold transition-colors text-center no-underline flex items-center justify-center gap-1.5 shadow-sm">
+          <i class="fa-solid fa-headset"></i> Connect &amp; Deposit Now
+        </a>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  let standardBadgeClasses = "text-[0.65rem] font-bold px-2 py-0.5 rounded uppercase tracking-wide ";
+  let chosenMethodCleanName = "Bank Transfer";
+
+  // Configuration objects mapped explicitly to URL router coordinates
+  const depositProfiles = {
+    transfer: { title: 'Bank Transfer', headline: 'Direct Wire Account Funding', cls: 'bg-blue-50 text-blue-700' },
+    card: { title: 'Card Funding', headline: 'Instant Merchant Settlement Ingest', cls: 'bg-indigo-50 text-indigo-700' },
+    ussd: { title: 'USSD Code', headline: 'Secure Mobile String Provisioning', cls: 'bg-amber-50 text-amber-700' },
+    crypto: { title: 'Cryptocurrency', headline: 'Blockchain Liquidity Clearing', cls: 'bg-slate-100 text-slate-800' },
+    paypal: { title: 'PayPal Node', headline: 'PayPal Electronic Wallet Bridge', cls: 'bg-blue-100 text-blue-800' },
+    skrill: { title: 'Skrill Wallet', headline: 'Skrill Balance Ledger Distribution', cls: 'bg-purple-50 text-purple-700' },
+    venmo: { title: 'Venmo Network', headline: 'Venmo Instacharge Clearing Allocation', cls: 'bg-blue-50 text-blue-600' },
+    zelle: { title: 'Zelle Transfer', headline: 'Zelle Interbank Liquidity Allocation', cls: 'bg-purple-50 text-purple-800' },
+    wise: { title: 'Wise Balance', headline: 'Wise Multi-currency Portfolio Sync', cls: 'bg-green-50 text-green-700' },
+    alipay: { title: 'Alipay Global', headline: 'Alipay Escrow Remittance Clearance', cls: 'bg-cyan-50 text-cyan-600' },
+    wechat: { title: 'WeChat Pay', headline: 'WeChat Wallet Settlement Channel', cls: 'bg-emerald-50 text-emerald-600' }
+  };
+
+  function selectDepositRoute(key) {
+    window.location.hash = key;
+  }
+
+  function clearDepositHash() {
+    window.location.hash = '';
+  }
+
+  // Monitor status matrix using safe location context tracking sequences
+  function processDepositRoute() {
+    const key = window.location.hash.replace('#', '');
+    const profile = depositProfiles[key];
+
+    if (!profile) {
+      document.getElementById('form-hub').classList.add('hidden');
+      document.getElementById('selection-hub').classList.remove('hidden');
+      document.getElementById('deposit-form').reset();
+      return;
+    }
+
+    document.getElementById('dynamic-headline').innerText = profile.headline;
+    document.getElementById('dynamic-subtext').innerText = "Submit intent details for " + profile.title + " distribution confirmation keys.";
+    chosenMethodCleanName = profile.title;
+
+    const b = document.getElementById('dynamic-badge');
+    b.innerText = key.toUpperCase();
+    b.className = standardBadgeClasses + profile.cls;
+
+    document.getElementById('selection-hub').classList.add('hidden');
+    document.getElementById('form-hub').classList.remove('hidden');
+  }
+
+  window.addEventListener('hashchange', processDepositRoute);
+  window.addEventListener('DOMContentLoaded', processDepositRoute);
+
+  function handlePreviewModalToggle(shouldOpen) {
+    const modalScreen = document.getElementById('deposit-modal-screen');
+    const contentBox = document.getElementById('deposit-modal-content-box');
+    
+    if (!modalScreen || !contentBox) return;
+
+    if (shouldOpen) {
+      const amount = parseFloat(document.getElementById('f-amount').value);
+      const currency = document.getElementById('f-currency-type').value;
+
+      if (isNaN(amount) || amount <= 0) {
+        document.getElementById('deposit-form').reportValidity();
+        return;
+      }
+
+      // Load layout strings dynamically safely
+      document.getElementById('prev-method').textContent = chosenMethodCleanName;
+      document.getElementById('prev-currency').textContent = currency;
+      document.getElementById('prev-amount').textContent = 
+        '$' + amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+      modalScreen.classList.remove('hidden');
+      modalScreen.classList.add('flex');
+      
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          modalScreen.classList.remove('pointer-events-none', 'opacity-0');
+          contentBox.classList.remove('scale-95');
+          contentBox.classList.add('scale-100');
+        });
+      });
+    } else {
+      modalScreen.classList.add('pointer-events-none', 'opacity-0');
+      contentBox.classList.remove('scale-100');
+      contentBox.classList.add('scale-95');
+      
+      setTimeout(() => {
+        modalScreen.classList.remove('flex');
+        modalScreen.classList.add('hidden');
+      }, 300);
+    }
+  }
+
+  document.getElementById('deposit-modal-screen').addEventListener('click', function(e) {
+    if (e.target === this) handlePreviewModalToggle(false);
+  });
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') handlePreviewModalToggle(false);
+  });
+</script>
+{% endblock %}

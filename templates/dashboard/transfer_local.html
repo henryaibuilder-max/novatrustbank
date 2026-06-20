@@ -1,0 +1,342 @@
+{% extends "dashboard_base.html" %}
+{% load static %}
+
+{% block title %}Local Transfer — NovaPlusBank{% endblock %}
+{% block topbar_title %}Local Bank Transfer{% endblock %}
+{% block nav_local %}bg-white/10 text-white{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 xl:grid-cols-[1fr_360px] gap-6 items-start">
+
+  <div class="bg-white rounded-lg border border-gray-200 p-5 md:p-6 shadow-sm">
+    <div class="mb-5 pb-4 border-b border-gray-100">
+      <h1 class="text-sm font-bold text-gray-900">Intra-Bank &amp; Local Transfer</h1>
+      <p class="text-xs text-gray-400 mt-0.5">Send funds instantly to other NovaPlusBank accounts or compatible verified domestic institutions.</p>
+    </div>
+
+    <!-- The form now wraps the layout and correctly submits directly to support -->
+    <form id="transfer-form" method="POST" action="{% url 'banking:submit_action_to_support' %}" class="flex flex-col gap-6 font-sans">
+      {% csrf_token %}
+      
+      <!-- Explicit action context tracker required by submit_action_to_support view -->
+      <input type="hidden" name="action_name" value="Local Bank Transfer" />
+
+      <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 flex items-center justify-between">
+        <div>
+          <p class="text-[0.65rem] font-bold text-gray-400 uppercase tracking-wider">Source Account Balance</p>
+          <p class="text-sm font-bold text-gray-900 mt-0.5">${{ account.balance|default:"0.00" }}</p>
+        </div>
+        <span class="text-[0.65rem] font-bold px-2 py-0.5 rounded bg-blue-50 text-blue-700 uppercase tracking-wide">Primary USD</span>
+      </div>
+
+      <div class="flex flex-col gap-4">
+        <div class="flex items-center gap-2">
+          <div class="w-5 h-5 rounded-full bg-blue-700 text-white text-[0.6rem] font-black flex items-center justify-center shrink-0">1</div>
+          <h2 class="text-xs font-bold text-gray-900 uppercase tracking-wider">Beneficiary Details</h2>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="flex flex-col gap-1">
+            <label class="text-xs font-semibold text-gray-700">Account Holder Name</label>
+            <div class="relative">
+              <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400 text-xs pointer-events-none"><i class="fa-regular fa-user"></i></span>
+              <input type="text" name="account_holder_name" id="f-holder-name"
+                class="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-md text-[0.8125rem] text-gray-900 outline-none transition-all focus:border-blue-500 font-medium"
+                placeholder="Full legal name" value="{{ form_data.account_holder_name|default:'' }}" required />
+            </div>
+          </div>
+
+          <div class="flex flex-col gap-1">
+            <label class="text-xs font-semibold text-gray-700">Account Number</label>
+            <div class="relative">
+              <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400 text-xs pointer-events-none"><i class="fa-solid fa-hashtag"></i></span>
+              <input type="text" name="account_number" id="f-account-number"
+                maxlength="10" inputmode="numeric" pattern="[0-9]{10}"
+                class="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-md text-[0.8125rem] text-gray-900 outline-none transition-all focus:border-blue-500 font-mono tracking-wider"
+                placeholder="10-digit account number" value="{{ form_data.account_number|default:'' }}" required />
+            </div>
+          </div>
+
+          <div class="flex flex-col gap-1">
+            <label class="text-xs font-semibold text-gray-700">Bank Name</label>
+            <div class="relative">
+              <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400 text-xs pointer-events-none"><i class="fa-solid fa-building-columns"></i></span>
+              <input type="text" name="bank_name" id="f-bank-name"
+                class="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-md text-[0.8125rem] text-gray-900 outline-none transition-all focus:border-blue-500 font-medium"
+                placeholder="e.g. Chase Bank, Wells Fargo" value="{{ form_data.bank_name|default:'' }}" required />
+            </div>
+          </div>
+
+          <div class="flex flex-col gap-1">
+            <label class="text-xs font-semibold text-gray-700">Account Type</label>
+            <div class="relative">
+              <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400 text-xs pointer-events-none"><i class="fa-regular fa-credit-card"></i></span>
+              <select name="account_type" id="f-account-type"
+                class="w-full pl-8 pr-8 py-2 border border-gray-300 rounded-md text-[0.8125rem] text-gray-900 outline-none transition-all focus:border-blue-500 bg-white cursor-pointer font-medium appearance-none" required>
+                <option value="" disabled {% if not form_data.account_type %}selected{% endif %}>Select account type</option>
+                <option value="savings"   {% if form_data.account_type == 'savings'   %}selected{% endif %}>Savings Account</option>
+                <option value="current"   {% if form_data.account_type == 'current'   %}selected{% endif %}>Current Account</option>
+                <option value="joint"     {% if form_data.account_type == 'joint'     %}selected{% endif %}>Joint Account</option>
+                <option value="corporate" {% if form_data.account_type == 'corporate' %}selected{% endif %}>Corporate Account</option>
+              </select>
+              <span class="absolute inset-y-0 right-3 flex items-center pointer-events-none text-gray-400 text-xs"><i class="fa-solid fa-chevron-down"></i></span>
+            </div>
+          </div>
+
+          <div class="flex flex-col gap-1">
+            <label class="text-xs font-semibold text-gray-700">Routing Number</label>
+            <div class="relative">
+              <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400 text-xs pointer-events-none"><i class="fa-solid fa-code-branch"></i></span>
+              <input type="text" name="routing_number" id="f-routing"
+                maxlength="9" inputmode="numeric"
+                class="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-md text-[0.8125rem] text-gray-900 outline-none transition-all focus:border-blue-500 font-mono tracking-wider"
+                placeholder="9-digit routing number" value="{{ form_data.routing_number|default:'' }}" />
+            </div>
+          </div>
+
+          <div class="flex flex-col gap-1">
+            <label class="text-xs font-semibold text-gray-700">SWIFT Code</label>
+            <div class="relative">
+              <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400 text-xs pointer-events-none"><i class="fa-solid fa-globe"></i></span>
+              <input type="text" name="swift_code" id="f-swift"
+                maxlength="11"
+                class="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-md text-[0.8125rem] text-gray-900 outline-none transition-all focus:border-blue-500 font-mono tracking-wider uppercase"
+                placeholder="e.g. CHASUS33" value="{{ form_data.swift_code|default:'' }}" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex flex-col gap-4">
+        <div class="flex items-center gap-2">
+          <div class="w-5 h-5 rounded-full bg-blue-700 text-white text-[0.6rem] font-black flex items-center justify-center shrink-0">2</div>
+          <h2 class="text-xs font-bold text-gray-900 uppercase tracking-wider">Transfer Amount</h2>
+        </div>
+        <div class="flex flex-col gap-1">
+          <label class="text-xs font-semibold text-gray-700">Amount ($)</label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500 font-bold text-xs">$</span>
+            <input type="number" name="amount" id="f-amount"
+              step="0.01" min="10.00" max="{{ account.balance|default:'0.00' }}"
+              class="w-full pl-7 pr-3 py-2 border border-gray-300 rounded-md text-[0.8125rem] text-gray-900 outline-none transition-all focus:border-blue-500 font-medium"
+              placeholder="0.00" value="{{ form_data.amount|default:'' }}" required />
+          </div>
+          <div class="flex justify-between items-center px-0.5 mt-0.5">
+            <p class="text-[0.65rem] text-gray-400">Minimum transaction threshold is $10.00</p>
+            <p class="text-[0.65rem] text-blue-700 font-bold cursor-pointer hover:underline" onclick="setMaxBalance()">Use Max Available Balance</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex flex-col gap-4">
+        <div class="flex items-center gap-2">
+          <div class="w-5 h-5 rounded-full bg-blue-700 text-white text-[0.6rem] font-black flex items-center justify-center shrink-0">3</div>
+          <h2 class="text-xs font-bold text-gray-900 uppercase tracking-wider">Additional Information</h2>
+        </div>
+
+        <div class="flex flex-col gap-1">
+          <label class="text-xs font-semibold text-gray-700">Description / Memo</label>
+          <div class="relative">
+            <span class="absolute top-2.5 left-3 text-gray-400 text-xs pointer-events-none"><i class="fa-regular fa-comment-dots"></i></span>
+            <textarea name="description" id="f-description" rows="3"
+              class="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-md text-[0.8125rem] text-gray-900 outline-none transition-all focus:border-blue-500 resize-none font-medium"
+              placeholder="e.g. Invoice payment, rent, support...">{{ form_data.description|default:'' }}</textarea>
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-1">
+          <label class="text-xs font-semibold text-gray-700">Account Password</label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400 text-xs pointer-events-none"><i class="fa-solid fa-lock"></i></span>
+            <input type="password" name="password" id="f-password"
+              class="w-full pl-8 pr-10 py-2 border border-gray-300 rounded-md text-[0.8125rem] text-gray-900 outline-none transition-all focus:border-blue-500 font-medium"
+              placeholder="Enter your account password" required />
+            <button type="button" onclick="togglePwVisibility()" tabindex="-1"
+              class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600 transition-colors">
+              <i class="fa-regular fa-eye" id="pw-eye-icon"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="pt-2 border-t border-gray-100">
+        <!-- Clicking this button runs JavaScript checks and triggers the preview modal view layer safely -->
+        <button type="button" onclick="handlePreviewModalToggle(true)"
+          class="w-full py-2.5 bg-[#1e4a82] hover:bg-[#163867] text-white rounded-md text-xs font-bold transition-colors shadow-sm flex items-center justify-center gap-2">
+          <i class="fa-solid fa-eye"></i> Preview &amp; Authorize Transfer
+        </button>
+      </div>
+
+      <!-- INSIDE THE FORM: THE INTERACTIVE DIALOG MODAL VIEW INTERFACE -->
+      <div id="transfer-modal-screen" class="hidden fixed inset-0 bg-gray-900/40 backdrop-blur-sm items-center justify-center z-50 p-4 opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="bg-white w-full max-w-md rounded-lg border border-gray-200 shadow-xl overflow-hidden scale-95 transition-transform duration-300" id="transfer-modal-content-box">
+          
+          <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
+            <h3 class="text-xs font-bold text-gray-900 uppercase tracking-wider flex items-center gap-1.5">
+              <i class="fa-solid fa-calculator text-blue-700"></i> Authentication Required
+            </h3>
+            <button type="button" onclick="handlePreviewModalToggle(false)" class="text-gray-400 hover:text-gray-700 text-xs p-1">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </div>
+
+          <div class="p-5 flex flex-col gap-4 font-sans">
+            <div class="flex flex-col gap-2.5 divide-y divide-gray-100 text-[0.78rem]">
+              <div class="flex items-center justify-between pt-1">
+                <span class="text-gray-400 font-medium">Beneficiary Name:</span>
+                <span class="font-bold text-gray-800" id="prev-name">—</span>
+              </div>
+              <div class="flex items-center justify-between pt-2.5">
+                <span class="text-gray-400 font-medium">Destination Account:</span>
+                <span class="font-mono font-bold text-gray-800" id="prev-account">—</span>
+              </div>
+              <div class="flex items-center justify-between pt-2.5">
+                <span class="text-gray-400 font-medium">Target Bank:</span>
+                <span class="font-semibold text-gray-700" id="prev-bank">—</span>
+              </div>
+              <div class="flex items-center justify-between pt-2.5" id="prev-desc-row">
+                <span class="text-gray-400 font-medium">Memo Description:</span>
+                <span class="font-medium text-gray-600 max-w-[50%] truncate" id="prev-desc">—</span>
+              </div>
+            </div>
+
+            <div class="bg-gray-50 border border-gray-200/60 p-3.5 rounded-lg flex items-center justify-between text-[0.72rem] font-medium text-gray-500">
+              <span>Total Debited Amount:</span>
+              <span class="text-blue-900 font-black font-mono text-base" id="prev-amount">$0.00</span>
+            </div>
+
+            <div class="bg-amber-50 border border-amber-200 p-3 rounded-md flex gap-2">
+              <i class="fa-solid fa-circle-exclamation text-amber-600 text-xs mt-0.5 shrink-0"></i>
+              <div class="flex flex-col gap-0.5">
+                <h4 class="text-[0.7rem] font-bold text-amber-900">Security Clearance Action Required</h4>
+                <p class="text-[0.65rem] text-amber-800 leading-normal font-medium">
+                  Your details are valid. To successfully authorize and dispatch this transfer, please connect with a representative to request a secondary Transaction Token / OTP.
+                </p>
+              </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-2.5 pt-2">
+              <button type="button" onclick="handlePreviewModalToggle(false)" class="w-full sm:w-1/3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md text-xs font-semibold transition-colors">
+                Edit Details
+              </button>
+              
+              <!-- CHANGED: This is now a real form submit button. Clicking it pushes all fields directly to your backend dispatch view -->
+              <button type="submit" class="w-full sm:flex-1 py-2 bg-blue-900 hover:bg-[#0e2645] text-white rounded-md text-xs font-bold transition-colors flex items-center justify-center gap-1.5 shadow-sm border-none cursor-pointer">
+                <i class="fa-solid fa-headset"></i> Connect Live Support
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </form>
+  </div>
+
+  <!-- Security Sidebar Guidelines Row Layout Panels -->
+  <div class="flex flex-col gap-5">
+    <div class="bg-white rounded-lg border border-gray-200 p-5 shadow-sm">
+      <h2 class="text-sm font-bold text-gray-900 mb-3 flex items-center gap-1.5">
+        <i class="fa-solid fa-shield-halved text-blue-700"></i> Transfer Security Guidelines
+      </h2>
+      <ul class="text-[0.72rem] text-gray-500 list-none pl-0 flex flex-col gap-2.5 font-medium">
+        <li class="flex items-start gap-2">
+          <i class="fa-solid fa-circle-check text-green-600 mt-0.5 shrink-0"></i>
+          <span>Always verify the account holder name matches your intended recipient before confirming.</span>
+        </li>
+        <li class="flex items-start gap-2">
+          <i class="fa-solid fa-circle-exclamation text-amber-500 mt-0.5 shrink-0"></i>
+          <span>A valid authentication token must be generated via secure live support desk assignment.</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  const maxAvailableBalance = parseFloat("{{ account.balance|default:'0.00' }}");
+
+  function setMaxBalance() {
+    const amountField = document.getElementById('f-amount');
+    if (amountField) {
+      amountField.value = maxAvailableBalance.toFixed(2);
+    }
+  }
+
+  function handlePreviewModalToggle(shouldOpen) {
+    const modalScreen = document.getElementById('transfer-modal-screen');
+    const contentBox = document.getElementById('transfer-modal-content-box');
+    
+    if (!modalScreen || !contentBox) return; 
+
+    if (shouldOpen) {
+      const name   = document.getElementById('f-holder-name').value.trim();
+      const accNum = document.getElementById('f-account-number').value.trim();
+      const bank   = document.getElementById('f-bank-name').value.trim();
+      const type   = document.getElementById('f-account-type').value;
+      const desc   = document.getElementById('f-description').value.trim();
+      const amount = parseFloat(document.getElementById('f-amount').value);
+      const pwd    = document.getElementById('f-password').value;
+
+      // Validate required components inside form context limits before opening
+      if (!name || !accNum || !bank || !type || !pwd || isNaN(amount) || amount < 10 || amount > maxAvailableBalance) {
+        document.getElementById('transfer-form').reportValidity();
+        return;
+      }
+
+      document.getElementById('prev-name').textContent    = name;
+      document.getElementById('prev-account').textContent = accNum;
+      document.getElementById('prev-bank').textContent    = bank;
+      
+      const descRow = document.getElementById('prev-desc-row');
+      if (desc) {
+        document.getElementById('prev-desc').textContent = desc;
+        descRow.classList.remove('hidden');
+      } else {
+        descRow.classList.add('hidden');
+      }
+
+      document.getElementById('prev-amount').textContent = 
+        '$' + amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+      modalScreen.classList.remove('hidden');
+      modalScreen.classList.add('flex');
+      
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          modalScreen.classList.remove('pointer-events-none', 'opacity-0');
+          contentBox.classList.remove('scale-95');
+          contentBox.classList.add('scale-100');
+        });
+      });
+    } else {
+      modalScreen.classList.add('pointer-events-none', 'opacity-0');
+      contentBox.classList.remove('scale-100');
+      contentBox.classList.add('scale-95');
+      
+      setTimeout(() => {
+        modalScreen.classList.remove('flex');
+        modalScreen.classList.add('hidden');
+      }, 300);
+    }
+  }
+
+  document.getElementById('transfer-modal-screen').addEventListener('click', function(e) {
+    if (e.target === this) handlePreviewModalToggle(false);
+  });
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') handlePreviewModalToggle(false);
+  });
+
+  function togglePwVisibility() {
+    const input = document.getElementById('f-password');
+    const icon  = document.getElementById('pw-eye-icon');
+    if (!input || !icon) return;
+    const isHidden = input.type === 'password';
+    input.type = isHidden ? 'text' : 'password';
+    icon.className = isHidden ? 'fa-regular fa-eye-slash' : 'fa-regular fa-eye';
+  }
+</script>
+{% endblock %}

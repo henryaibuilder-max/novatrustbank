@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block title %}{{ page.title }} - NovaPlusBank{% endblock %}
+{% block meta_description %}{{ page.meta_description }}{% endblock %}
+
+{% block content %}
+
+<!-- ══════════════════════════════════════════
+     HERO
+══════════════════════════════════════════ -->
+<section class="bg-blue-700 pt-28 pb-20">
+  <div class="max-w-6xl mx-auto px-5 sm:px-8">
+    <div class="max-w-2xl">
+      <p class="text-blue-200 text-xs lg:text-sm font-semibold uppercase tracking-widest mb-4">{{ page.eyebrow }}</p>
+      <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight text-white mb-5">
+        {{ page.headline|safe }}
+      </h1>
+      <p class="text-blue-100 text-sm lg:text-base leading-relaxed max-w-lg mb-8">
+        {{ page.intro }}
+      </p>
+      <div class="flex flex-wrap gap-5 text-xs lg:text-sm text-blue-200">
+        {% for badge in page.hero_badges %}
+          <span class="flex items-center gap-1.5"><i class="fa-solid {{ badge.icon }}"></i> {{ badge.text }}</span>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="mt-16 grid grid-cols-2 md:grid-cols-4 divide-x divide-blue-600 border-t border-blue-600 pt-8">
+      {% for stat in page.stats %}
+      <div class="px-6 first:pl-0 text-center md:text-left">
+        <p class="text-xl lg:text-2xl font-bold text-white">{{ stat.value }}</p>
+        <p class="text-blue-200 text-xs lg:text-sm mt-0.5">{{ stat.label }}</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     BENEFITS
+══════════════════════════════════════════ -->
+<section class="py-16 bg-white border-b border-gray-100">
+  <div class="max-w-6xl mx-auto px-5 sm:px-8">
+
+    <div class="mb-10 text-center">
+      <p class="eyebrow">Why Join Us</p>
+      <h2 class="section-heading">Benefits & Perks</h2>
+      <p class="text-gray-500 text-sm lg:text-base mt-2 max-w-lg mx-auto">We invest in our people because great service starts with a great team.</p>
+    </div>
+
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      {% for benefit in page.benefits %}
+      <div class="feature-row flex-col !items-start">
+        <div class="w-10 h-10 bg-blue-50 flex items-center justify-center rounded flex-shrink-0">
+          <i class="fa-solid {{ benefit.icon }} text-blue-600 text-sm"></i>
+        </div>
+        <div>
+          <h3 class="text-sm lg:text-base font-semibold text-gray-900 mb-1">{{ benefit.title }}</h3>
+          <p class="text-xs lg:text-sm text-gray-500 leading-relaxed">{{ benefit.description }}</p>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     OPEN POSITIONS
+══════════════════════════════════════════ -->
+<section class="py-16 bg-gray-50 border-b border-gray-100">
+  <div class="max-w-6xl mx-auto px-5 sm:px-8">
+
+    <div class="mb-10">
+      <p class="eyebrow">Open Positions</p>
+      <h2 class="section-heading">Current Opportunities</h2>
+      <p class="text-gray-500 text-sm lg:text-base mt-2 max-w-lg">Don't see the right role? Send your resume to careers@novaplusbank.com — we're always looking for talented people.</p>
+    </div>
+
+    <div class="space-y-3">
+      {% for job in page.openings %}
+      <div class="feature-row items-center">
+        <div class="flex-1 min-w-0">
+          <h3 class="text-sm lg:text-base font-semibold text-gray-900 mb-1">{{ job.title }}</h3>
+          <div class="flex flex-wrap gap-x-4 gap-y-1 text-xs lg:text-sm text-gray-500">
+            <span><i class="fa-solid fa-building text-gray-400 text-[10px] mr-1"></i> {{ job.department }}</span>
+            <span><i class="fa-solid fa-location-dot text-gray-400 text-[10px] mr-1"></i> {{ job.location }}</span>
+            <span><i class="fa-solid fa-clock text-gray-400 text-[10px] mr-1"></i> {{ job.type }}</span>
+          </div>
+        </div>
+        <a href="{% url 'core:contact' %}" class="btn-outline flex-shrink-0 !py-2 !px-4 text-xs lg:text-sm">
+          Apply
+        </a>
+      </div>
+      {% endfor %}
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     CTA
+══════════════════════════════════════════ -->
+<section class="py-16 bg-blue-700">
+  <div class="max-w-2xl mx-auto px-5 text-center">
+    <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-3">Ready to Make an Impact?</h2>
+    <p class="text-blue-100 text-sm lg:text-base mb-8 max-w-md mx-auto">
+      Join a team that's helping 50,000+ members build financial strength every day.
+    </p>
+    <div class="flex flex-col sm:flex-row gap-3 justify-center">
+      <a href="mailto:careers@novaplusbank.com" class="btn-white">
+        <i class="fa-solid fa-envelope text-xs"></i> careers@novaplusbank.com
+      </a>
+      <a href="{% url 'core:about' %}" class="btn-ghost-white">
+        <i class="fa-solid fa-circle-info text-xs"></i> Learn About Us
+      </a>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,214 @@
+{% extends "dashboard_base.html" %}
+{% load static %}
+
+{% block title %}Currency Swap — NovaPlusBank{% endblock %}
+{% block topbar_title %}FX Currency Swap Engine{% endblock %}
+{% block nav_swap %}bg-white/10 text-white{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 xl:grid-cols-[1fr_360px] gap-6 items-start">
+
+  <!-- LEFT COLUMN: FX SWAP ENGINE INTERFACE -->
+  <div class="bg-white rounded-lg border border-gray-200 p-5 md:p-6 shadow-sm">
+    <div class="mb-5 pb-4 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+      <div>
+        <h1 class="text-sm font-bold text-gray-900">Instant Liquidity Swap</h1>
+        <p class="text-xs text-gray-400 mt-0.5">Convert balances between multi-currency ledger wallets immediately at wholesale spot market pricing.</p>
+      </div>
+      <!-- Quote Freshness Badge -->
+      <span class="inline-flex items-center gap-1 self-start px-2 py-0.5 rounded text-[0.62rem] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-100">
+        <span class="w-1 h-1 rounded-full bg-emerald-500 animate-pulse"></span> Live Rates Engaged
+      </span>
+    </div>
+
+    <!-- Swap Action Execution Pipeline Form -->
+    <form method="POST" action="" class="flex flex-col gap-4 font-sans" id="swap-form">
+      {% csrf_token %}
+
+      <!-- Relative Flexbox Wrapper for Inversion Button Placement -->
+      <div class="flex flex-col gap-3 relative">
+        
+        <!-- SOURCE ASSET CARD (FROM) -->
+        <div class="bg-gray-50 border border-gray-200 p-4 rounded-xl flex flex-col gap-2">
+          <div class="flex justify-between items-center text-[0.65rem] font-bold text-gray-400 uppercase tracking-wider">
+            <span>Pay From Wallet</span>
+            <span>Available Balance: <span class="text-gray-700 font-mono font-bold" id="src-balance-display">${{ account.balance|default:"0.00" }}</span></span>
+          </div>
+          <div class="flex items-center gap-3">
+            <select id="swap-source-currency" class="w-28 px-2 py-1.5 border border-gray-300 rounded-md text-xs font-bold text-gray-900 bg-white outline-none cursor-pointer focus:border-blue-500" onchange="handleCurrencyContextSwitch()">
+              <option value="USD" selected>USD ($)</option>
+              <option value="EUR">EUR (€)</option>
+              <option value="GBP">GBP (£)</option>
+              <option value="NGN">NGN (₦)</option>
+            </select>
+            <input type="number" step="0.01" min="0.01" id="swap-source-amount" class="flex-1 bg-transparent text-right text-base font-bold font-mono text-gray-900 outline-none placeholder-gray-300" placeholder="0.00" oninput="calculateSwapYield()" required />
+          </div>
+        </div>
+
+        <!-- MIDPOINT DIRECTIVE SWITCH BUTTON -->
+        <div class="absolute top-[50%] left-[50%] -translate-x-1/2 -translate-y-1/2 z-10">
+          <button type="button" onclick="invertSwapDirections()" class="w-8 h-8 rounded-full bg-white border border-gray-200 shadow-sm text-gray-400 hover:text-blue-700 hover:border-blue-200 transition-all flex items-center justify-center active:scale-95" title="Invert Directions">
+            <i class="fa-solid fa-arrows-rotate text-xs"></i>
+          </button>
+        </div>
+
+        <!-- TARGET ASSET CARD (TO) -->
+        <div class="bg-gray-50 border border-gray-200 p-4 rounded-xl flex flex-col gap-2">
+          <div class="flex justify-between items-center text-[0.65rem] font-bold text-gray-400 uppercase tracking-wider">
+            <span>Receive Into Wallet</span>
+            <span class="text-[0.6rem] font-medium text-blue-700 normal-case bg-blue-50 px-1.5 py-0.5 rounded" id="fx-spread-badge">No Transaction Fee Applied</span>
+          </div>
+          <div class="flex items-center gap-3">
+            <select id="swap-target-currency" class="w-28 px-2 py-1.5 border border-gray-300 rounded-md text-xs font-bold text-gray-900 bg-white outline-none cursor-pointer focus:border-blue-500" onchange="handleCurrencyContextSwitch()">
+              <option value="USD">USD ($)</option>
+              <option value="EUR" selected>EUR (€)</option>
+              <option value="GBP">GBP (£)</option>
+              <option value="NGN">NGN (₦)</option>
+            </select>
+            <input type="text" id="swap-target-amount" class="flex-1 bg-transparent text-right text-base font-bold font-mono text-gray-500 outline-none" value="0.00" readonly />
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Live Spread Quote Breakdown Itemizer -->
+      <div class="bg-gray-50/50 p-3 rounded-lg border border-gray-200/60 flex items-center justify-between text-[0.72rem] font-medium text-gray-500">
+        <span class="flex items-center gap-1"><i class="fa-solid fa-chart-line text-blue-700"></i> Guaranteed Settlement Quote Rate:</span>
+        <span class="text-gray-900 font-bold font-mono text-right" id="live-swap-rate-display">1 USD ≈ 0.9242 EUR</span>
+      </div>
+
+      <!-- Execution CTA Action -->
+      <button type="submit" class="w-full mt-1 py-2.5 bg-blue-900 hover:bg-[#0e2645] text-white rounded-md text-xs font-bold transition-colors shadow-sm flex items-center justify-center gap-2 border-none cursor-pointer">
+        <i class="fa-solid fa-bolt"></i> Execute Settlement Swap
+      </button>
+
+    </form>
+  </div>
+
+  <!-- RIGHT COLUMN: SPREAD BREAKDOWN & PROTOCOLS -->
+  <div class="flex flex-col gap-5">
+    
+    <!-- Balance Wallet Inventory Sheet -->
+    <div class="bg-white rounded-lg border border-gray-200 p-5 shadow-sm">
+      <h2 class="text-sm font-bold text-gray-900 mb-3">Multi-Currency Balances</h2>
+      <div class="flex flex-col gap-2.5 text-[0.72rem] font-medium divide-y divide-gray-100">
+        <div class="flex justify-between items-center text-gray-500 pt-0">
+          <span class="flex items-center gap-1.5 font-bold text-gray-700"><span class="w-1.5 h-1.5 rounded-full bg-blue-600"></span> USD Wallet</span>
+          <span class="text-gray-900 font-bold font-mono" id="right-usd-balance">${{ account.balance|default:"0.00" }}</span>
+        </div>
+        <div class="flex justify-between items-center text-gray-500 pt-2.5">
+          <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-gray-300"></span> EUR Wallet</span>
+          <span class="text-gray-400 font-bold font-mono">€0.00</span>
+        </div>
+        <div class="flex justify-between items-center text-gray-500 pt-2.5">
+          <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-gray-300"></span> GBP Wallet</span>
+          <span class="text-gray-400 font-bold font-mono">£0.00</span>
+        </div>
+        <div class="flex justify-between items-center text-gray-500 pt-2.5">
+          <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-gray-300"></span> NGN Wallet</span>
+          <span class="text-gray-400 font-bold font-mono">₦0.00</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slippage Disclaimer Advisory Notice -->
+    <div class="bg-white rounded-lg border border-gray-200 p-5 shadow-sm">
+      <h2 class="text-sm font-bold text-gray-900 mb-2 flex items-center gap-1.5">
+        <i class="fa-solid fa-triangle-exclamation text-amber-500"></i> Liquidity Slippage Note
+      </h2>
+      <p class="text-[0.72rem] text-gray-500 leading-relaxed font-medium">
+        FX spot execution protocols lock pricing allocations instantly for up to <span class="font-bold text-gray-800">45 seconds</span>. Idle entries exceeding parameters require algorithmic recalculation metrics to map against shifts in liquidity depth.
+      </p>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  // Spot values scaled across a relative USD baseline context matrix
+  const conversionIndexes = {
+    USD: 1.000000,
+    EUR: 0.924200,
+    GBP: 0.789500,
+    NGN: 1520.0000
+  };
+
+  const currencySymbols = { USD: "$", EUR: "€", GBP: "£", NGN: "₦" };
+  const baseUserBalance = parseFloat("{{ account.balance|default:'0.00' }}");
+
+  function getConversionRate() {
+    const fromCur = document.getElementById('swap-source-currency').value;
+    const toCur = document.getElementById('swap-target-currency').value;
+    
+    // Express target currency asset value relative to the selected source base
+    const fromRateInUSD = conversionIndexes[fromCur];
+    const toRateInUSD = conversionIndexes[toCur];
+    
+    return toRateInUSD / fromRateInUSD;
+  }
+
+  function handleCurrencyContextSwitch() {
+    const fromSelect = document.getElementById('swap-source-currency');
+    const toSelect = document.getElementById('swap-target-currency');
+    
+    // Guard parameter looping context collision: If source meets target, auto-shift partner
+    if (fromSelect.value === toSelect.value) {
+      const standardOptions = Array.from(toSelect.options).map(o => o.value);
+      const replacementOption = standardOptions.find(val => val !== fromSelect.value);
+      toSelect.value = replacementOption;
+    }
+
+    const currentRate = getConversionRate();
+    const fromCur = fromSelect.value;
+    const toCur = toSelect.value;
+    
+    // Adjust visual wallet context available balance header label string dynamically
+    const displayBal = document.getElementById('src-balance-display');
+    if (fromCur === 'USD') {
+      displayBal.innerText = `${currencySymbols.USD}${baseUserBalance.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+    } else {
+      const convertedBal = baseUserBalance * conversionIndexes[fromCur];
+      displayBal.innerText = `${currencySymbols[fromCur]}${convertedBal.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+    }
+
+    // Formatting fixed indices layout precision based on target scales
+    const decimalScale = currentRate < 0.01 ? 6 : 4;
+    document.getElementById('live-swap-rate-display').innerText = `1 ${fromCur} ≈ ${currentRate.toFixed(decimalScale)} ${toCur}`;
+    
+    calculateSwapYield();
+  }
+
+  function calculateSwapYield() {
+    const srcInput = document.getElementById('swap-source-amount');
+    const destOutput = document.getElementById('swap-target-amount');
+    
+    const srcValue = parseFloat(srcInput.value.trim());
+    
+    if (!isNaN(srcValue) && srcValue > 0) {
+      const conversionRate = getConversionRate();
+      const outputYield = srcValue * conversionRate;
+      
+      // Compute configuration fraction boundaries dynamically
+      destOutput.value = outputYield.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 4 });
+    } else {
+      destOutput.value = "0.00";
+    }
+  }
+
+  function invertSwapDirections() {
+    const fromSelect = document.getElementById('swap-source-currency');
+    const toSelect = document.getElementById('swap-target-currency');
+    
+    const intermediateHolder = fromSelect.value;
+    fromSelect.value = toSelect.value;
+    toSelect.value = intermediateHolder;
+    
+    handleCurrencyContextSwitch();
+  }
+
+  // Primary event setup initialization on screen bootstrap
+  document.addEventListener("DOMContentLoaded", handleCurrencyContextSwitch);
+</script>
+{% endblock %}

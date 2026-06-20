@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+
+{% block title %}Open Account - NovaPlusBank{% endblock %}
+{% block meta_description %}Open a NovaPlusBank account online in minutes. Free checking, no monthly fees, and secure digital banking.{% endblock %}
+
+{% block content %}
+<section class="bg-blue-700 pt-28 pb-12">
+  <div class="max-w-6xl mx-auto px-5 sm:px-8">
+    <div class="max-w-2xl">
+      <p class="text-blue-200 text-xs lg:text-sm font-semibold uppercase tracking-widest mb-4">Open an Account</p>
+      <h1 class="text-4xl sm:text-5xl font-bold leading-tight text-white mb-4">Banking Built Around You</h1>
+      <p class="text-blue-100 text-sm lg:text-base leading-relaxed max-w-lg">
+        Create your secure online profile in minutes. You'll receive a unique account number immediately after registration.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section class="py-16 bg-white border-b border-gray-100">
+  <div class="max-w-6xl mx-auto px-5 sm:px-8">
+    <div class="grid lg:grid-cols-5 gap-14">
+
+      <div class="lg:col-span-3">
+        <div class="pb-6 mb-8 border-b border-gray-100">
+          <p class="eyebrow">Account Application</p>
+          <h2 class="section-heading mb-2">Personal Details</h2>
+          <p class="text-gray-500 text-sm lg:text-base">
+            Already banking with us?
+            <a href="{% url 'account_login' %}" class="text-blue-600 font-semibold hover:text-blue-700">Sign in here</a>
+          </p>
+        </div>
+
+        {% if form.non_field_errors %}
+          <div class="form-alert form-alert-error mb-6">
+            {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+          </div>
+        {% endif %}
+
+        <form method="post" action="{% url 'account_signup' %}" class="space-y-5">
+          {% csrf_token %}
+          {% if redirect_field_value %}
+            <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+          {% endif %}
+
+          <div class="grid sm:grid-cols-2 gap-5">
+            {% include "partials/form_field.html" with field=form.first_name %}
+            {% include "partials/form_field.html" with field=form.last_name %}
+          </div>
+
+          {% include "partials/form_field.html" with field=form.email %}
+
+          <div class="grid sm:grid-cols-2 gap-5">
+            {% include "partials/form_field.html" with field=form.phone %}
+            {% include "partials/form_field.html" with field=form.country %}
+          </div>
+
+          <div class="grid sm:grid-cols-2 gap-5">
+            <div>
+              {% include "partials/form_field.html" with field=form.password1 %}
+              <div id="password-strength" class="password-strength">
+                <p class="password-strength-item" data-rule="length"><i class="fa-solid fa-circle"></i> At least 8 characters</p>
+                <p class="password-strength-item" data-rule="upper"><i class="fa-solid fa-circle"></i> One uppercase letter</p>
+                <p class="password-strength-item" data-rule="number"><i class="fa-solid fa-circle"></i> One number</p>
+                <p class="password-strength-item" data-rule="special"><i class="fa-solid fa-circle"></i> One special character</p>
+              </div>
+            </div>
+            {% include "partials/form_field.html" with field=form.password2 %}
+          </div>
+
+          <div class="bg-gray-50 border border-gray-200 rounded-lg p-5">
+            {% include "partials/form_field.html" with field=form.agree_terms %}
+          </div>
+
+          <button type="submit" class="btn-primary">
+            <i class="fa-solid fa-circle-check text-xs"></i> Create My Account
+          </button>
+        </form>
+      </div>
+
+      <div class="lg:col-span-2">
+        <p class="eyebrow">What You'll Get</p>
+        <h2 class="text-xl lg:text-2xl font-bold text-gray-900 mb-6">Included With Every Account</h2>
+
+        <div class="space-y-3 mb-8">
+          <div class="feature-row">
+            <div class="w-8 h-8 bg-blue-50 flex items-center justify-center rounded flex-shrink-0">
+              <i class="fa-solid fa-shield-halved text-blue-600 text-xs"></i>
+            </div>
+            <div>
+              <h4 class="text-sm lg:text-base font-semibold text-gray-900 mb-0.5">FDIC-Insured Deposits</h4>
+              <p class="text-xs lg:text-sm text-gray-500">Your deposits are protected up to applicable limits.</p>
+            </div>
+          </div>
+
+          <div class="feature-row">
+            <div class="w-8 h-8 bg-blue-50 flex items-center justify-center rounded flex-shrink-0">
+              <i class="fa-solid fa-mobile-screen text-blue-600 text-xs"></i>
+            </div>
+            <div>
+              <h4 class="text-sm lg:text-base font-semibold text-gray-900 mb-0.5">Mobile & Online Banking</h4>
+              <p class="text-xs lg:text-sm text-gray-500">Manage accounts, pay bills, and transfer funds 24/7.</p>
+            </div>
+          </div>
+
+          <div class="feature-row">
+            <div class="w-8 h-8 bg-blue-50 flex items-center justify-center rounded flex-shrink-0">
+              <i class="fa-solid fa-credit-card text-blue-600 text-xs"></i>
+            </div>
+            <div>
+              <h4 class="text-sm lg:text-base font-semibold text-gray-900 mb-0.5">Free Debit Card</h4>
+              <p class="text-xs lg:text-sm text-gray-500">Shipped to your address within 5–7 business days.</p>
+            </div>
+          </div>
+
+          <div class="feature-row">
+            <div class="w-8 h-8 bg-blue-50 flex items-center justify-center rounded flex-shrink-0">
+              <i class="fa-solid fa-headset text-blue-600 text-xs"></i>
+            </div>
+            <div>
+              <h4 class="text-sm lg:text-base font-semibold text-gray-900 mb-0.5">24/7 Customer Support</h4>
+              <p class="text-xs lg:text-sm text-gray-500">Phone, chat, and branch support whenever you need it.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-blue-50 border border-blue-100 rounded-lg p-5">
+          <p class="text-xs lg:text-sm text-gray-600 leading-relaxed">
+            <i class="fa-solid fa-lock text-blue-600 text-[10px] mr-1"></i>
+            Your information is encrypted in transit and at rest. We never share your personal data with third parties for marketing.
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var pwInput = document.getElementById('{{ form.password1.id_for_label }}');
+    var box = document.getElementById('password-strength');
+    if (!pwInput || !box) return;
+
+    var rules = {
+      length: function (v) { return v.length >= 8; },
+      upper: function (v) { return /[A-Z]/.test(v); },
+      number: function (v) { return /[0-9]/.test(v); },
+      special: function (v) { return /[^A-Za-z0-9]/.test(v); }
+    };
+
+    function update() {
+      var val = pwInput.value;
+      Object.keys(rules).forEach(function (key) {
+        var item = box.querySelector('[data-rule="' + key + '"]');
+        if (!item) return;
+        var ok = rules[key](val);
+        item.classList.toggle('met', ok);
+        var icon = item.querySelector('i');
+        icon.className = ok ? 'fa-solid fa-circle-check' : 'fa-solid fa-circle';
+      });
+    }
+
+    pwInput.addEventListener('input', update);
+    pwInput.addEventListener('focus', update);
+    update();
+  });
+</script>
+{% endblock %}

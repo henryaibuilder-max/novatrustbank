@@ -1,0 +1,234 @@
+{% extends "dashboard_base.html" %}
+{% load static %}
+
+{% block title %}Verification Terminal — NovaPlusBank{% endblock %}
+{% block topbar_title %}Verification Stream #{{ session.support_id }}{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 xl:grid-cols-[1fr_360px] gap-6 items-start font-sans">
+  
+  <!-- Left Side: Interactive System Intercept Communication Feed -->
+  <div class="bg-white rounded-lg border border-gray-200 shadow-sm flex flex-col h-[600px] overflow-hidden">
+    
+    <!-- Chat Header Area -->
+    <div class="px-5 py-4 border-b border-gray-100 bg-gray-50/50 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-full bg-blue-900 text-white flex items-center justify-center text-sm font-bold">
+          <i class="fa-solid fa-user-shield"></i>
+        </div>
+        <div>
+          <h2 class="text-xs font-bold text-gray-900 uppercase tracking-wider">{{ session.linked_action|default:"Ledger Interception Loop" }} Verification</h2>
+          <p class="text-[0.68rem] text-gray-400 mt-0.5 font-medium">
+            Stream reference initiated on {{ session.created_at|date:"M d, Y • H:i" }}
+          </p>
+        </div>
+      </div>
+      
+      <div>
+        {% if not session.is_resolved %}
+          <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-[0.65rem] font-bold bg-amber-50 text-amber-700 uppercase tracking-wide border border-amber-200">
+            <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span> {{ session.get_status_display }}
+          </span>
+        {% else %}
+          <span class="inline-flex items-center px-2.5 py-1 rounded text-[0.65rem] font-bold bg-gray-100 text-gray-600 uppercase tracking-wide border border-gray-200">
+            Archive Handled / Locked
+          </span>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Live Window Feed Stream -->
+    <div id="session-chat-timeline" class="flex-1 p-5 overflow-y-auto bg-gray-50 flex flex-col gap-4">
+      {% for msg in messages_list %}
+        <div class="flex flex-col max-w-[80%] {% if msg.is_from_staff %}self-start{% else %}self-end items-end{% endif %}">
+          <!-- Identity Handle -->
+          <span class="text-[0.6rem] text-gray-400 font-bold uppercase tracking-wider mb-1 px-1">
+            {% if msg.is_from_staff %}Administrative Desk Agent{% else %}You (Account Holder){% endif %}
+          </span>
+          <!-- Chat Message Bubble -->
+          <div class="p-3 rounded-lg text-xs leading-normal font-medium shadow-sm border
+            {% if msg.is_from_staff %}
+              bg-white text-gray-900 border-gray-200 rounded-tl-none
+            {% else %}
+              bg-blue-900 text-white border-blue-950 rounded-tr-none
+            {% endif %}">
+            {{ msg.message_text }}
+          </div>
+          <span class="text-[0.6rem] text-gray-400 mt-1 px-1 font-mono">
+            {{ msg.timestamp|date:"H:i" }}
+          </span>
+        </div>
+      {% empty %}
+        <div class="flex flex-col items-center justify-center text-center my-auto p-6">
+          <div class="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 text-base mb-2">
+            <i class="fa-solid fa-headset"></i>
+          </div>
+          <p class="text-xs font-bold text-gray-700">Awaiting Agent Node Binding</p>
+          <p class="text-[0.68rem] text-gray-400 mt-0.5">The action parameters are securely stacked. Please stay on this screen while administrative desks evaluate your payload context attributes.</p>
+        </div>
+      {% endfor %}
+    </div>
+
+    <!-- Message Dispatch Form Console -->
+    {% if not session.is_resolved %}
+      <form id="session-chat-submission-form" onsubmit="handleSessionMessageSend(event)" class="p-4 border-t border-gray-100 bg-white flex items-center gap-3">
+        {% csrf_token %}
+        <input type="text" id="session-message-input-box" autocomplete="off" required
+          placeholder="Type message text, or input requested security OTP parameters here..." 
+          class="flex-1 px-3.5 py-2.5 border border-gray-300 rounded-md text-xs text-gray-900 outline-none transition-all focus:border-blue-500 font-medium" />
+        <button type="submit" 
+          class="px-4 py-2.5 bg-blue-900 hover:bg-blue-950 text-white rounded-md text-xs font-bold transition-colors shadow-sm flex items-center gap-1.5 shrink-0 border-none cursor-pointer">
+          <span>Reply</span> <i class="fa-solid fa-reply"></i>
+        </button>
+      </form>
+    {% else %}
+      <div class="p-4 border-t border-gray-100 bg-gray-100 text-center text-xs font-medium text-gray-500">
+        <i class="fa-solid fa-ban text-[0.7rem] mr-1"></i> Verification workflow resolved. This pipeline transaction console has been archived and locked.
+      </div>
+    {% endif %}
+
+  </div>
+
+  <!-- Right Side: Frozen Transaction Metadata Matrix Payload Tracker -->
+  <div class="flex flex-col gap-5">
+    
+    <div class="bg-white rounded-lg border border-gray-200 p-5 shadow-sm">
+      <h3 class="text-xs font-bold text-gray-900 uppercase tracking-wider mb-3.5 flex items-center gap-2">
+        <i class="fa-solid fa-server text-blue-700"></i> Intercepted Transaction Fields
+      </h3>
+      
+      {% if session.meta_payload %}
+        <div class="flex flex-col gap-3">
+          <p class="text-[0.68rem] font-semibold text-gray-400 leading-normal mb-1">
+            The data fields captured from your form submission require administrative verification before execution handles trigger:
+          </p>
+          
+          <div class="border border-gray-100 rounded-md bg-gray-50/50 text-[0.75rem] divide-y divide-gray-100">
+            {% for key, val in session.meta_payload.items %}
+              <div class="p-2.5 flex items-center justify-between gap-4">
+                <span class="text-gray-400 font-semibold uppercase text-[0.62rem] tracking-wider shrink-0">
+                  {{ key|default:key }}
+                </span>
+                <span class="font-bold text-gray-800 text-right font-mono max-w-[65%] truncate">
+                  {% if "amount" in key|lower %}${{ val }}{% else %}{{ val }}{% endif %}
+                </span>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      {% else %}
+        <div class="bg-gray-50 border border-gray-200 border-dashed p-4 rounded-md text-center text-[0.7rem] font-medium text-gray-400">
+          No data payload tokens attached to this loop workflow.
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Security Information Banner -->
+    <div class="bg-blue-900 text-white rounded-lg p-5 shadow-sm">
+      <h4 class="text-xs font-bold uppercase tracking-wider mb-2 flex items-center gap-1.5 text-blue-200">
+        <i class="fa-solid fa-shield-halved"></i> Escrow Safety Policy
+      </h4>
+      <p class="text-[0.68rem] text-blue-100/80 leading-relaxed font-medium">
+        To prevent unauthorized fraudulent outflux, higher tier transfers are automatically routing locked. Follow any instruction logs outputted by administrative agents above to finalize processing.
+      </p>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  window.activeSupportId = "{{ session.support_id }}";
+
+  function scrollChatToBottom() {
+    const chatFeed = document.getElementById('session-chat-timeline');
+    if (chatFeed) {
+      chatFeed.scrollTop = chatFeed.scrollHeight;
+    }
+  }
+
+  function handleSessionMessageSend(e) {
+    e.preventDefault();
+    const inputBox = document.getElementById('session-message-input-box');
+    if (!inputBox) return;
+
+    const rawText = inputBox.value.trim();
+    if (!rawText) return;
+
+    const url = `/dashboard/support/send/${window.activeSupportId}/`;
+    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrftoken
+      },
+      body: JSON.stringify({ message: rawText })
+    })
+    .then(response => {
+      if (!response.ok) throw new Error("Data frame ingestion processing failed.");
+      appendMessageElement(rawText, false);
+      inputBox.value = "";
+      scrollChatToBottom();
+    })
+    .catch(error => {
+      console.error("Transmission stack crash log: ", error);
+    });
+  }
+
+  function appendMessageElement(text, isAgent) {
+    const container = document.getElementById('session-chat-timeline');
+    if (!container) return;
+
+    const clearPrompt = container.querySelector('.my-auto');
+    if (clearPrompt) clearPrompt.remove();
+
+    const outerWrapper = document.createElement('div');
+    outerWrapper.className = `flex flex-col max-w-[80%] ${isAgent ? 'self-start' : 'self-end items-end'}`;
+
+    const label = document.createElement('span');
+    label.className = "text-[0.6rem] text-gray-400 font-bold uppercase tracking-wider mb-1 px-1";
+    label.innerText = isAgent ? "Administrative Desk Agent" : "You (Account Holder)";
+
+    const textBubble = document.createElement('div');
+    if (isAgent) {
+      textBubble.className = "bg-white text-gray-900 border border-gray-200 p-3 rounded-lg text-xs leading-normal font-medium shadow-sm rounded-tl-none";
+    } else {
+      textBubble.className = "bg-blue-900 text-white border border-blue-950 p-3 rounded-lg text-xs leading-normal font-medium shadow-sm rounded-tr-none";
+    }
+    textBubble.innerText = text;
+
+    const timeLabel = document.createElement('span');
+    timeLabel.className = "text-[0.6rem] text-gray-400 mt-1 px-1 font-mono";
+    const now = new Date();
+    timeLabel.innerText = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+
+    outerWrapper.appendChild(label);
+    outerWrapper.appendChild(textBubble);
+    outerWrapper.appendChild(timeLabel);
+    container.appendChild(outerWrapper);
+  }
+
+  document.addEventListener("DOMContentLoaded", function() {
+    scrollChatToBottom();
+    // Simple short polling interface pipeline triggers inside base environment matrix automatically
+    setInterval(function() {
+      const lastNode = document.querySelector('#session-chat-timeline > div:last-child');
+      const lastId = lastNode ? lastNode.getAttribute('data-msg-id') || 0 : 0;
+      
+      fetch(`/dashboard/support/poll/${window.activeSupportId}/?last_id=${lastId}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.messages && data.messages.length > 0) {
+            data.messages.forEach(msg => {
+              appendMessageElement(msg.message_text, msg.is_from_staff);
+            });
+            scrollChatToBottom();
+          }
+        });
+    }, 4000);
+  });
+</script>
+{% endblock %}

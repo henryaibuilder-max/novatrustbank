@@ -1,0 +1,51 @@
+{% if field.field.widget.input_type == 'checkbox' %}
+  <div>
+    <label class="flex items-start gap-3 cursor-pointer">
+      <input
+        type="checkbox"
+        name="{{ field.html_name }}"
+        id="{{ field.id_for_label }}"
+        class="mt-1 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+        {% if field.value %}checked{% endif %}
+        {% if field.field.required %}required{% endif %}
+      />
+      <span class="text-xs lg:text-sm text-gray-600 leading-relaxed">{{ field.label }}{% if field.field.required %} <span class="text-red-500">*</span>{% endif %}</span>
+    </label>
+    {% if field.errors %}
+      <ul class="form-error-list mt-2">
+        {% for error in field.errors %}
+          <li>{{ error }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  </div>
+{% else %}
+  <div>
+    <label for="{{ field.id_for_label }}" class="form-label">
+      {{ field.label }}{% if field.field.required %} <span class="text-red-500">*</span>{% endif %}
+    </label>
+    {% if field.field.widget.input_type == 'select' %}
+      {{ field }}
+    {% else %}
+      <input
+        type="{{ field.field.widget.input_type|default:'text' }}"
+        name="{{ field.html_name }}"
+        id="{{ field.id_for_label }}"
+        value="{{ field.value|default:'' }}"
+        class="form-input{% if field.errors %} form-input-error{% endif %}"
+        {% if field.field.required %}required{% endif %}
+        {% if field.field.widget.attrs.placeholder %}placeholder="{{ field.field.widget.attrs.placeholder }}"{% endif %}
+        {% if field.field.widget.attrs.autocomplete %}autocomplete="{{ field.field.widget.attrs.autocomplete }}"{% endif %}
+      />
+    {% endif %}
+    {% if field.errors %}
+      <ul class="form-error-list mt-1.5">
+        {% for error in field.errors %}
+          <li>{{ error }}</li>
+        {% endfor %}
+      </ul>
+    {% elif field.help_text and field.name != 'password' and field.name != 'password1' and field.name != 'password2' %}
+      <p class="form-help">{{ field.help_text|safe }}</p>
+    {% endif %}
+  </div>
+{% endif %}

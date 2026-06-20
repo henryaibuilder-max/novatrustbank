@@ -1,0 +1,145 @@
+{% extends "dashboard_base.html" %}
+{% load static %}
+
+{% block title %}Transactions — NovaPlusBank{% endblock %}
+{% block topbar_title %}Transactions History{% endblock %}
+{% block nav_transactions %}bg-white/10 text-white{% endblock %}
+
+{% block content %}
+<div class="flex flex-col gap-5">
+
+  <div class="bg-white rounded-lg border border-gray-200 p-4 shadow-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <h1 class="text-sm font-bold text-gray-900">Transaction History</h1>
+      <p class="text-xs text-gray-400 mt-0.5">View and manage your account ledger logs</p>
+    </div>
+    
+    <div class="flex items-center gap-2 flex-wrap">
+      <div class="relative max-xs:w-full">
+        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400 text-xs">
+          <i class="fa-solid fa-magnifying-glass"></i>
+        </span>
+        <input type="text" id="tx-search" placeholder="Search references, notes..." class="w-full sm:w-[220px] pl-8 pr-3 py-1.5 border border-gray-300 rounded-md text-xs text-gray-900 outline-none transition-all focus:border-blue-500 focus:ring-3 focus:ring-blue-500/12 font-sans" onkeyup="filterTransactions()" />
+      </div>
+      
+      <select id="tx-filter-type" class="px-2.5 py-1.5 border border-gray-300 rounded-md text-xs font-medium text-gray-700 bg-white outline-none cursor-pointer focus:border-blue-500 max-xs:flex-1" onchange="filterTransactions()">
+        <option value="all">All Types</option>
+        <option value="credit">Credits (Inbound)</option>
+        <option value="debit">Debits (Outbound)</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+    {% if transactions %}
+      <div class="overflow-x-auto">
+        <table class="w-full border-collapse text-left text-xs text-gray-500">
+          <thead class="bg-gray-50 border-b border-gray-200 uppercase tracking-wider font-bold text-gray-600 text-[0.65rem]">
+            <tr>
+              <th scope="col" class="px-5 py-3.5 w-12 text-center">Type</th>
+              <th scope="col" class="px-4 py-3.5">Details / Description</th>
+              <th scope="col" class="px-4 py-3.5 hidden sm:table-cell">Reference</th>
+              <th scope="col" class="px-4 py-3.5 hidden md:table-cell">Date &amp; Time</th>
+              <th scope="col" class="px-4 py-3.5 w-24 text-center">Status</th>
+              <th scope="col" class="px-5 py-3.5 text-right w-36">Amount</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100 font-medium" id="tx-table-body">
+            {% for tx in transactions %}
+              <tr class="tx-row hover:bg-gray-50/50 transition-colors" data-type="{{ tx.type }}" data-search="{{ tx.description|lower }} {{ tx.reference|lower }}">
+                
+                <td class="px-5 py-4 whitespace-nowrap text-center">
+                  <div class="w-7 h-7 rounded-full flex items-center justify-center text-[0.65rem] mx-auto {% if tx.type == 'credit' %}bg-green-50 text-green-700{% else %}bg-red-50 text-red-700{% endif %}" title="{% if tx.type == 'credit' %}Credit Inbound{% else %}Debit Outbound{% endif %}">
+                    <i class="fa-solid {% if tx.type == 'credit' %}fa-arrow-down{% else %}fa-arrow-up{% endif %}"></i>
+                  </div>
+                </td>
+                
+                <td class="px-4 py-4">
+                  <div class="flex flex-col gap-0.5">
+                    <span class="font-semibold text-gray-900 text-[0.8125rem]">{{ tx.description|default:"Transfer Ledger Action" }}</span>
+                    <span class="text-[0.68rem] text-gray-400 sm:hidden">{{ tx.created_at|date:"M d, Y • h:i A" }}</span>
+                  </div>
+                </td>
+                
+                <td class="px-4 py-4 whitespace-nowrap hidden sm:table-cell font-mono text-[0.72rem] text-gray-400 tracking-wider">
+                  {{ tx.reference|default:"--" }}
+                </td>
+                
+                <td class="px-4 py-4 whitespace-nowrap hidden md:table-cell text-gray-400 font-sans">
+                  {{ tx.created_at|date:"M d, Y" }}
+                  <span class="block text-[0.65rem] text-gray-400/75 mt-0.5 font-normal">{{ tx.created_at|date:"h:i A" }}</span>
+                </td>
+                
+                <td class="px-4 py-4 whitespace-nowrap text-center">
+                  <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[0.65rem] font-bold tracking-wide uppercase {% if tx.status == 'completed' %}bg-emerald-50 text-emerald-700{% elif tx.status == 'pending' %}bg-amber-50 text-amber-700{% else %}bg-gray-100 text-gray-600{% endif %}">
+                    <span class="w-1 h-1 rounded-full {% if tx.status == 'completed' %}bg-emerald-500{% elif tx.status == 'pending' %}bg-amber-500{% else %}bg-gray-400{% endif %}"></span>
+                    {{ tx.get_status_display|default:tx.status }}
+                  </span>
+                </td>
+                
+                <td class="px-5 py-4 whitespace-nowrap text-right font-bold text-[0.8125rem] tracking-tight {% if tx.type == 'credit' %}text-green-700{% else %}text-red-700{% endif %}">
+                  {% if tx.type == 'credit' %}+{% else %}-{% endif %}₦{{ tx.amount }}
+                </td>
+                
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="text-center py-16 px-4 text-gray-400 text-[0.8125rem]" id="empty-state-fallback">
+        <i class="fa-regular fa-rectangle-list text-4xl text-gray-300 mb-3 block"></i>
+        <h3 class="text-sm font-bold text-gray-700 mb-0.5">No Records Found</h3>
+        <p class="text-xs text-gray-400">There are no documented transactions on file for this account ledger.</p>
+      </div>
+    {% endif %}
+
+    <div class="text-center py-16 px-4 text-gray-400 text-[0.8125rem] hidden" id="no-search-results">
+      <i class="fa-solid fa-magnifying-glass text-4xl text-gray-200 mb-3 block"></i>
+      <h3 class="text-sm font-bold text-gray-700 mb-0.5">No Matching Matches</h3>
+      <p class="text-xs text-gray-400">Adjust parameters or clear inputs to locate search queries.</p>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  function filterTransactions() {
+    const searchInput = document.getElementById('tx-search').value.toLowerCase().trim();
+    const typeFilter = document.getElementById('tx-filter-type').value;
+    const tableRows = document.querySelectorAll('.tx-row');
+    const tableBody = document.getElementById('tx-table-body');
+    const noResults = document.getElementById('no-search-results');
+    
+    if (!tableBody) return; // Exit if context is already natively completely empty
+
+    let matchingCount = 0;
+
+    tableRows.forEach(row => {
+      const rowType = row.getAttribute('data-type');
+      const searchContent = row.getAttribute('data-search');
+      
+      const matchType = (typeFilter === 'all' || rowType === typeFilter);
+      const matchSearch = (!searchInput || searchContent.includes(searchInput));
+
+      if (matchType && matchSearch) {
+        row.classList.remove('hidden');
+        matchingCount++;
+      } else {
+        row.classList.add('hidden');
+      }
+    });
+
+    // Toggle descriptive view context states if client results drop to zero
+    if (matchingCount === 0) {
+      noResults.classList.remove('hidden');
+      if(tableBody.parentElement) tableBody.parentElement.classList.add('hidden');
+    } else {
+      noResults.classList.add('hidden');
+      if(tableBody.parentElement) tableBody.parentElement.classList.remove('hidden');
+    }
+  }
+</script>
+{% endblock %}

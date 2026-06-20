@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ page.title }} - NovaPlusBank{% endblock %}
+{% block meta_description %}{{ page.meta_description }}{% endblock %}
+
+{% block content %}
+
+<!-- ══════════════════════════════════════════
+     HERO
+══════════════════════════════════════════ -->
+<section class="bg-blue-700 pt-28 pb-20">
+  <div class="max-w-6xl mx-auto px-5 sm:px-8">
+    <div class="max-w-2xl">
+      <p class="text-blue-200 text-xs lg:text-sm font-semibold uppercase tracking-widest mb-4">{{ page.eyebrow }}</p>
+      <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight text-white mb-5">
+        {{ page.headline|safe }}
+      </h1>
+      <p class="text-blue-100 text-sm lg:text-base leading-relaxed max-w-lg mb-8">
+        {{ page.intro }}
+      </p>
+      <div class="flex flex-wrap gap-5 text-xs lg:text-sm text-blue-200">
+        {% for badge in page.hero_badges %}
+          <span class="flex items-center gap-1.5"><i class="fa-solid {{ badge.icon }}"></i> {{ badge.text }}</span>
+        {% endfor %}
+      </div>
+    </div>
+
+    {% if page.stats %}
+    <div class="mt-16 grid grid-cols-2 md:grid-cols-4 divide-x divide-blue-600 border-t border-blue-600 pt-8">
+      {% for stat in page.stats %}
+      <div class="px-6 first:pl-0 text-center md:text-left">
+        <p class="text-xl lg:text-2xl font-bold text-white">{{ stat.value }}</p>
+        <p class="text-blue-200 text-xs lg:text-sm mt-0.5">{{ stat.label }}</p>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     PRODUCTS
+══════════════════════════════════════════ -->
+<section class="py-16 bg-white border-b border-gray-100">
+  <div class="max-w-6xl mx-auto px-5 sm:px-8">
+
+    <div class="mb-10">
+      <p class="eyebrow">{{ page.eyebrow }}</p>
+      <h2 class="section-heading">{{ page.products_heading }}</h2>
+      <p class="text-gray-500 text-sm lg:text-base mt-2 max-w-lg">{{ page.products_subheading }}</p>
+    </div>
+
+    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      {% for product in page.products %}
+      <div class="rate-card">
+        <div class="rate-icon {% if product.icon_bg == 'blue' %}bg-blue-50{% else %}bg-gray-50{% endif %}">
+          <i class="fa-solid {{ product.icon }} {% if product.icon_bg == 'blue' %}text-blue-600{% else %}text-gray-600{% endif %}"></i>
+        </div>
+        <div class="text-3xl font-bold text-gray-900 mb-0.5">{{ product.rate }}</div>
+        <div class="text-xs lg:text-sm text-gray-400 font-medium mb-2">{{ product.rate_label }}</div>
+        <div class="text-xs lg:text-sm font-semibold text-gray-700 uppercase tracking-wide mb-1">{{ product.name }}</div>
+        <p class="text-xs lg:text-sm text-gray-400">{{ product.description }}</p>
+        {% if product.badge %}
+        <div class="mt-4 inline-block px-2.5 py-1 {% if product.badge == 'Featured' %}bg-blue-50 text-blue-600{% else %}bg-gray-100 text-gray-600{% endif %} text-[10px] lg:text-xs font-bold uppercase tracking-wider rounded">
+          {{ product.badge }}
+        </div>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+
+    <p class="text-xs lg:text-sm text-gray-400 mt-8">*Rates subject to change. Terms and conditions apply. Approval required for credit products.</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     FEATURES
+══════════════════════════════════════════ -->
+<section class="py-16 bg-gray-50 border-b border-gray-100">
+  <div class="max-w-6xl mx-auto px-5 sm:px-8">
+
+    <div class="mb-10">
+      <p class="eyebrow">Member Benefits</p>
+      <h2 class="section-heading">{{ page.features_heading }}</h2>
+      <p class="text-gray-500 text-sm lg:text-base mt-2 max-w-lg">{{ page.features_subheading }}</p>
+    </div>
+
+    <div class="grid sm:grid-cols-2 gap-3">
+      {% for feature in page.features %}
+      <div class="feature-row">
+        <div class="w-8 h-8 bg-blue-50 flex items-center justify-center rounded flex-shrink-0">
+          <i class="fa-solid {{ feature.icon }} text-blue-600 text-xs"></i>
+        </div>
+        <div>
+          <h4 class="text-sm lg:text-base font-semibold text-gray-900 mb-0.5">{{ feature.title }}</h4>
+          <p class="text-xs lg:text-sm text-gray-500">{{ feature.description }}</p>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     BENEFITS
+══════════════════════════════════════════ -->
+<section class="py-16 bg-blue-700">
+  <div class="max-w-6xl mx-auto px-5 sm:px-8">
+
+    <div class="mb-10 text-center">
+      <p class="text-blue-200 text-[11px] lg:text-xs font-semibold uppercase tracking-widest mb-3">Why NovaPlusBank</p>
+      <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-white">{{ page.benefits_heading }}</h2>
+      <p class="text-blue-200 text-sm lg:text-base mt-2 max-w-md mx-auto">{{ page.benefits_subheading }}</p>
+    </div>
+
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      {% for benefit in page.benefits %}
+      <div class="service-card">
+        <div class="w-10 h-10 bg-white/10 flex items-center justify-center rounded mx-auto mb-4">
+          <i class="fa-solid {{ benefit.icon }} text-white text-sm"></i>
+        </div>
+        <h3 class="text-sm lg:text-base font-semibold text-white mb-1.5">{{ benefit.title }}</h3>
+        <p class="text-blue-200 text-xs lg:text-sm leading-relaxed">{{ benefit.description }}</p>
+      </div>
+      {% endfor %}
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     CTA BANNER
+══════════════════════════════════════════ -->
+<section class="py-16 bg-white border-b border-gray-100">
+  <div class="max-w-2xl mx-auto px-5 text-center">
+    <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-3">{{ page.cta_heading }}</h2>
+    <p class="text-gray-500 text-sm lg:text-base mb-8 max-w-md mx-auto">
+      {{ page.cta_text }}
+    </p>
+    <div class="flex flex-col sm:flex-row gap-3 justify-center">
+      <a href="{% url 'account_signup' %}" class="btn-primary">
+        <i class="fa-solid fa-circle-plus text-xs"></i> Open an Account
+      </a>
+      <a href="{% url 'core:contact' %}" class="btn-outline">
+        <i class="fa-solid fa-phone text-xs"></i> Talk to an Advisor
+      </a>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

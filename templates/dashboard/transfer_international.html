@@ -1,0 +1,542 @@
+{% extends "dashboard_base.html" %}
+{% load static %}
+
+{% block title %}International Transfer — NovaPlusBank{% endblock %}
+{% block topbar_title %}Cross-Border &amp; Alternative Transfers{% endblock %}
+{% block nav_intl %}bg-white/10 text-white{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 xl:grid-cols-[1fr_360px] gap-6 items-start">
+
+  <!-- MAIN INTERACTIVE INTERFACE FRAME -->
+  <div class="bg-white rounded-lg border border-gray-200 p-5 md:p-6 shadow-sm">
+    
+    <!-- STEP 1: METHOD SELECTION HUB -->
+    <div id="selection-hub">
+      <div class="mb-5 pb-4 border-b border-gray-100">
+        <h1 class="text-sm font-bold text-gray-900">Select Global Remittance Channel</h1>
+        <p class="text-xs text-gray-400 mt-0.5">Choose an international network or alternative liquidity pipeline below to begin routing your capital.</p>
+      </div>
+
+      <!-- Core Networks Grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+        <!-- Wire Transfer -->
+        <div onclick="selectMethodRoute('wire')" 
+             class="border border-gray-200 rounded-xl p-4 cursor-pointer transition-all hover:border-blue-400 hover:shadow-sm flex flex-col justify-between h-36 group">
+          <div class="flex items-start justify-between">
+            <div class="w-8 h-8 rounded-lg flex items-center justify-center text-sm bg-blue-50 text-blue-700 group-hover:bg-blue-100"><i class="fa-solid fa-globe"></i></div>
+            <span class="text-[0.6rem] font-bold px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 uppercase tracking-wide">Global Bank</span>
+          </div>
+          <div>
+            <h3 class="text-xs font-bold text-gray-900 mb-0.5">Wire Transfer</h3>
+            <p class="text-[0.68rem] text-gray-400 leading-tight">Direct multi-currency transfers into foreign accounts.</p>
+          </div>
+        </div>
+
+        <!-- Cryptocurrency -->
+        <div onclick="selectMethodRoute('crypto')" 
+             class="border border-gray-200 rounded-xl p-4 cursor-pointer transition-all hover:border-amber-400 hover:shadow-sm flex flex-col justify-between h-36 group">
+          <div class="flex items-start justify-between">
+            <div class="w-8 h-8 rounded-lg flex items-center justify-center text-sm bg-amber-50 text-amber-700 group-hover:bg-amber-100"><i class="fa-solid fa-bitcoin-sign"></i></div>
+            <span class="text-[0.6rem] font-bold px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 uppercase tracking-wide">Crypto</span>
+          </div>
+          <div>
+            <h3 class="text-xs font-bold text-gray-900 mb-0.5">Cryptocurrency</h3>
+            <p class="text-[0.68rem] text-gray-400 leading-tight">Instant liquidity routing straight to your hot or cold wallet.</p>
+          </div>
+        </div>
+
+        <!-- PayPal -->
+        <div onclick="selectMethodRoute('paypal')" 
+             class="border border-gray-200 rounded-xl p-4 cursor-pointer transition-all hover:border-indigo-400 hover:shadow-sm flex flex-col justify-between h-36 group">
+          <div class="flex items-start justify-between">
+            <div class="w-8 h-8 rounded-lg flex items-center justify-center text-sm bg-indigo-50 text-indigo-700 group-hover:bg-indigo-100"><i class="fa-brands fa-paypal"></i></div>
+            <span class="text-[0.6rem] font-bold px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-700 uppercase tracking-wide">E-Wallet</span>
+          </div>
+          <div>
+            <h3 class="text-xs font-bold text-gray-900 mb-0.5">PayPal Account</h3>
+            <p class="text-[0.68rem] text-gray-400 leading-tight">Send instant balance assignments to external PayPal nodes.</p>
+          </div>
+        </div>
+
+        <!-- Wise Transfer -->
+        <div onclick="selectMethodRoute('wise')" 
+             class="border border-gray-200 rounded-xl p-4 cursor-pointer transition-all hover:border-green-400 hover:shadow-sm flex flex-col justify-between h-36 group">
+          <div class="flex items-start justify-between">
+            <div class="w-8 h-8 rounded-lg flex items-center justify-center text-sm bg-green-50 text-green-700 group-hover:bg-green-100"><i class="fa-solid fa-arrow-right-arrow-left"></i></div>
+            <span class="text-[0.6rem] font-bold px-1.5 py-0.5 rounded bg-green-50 text-green-700 uppercase tracking-wide">Low Fees</span>
+          </div>
+          <div>
+            <h3 class="text-xs font-bold text-gray-900 mb-0.5">Wise Transfer</h3>
+            <p class="text-[0.68rem] text-gray-400 leading-tight">Optimize cross-border FX execution using Wise routing grids.</p>
+          </div>
+        </div>
+
+        <!-- Cash App -->
+        <div onclick="selectMethodRoute('cashapp')" 
+             class="border border-gray-200 rounded-xl p-4 cursor-pointer transition-all hover:border-emerald-400 hover:shadow-sm flex flex-col justify-between h-36 group">
+          <div class="flex items-start justify-between">
+            <div class="w-8 h-8 rounded-lg flex items-center justify-center text-sm bg-emerald-50 text-emerald-700 group-hover:bg-emerald-100"><i class="fa-solid fa-dollar-sign"></i></div>
+            <span class="text-[0.6rem] font-bold px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 uppercase tracking-wide">P2P Network</span>
+          </div>
+          <div>
+            <h3 class="text-xs font-bold text-gray-900 mb-0.5">Cash App Portfolio</h3>
+            <p class="text-[0.68rem] text-gray-400 leading-tight">Accelerated settlement distributions to your Cashtag ID.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Additional Alternative Transfer Channels Section -->
+      <div class="mb-3">
+        <h2 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Additional Alternative Transfer Channels</h2>
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          <!-- Skrill -->
+          <button onclick="selectMethodRoute('skrill')" class="flex items-center gap-2.5 p-2.5 border border-gray-200 rounded-lg text-left hover:border-purple-400 transition-all bg-white cursor-pointer group">
+            <div class="w-7 h-7 rounded bg-purple-50 text-purple-700 flex items-center justify-center text-xs group-hover:bg-purple-100"><i class="fa-solid fa-wallet"></i></div>
+            <span class="text-xs font-bold text-gray-800">Skrill Wallet</span>
+          </button>
+          <!-- Venmo -->
+          <button onclick="selectMethodRoute('venmo')" class="flex items-center gap-2.5 p-2.5 border border-gray-200 rounded-lg text-left hover:border-blue-400 transition-all bg-white cursor-pointer group">
+            <div class="w-7 h-7 rounded bg-blue-50 text-blue-600 flex items-center justify-center text-xs group-hover:bg-blue-100"><i class="fa-brands fa-vimeo-v"></i></div>
+            <span class="text-xs font-bold text-gray-800">Venmo Account</span>
+          </button>
+          <!-- Zelle -->
+          <button onclick="selectMethodRoute('zelle')" class="flex items-center gap-2.5 p-2.5 border border-gray-200 rounded-lg text-left hover:border-purple-400 transition-all bg-white cursor-pointer group">
+            <div class="w-7 h-7 rounded bg-purple-50 text-purple-800 flex items-center justify-center text-xs group-hover:bg-purple-100"><i class="fa-solid fa-bolt"></i></div>
+            <span class="text-xs font-bold text-gray-800">Zelle Network</span>
+          </button>
+          <!-- Revolut -->
+          <button onclick="selectMethodRoute('revolut')" class="flex items-center gap-2.5 p-2.5 border border-gray-200 rounded-lg text-left hover:border-slate-400 transition-all bg-white cursor-pointer group">
+            <div class="w-7 h-7 rounded bg-slate-50 text-slate-800 flex items-center justify-center text-xs group-hover:bg-slate-100"><i class="fa-solid fa-rotate"></i></div>
+            <span class="text-xs font-bold text-gray-800">Revolut Global</span>
+          </button>
+          <!-- Alipay -->
+          <button onclick="selectMethodRoute('alipay')" class="flex items-center gap-2.5 p-2.5 border border-gray-200 rounded-lg text-left hover:border-cyan-400 transition-all bg-white cursor-pointer group">
+            <div class="w-7 h-7 rounded bg-cyan-50 text-cyan-600 flex items-center justify-center text-xs group-hover:bg-cyan-100"><i class="fa-brands fa-alipay"></i></div>
+            <span class="text-xs font-bold text-gray-800">Alipay Wallet</span>
+          </button>
+          <!-- WeChat Pay -->
+          <button onclick="selectMethodRoute('wechat')" class="flex items-center gap-2.5 p-2.5 border border-gray-200 rounded-lg text-left hover:border-emerald-400 transition-all bg-white cursor-pointer group">
+            <div class="w-7 h-7 rounded bg-emerald-50 text-emerald-600 flex items-center justify-center text-xs group-hover:bg-emerald-100"><i class="fa-brands fa-weixin"></i></div>
+            <span class="text-xs font-bold text-gray-800">WeChat Pay</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 2: DYNAMIC REMITTANCE SUBMISSION FORM (HIDDEN UNTIL CHOSEN) -->
+    <div id="form-hub" class="hidden">
+      <div class="flex items-center justify-between mb-5 pb-4 border-b border-gray-100">
+        <div>
+          <h1 id="dynamic-headline" class="text-sm font-bold text-gray-900">Global Remittance Gateway</h1>
+          <p id="dynamic-subtext" class="text-xs text-gray-400 mt-0.5">Fill out your external account properties to prepare your financial routing token.</p>
+        </div>
+        <button type="button" onclick="clearRouteHash()" class="px-3 py-1.5 text-xs font-bold bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-md transition-colors border-none cursor-pointer flex items-center gap-1">
+          <i class="fa-solid fa-arrow-left-long"></i> Change Route
+        </button>
+      </div>
+
+      <form id="transfer-form" method="POST" action="{% url 'banking:submit_action_to_support' %}" class="flex flex-col gap-6 font-sans">
+        {% csrf_token %}
+        <input type="hidden" name="payment_method_type" id="hidden-method-type" value="">
+
+        <!-- Balance Overview Element -->
+        <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 flex items-center justify-between">
+          <div>
+            <p class="text-[0.65rem] font-bold text-gray-400 uppercase tracking-wider">Source Account Balance</p>
+            <p class="text-sm font-bold text-gray-900 mt-0.5">${{ account.balance|default:"0.00" }}</p>
+          </div>
+          <span id="dynamic-badge" class="text-[0.65rem] font-bold px-2 py-0.5 rounded bg-blue-50 text-blue-700 uppercase tracking-wide">WIRE</span>
+        </div>
+
+        <!-- Section 1: Target Endpoint Information -->
+        <div class="flex flex-col gap-4">
+          <div class="flex items-center gap-2">
+            <div class="w-5 h-5 rounded-full bg-blue-700 text-white text-[0.6rem] font-black flex items-center justify-center shrink-0">1</div>
+            <h2 class="text-xs font-bold text-gray-900 uppercase tracking-wider">Beneficiary Routing Parameters</h2>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <!-- Account Holder Label & Input -->
+            <div class="flex flex-col gap-1">
+              <label class="text-xs font-semibold text-gray-700">Recipient Legal Name / Corporate ID</label>
+              <div class="relative">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400 text-xs pointer-events-none"><i class="fa-regular fa-user"></i></span>
+                <input type="text" name="recipient_name" id="f-holder-name"
+                  class="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-md text-[0.8125rem] text-gray-900 outline-none transition-all focus:border-blue-500 font-medium"
+                  placeholder="Full name of target receiver" required />
+              </div>
+            </div>
+
+            <!-- Context Target ID Number/Token input -->
+            <div class="flex flex-col gap-1">
+              <label id="label-field-one" class="text-xs font-semibold text-gray-700">IBAN / Destination Account Number</label>
+              <div class="relative">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400 text-xs pointer-events-none"><i class="fa-solid fa-hashtag"></i></span>
+                <input type="text" name="account_identifier_primary" id="f-account-number"
+                  class="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-md text-[0.8125rem] text-gray-900 outline-none transition-all focus:border-blue-500 font-mono tracking-wider"
+                  placeholder="Provide tracking details" required />
+              </div>
+            </div>
+
+            <!-- Routing Field 2 -->
+            <div class="flex flex-col gap-1">
+              <label id="label-field-two" class="text-xs font-semibold text-gray-700">SWIFT / BIC Routing Token</label>
+              <div class="relative">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400 text-xs pointer-events-none"><i class="fa-solid fa-code-branch"></i></span>
+                <input type="text" name="account_identifier_secondary" id="f-routing-code"
+                  class="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-md text-[0.8125rem] text-gray-900 outline-none transition-all focus:border-blue-500 font-mono tracking-wider uppercase"
+                  placeholder="Routing coordinates" required />
+              </div>
+            </div>
+
+            <!-- Target Settlement Currency Field -->
+            <div class="flex flex-col gap-1">
+              <label class="text-xs font-semibold text-gray-700">Remittance Execution Currency</label>
+              <div class="relative">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400 text-xs pointer-events-none"><i class="fa-solid fa-money-bill-transfer"></i></span>
+                <select name="settlement_currency" id="f-currency-type"
+                  class="w-full pl-8 pr-8 py-2 border border-gray-300 rounded-md text-[0.8125rem] text-gray-900 outline-none transition-all focus:border-blue-500 bg-white cursor-pointer font-medium appearance-none" required>
+                  <option value="USD">US Dollar ($)</option>
+                  <option value="EUR">Euro (€)</option>
+                  <option value="GBP">British Pound Sterling (£)</option>
+                  <option value="BTC">Bitcoin Asset Class (BTC)</option>
+                  <option value="USDT">Tether Liquidity Node (USDT)</option>
+                </select>
+                <span class="absolute inset-y-0 right-3 flex items-center pointer-events-none text-gray-400 text-xs"><i class="fa-solid fa-chevron-down"></i></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 2: Financial Magnitude Selection -->
+        <div class="flex flex-col gap-4">
+          <div class="flex items-center gap-2">
+            <div class="w-5 h-5 rounded-full bg-blue-700 text-white text-[0.6rem] font-black flex items-center justify-center shrink-0">2</div>
+            <h2 class="text-xs font-bold text-gray-900 uppercase tracking-wider">Transfer Amount</h2>
+          </div>
+          <div class="flex flex-col gap-1">
+            <label class="text-xs font-semibold text-gray-700">Value Amount ($)</label>
+            <div class="relative">
+              <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500 font-bold text-xs">$</span>
+              <input type="number" name="amount" id="f-amount"
+                step="0.01" min="10.00" max="{{ account.balance|default:'0.00' }}"
+                class="w-full pl-7 pr-3 py-2 border border-gray-300 rounded-md text-[0.8125rem] text-gray-900 outline-none transition-all focus:border-blue-500 font-medium"
+                placeholder="0.00" required />
+            </div>
+            <div class="flex justify-between items-center px-0.5 mt-0.5">
+              <p class="text-[0.65rem] text-gray-400">International clearance verification thresholds apply.</p>
+              <p class="text-[0.65rem] text-blue-700 font-bold cursor-pointer hover:underline animate-pulse" onclick="setMaxBalance()">Use Max Available Balance</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 3: Authentication and Security Layout -->
+        <div class="flex flex-col gap-4">
+          <div class="flex items-center gap-2">
+            <div class="w-5 h-5 rounded-full bg-blue-700 text-white text-[0.6rem] font-black flex items-center justify-center shrink-0">3</div>
+            <h2 class="text-xs font-bold text-gray-900 uppercase tracking-wider">Additional Information</h2>
+          </div>
+
+          <div class="flex flex-col gap-1">
+            <label class="text-xs font-semibold text-gray-700">Transaction Memo Reference</label>
+            <div class="relative">
+              <span class="absolute top-2.5 left-3 text-gray-400 text-xs pointer-events-none"><i class="fa-regular fa-comment-dots"></i></span>
+              <textarea name="description" id="f-description" rows="3"
+                class="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-md text-[0.8125rem] text-gray-900 outline-none transition-all focus:border-blue-500 resize-none font-medium"
+                placeholder="Specify target notes (e.g. Personal allocation, portfolio conversion...)"></textarea>
+            </div>
+          </div>
+
+          <div class="flex flex-col gap-1">
+            <label class="text-xs font-semibold text-gray-700">Account Password</label>
+            <div class="relative">
+              <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400 text-xs pointer-events-none"><i class="fa-solid fa-lock"></i></span>
+              <input type="password" name="password" id="f-password"
+                class="w-full pl-8 pr-10 py-2 border border-gray-300 rounded-md text-[0.8125rem] text-gray-900 outline-none transition-all focus:border-blue-500 font-medium"
+                placeholder="Enter account security password" required />
+              <button type="button" onclick="togglePwVisibility()" tabindex="-1"
+                class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600 transition-colors bg-transparent border-none cursor-pointer">
+                <i class="fa-regular fa-eye" id="pw-eye-icon"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Form Submission Execution Block -->
+        <div class="pt-2 border-t border-gray-100">
+          <button type="button" onclick="handlePreviewModalToggle(true)"
+            class="w-full py-2.5 bg-[#1e4a82] hover:bg-[#163867] text-white border-none rounded-md text-xs font-bold transition-colors shadow-sm flex items-center justify-center gap-2 cursor-pointer">
+            <i class="fa-solid fa-eye"></i> Validate &amp; Preview Transaction
+          </button>
+        </div>
+      </form>
+    </div>
+
+  </div>
+
+  <!-- RIGHT ADVISORY SIDEBAR CONTAINER -->
+  <div class="flex flex-col gap-5">
+    <div class="bg-white rounded-lg border border-gray-200 p-5 shadow-sm">
+      <h2 class="text-sm font-bold text-gray-900 mb-3 flex items-center gap-1.5">
+        <i class="fa-solid fa-shield-halved text-blue-700"></i> International Compliance
+      </h2>
+      <ul class="text-[0.72rem] text-gray-500 list-none pl-0 flex flex-col gap-2.5 font-medium m-0">
+        <li class="flex items-start gap-2">
+          <i class="fa-solid fa-circle-check text-green-600 mt-0.5 shrink-0"></i>
+          <span>Cross-border pipelines are scrutinized dynamically under active regulatory framework protocols.</span>
+        </li>
+        <li class="flex items-start gap-2">
+          <i class="fa-solid fa-circle-check text-green-600 mt-0.5 shrink-0"></i>
+          <span>Crypto, Wise, and third-party digital settlement endpoints clear through liquidity hubs instantly.</span>
+        </li>
+        <li class="flex items-start gap-2">
+          <i class="fa-solid fa-circle-exclamation text-amber-500 mt-0.5 shrink-0"></i>
+          <span>Cross-border settlements require live agent authentication tracking to securely deploy the transaction token.</span>
+        </li>
+      </ul>
+    </div>
+
+    <div class="bg-white rounded-lg border border-gray-200 p-5 shadow-sm">
+      <div class="flex justify-between items-center mb-3">
+        <h2 class="text-sm font-bold text-gray-900">Alternative Pipeline Cap</h2>
+        <span class="text-[0.65rem] font-bold text-gray-400 tracking-wider uppercase">Tier 2 Verified</span>
+      </div>
+      <div class="flex flex-col gap-1.5">
+        <div class="flex justify-between text-[0.72rem] font-bold font-sans">
+          <span class="text-gray-500">Utilization Rate</span>
+          <span class="text-gray-900">$0.00 / $50,000.00</span>
+        </div>
+        <div class="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden border border-gray-200/50">
+          <div class="bg-blue-600 h-1.5 rounded-full" style="width: 0%"></div>
+        </div>
+        <p class="text-[0.62rem] text-gray-400 font-semibold uppercase mt-0.5 flex items-center gap-1 m-0">
+          <span class="w-1 h-1 rounded-full bg-green-500"></span> Global priority pipeline enabled
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DYNAMIC CONFIRMATION MODAL PREVIEW SCREEN LAYER -->
+<div id="transfer-modal-screen" class="hidden fixed inset-0 bg-gray-900/40 backdrop-blur-sm items-center justify-center z-50 p-4 opacity-0 pointer-events-none transition-opacity duration-300">
+  <div class="bg-white w-full max-w-md rounded-lg border border-gray-200 shadow-xl overflow-hidden scale-95 transition-transform duration-300" id="transfer-modal-content-box">
+    
+    <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
+      <h3 class="text-xs font-bold text-gray-900 uppercase tracking-wider flex items-center gap-1.5">
+        <i class="fa-solid fa-calculator text-blue-700"></i> Authentication Required
+      </h3>
+      <button type="button" onclick="handlePreviewModalToggle(false)" class="text-gray-400 hover:text-gray-700 text-xs p-1 bg-transparent border-none cursor-pointer">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <div class="p-5 flex flex-col gap-4 font-sans">
+      
+      <div class="flex flex-col gap-2.5 divide-y divide-gray-100 text-[0.78rem]">
+        <div class="flex items-center justify-between pt-1">
+          <span class="text-gray-400 font-medium">Target Receiver:</span>
+          <span class="font-bold text-gray-800" id="prev-name">—</span>
+        </div>
+        <div class="flex items-center justify-between pt-2.5">
+          <span class="text-gray-400 font-medium" id="modal-lbl-one">Routing Destination:</span>
+          <span class="font-mono font-bold text-gray-800" id="prev-account">—</span>
+        </div>
+        <div class="flex items-center justify-between pt-2.5">
+          <span class="text-gray-400 font-medium">Method Platform:</span>
+          <span class="font-semibold text-blue-800" id="prev-platform">—</span>
+        </div>
+        <div class="flex items-center justify-between pt-2.5" id="prev-desc-row">
+          <span class="text-gray-400 font-medium">Memo Description:</span>
+          <span class="font-medium text-gray-600 max-w-[50%] truncate" id="prev-desc">—</span>
+        </div>
+      </div>
+
+      <div class="bg-gray-50 border border-gray-200/60 p-3.5 rounded-lg flex items-center justify-between text-[0.72rem] font-medium text-gray-500">
+        <span>Remittance Amount Base:</span>
+        <span class="text-blue-900 font-black font-mono text-base" id="prev-amount">$0.00</span>
+      </div>
+
+      <div class="bg-amber-50 border border-amber-200 p-3 rounded-md flex gap-2">
+        <i class="fa-solid fa-circle-exclamation text-amber-600 text-xs mt-0.5 shrink-0"></i>
+        <div class="flex flex-col gap-0.5">
+          <h4 class="text-[0.7rem] font-bold text-amber-900">Security Clearance Action Required</h4>
+          <p class="text-[0.65rem] text-amber-800 leading-normal font-medium">
+            Your destination criteria are securely mapped. To successfully authorize and finalize this transaction request, please get in touch with our security branch to request your verification token.
+          </p>
+        </div>
+      </div>
+
+      <div class="flex flex-col sm:flex-row gap-2.5 pt-2">
+        <button type="button" onclick="handlePreviewModalToggle(false)" class="w-full sm:w-1/3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md text-xs font-semibold transition-colors border-none cursor-pointer">
+          Edit Fields
+        </button>
+        <a href="/dashboard/support/chat/" class="w-full sm:flex-1 py-2 bg-blue-900 hover:bg-[#0e2645] text-white rounded-md text-xs font-bold transition-colors text-center no-underline flex items-center justify-center gap-1.5 shadow-sm">
+          <i class="fa-solid fa-headset"></i> Connect Live Support
+        </a>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  const maxAvailableBalance = parseFloat("{{ account.balance|default:'0.00' }}");
+  let standardBadgeClasses = "text-[0.65rem] font-bold px-2 py-0.5 rounded uppercase tracking-wide ";
+  let chosenMethodCleanName = "Wire Transfer";
+
+  // Data config objects parsing properties mapped by route key string
+  const methodProfiles = {
+    wire: { title: 'Wire Transfer', headline: 'International Bank Account Transfer', l1: 'IBAN / Account Number', l2: 'SWIFT / BIC Code', cls: 'bg-blue-50 text-blue-700' },
+    crypto: { title: 'Cryptocurrency', headline: 'Digital Asset Dispersal Protocol', l1: 'Wallet Address Token', l2: 'Network Type (e.g., ERC20)', cls: 'bg-amber-50 text-amber-700' },
+    paypal: { title: 'PayPal', headline: 'PayPal Settlement Pipeline', l1: 'PayPal Email Address / ID', l2: 'Account Type / Region', cls: 'bg-indigo-50 text-indigo-700' },
+    wise: { title: 'Wise Transfer', headline: 'Wise Multi-Currency Settlement', l1: 'Wise Registered Email / IBAN', l2: 'Transfer Routing Profile', cls: 'bg-green-50 text-green-700' },
+    cashapp: { title: 'Cash App', headline: 'Cash App Portfolio Settlement', l1: 'Cashtag ($Username)', l2: 'Associated Mobile Number', cls: 'bg-emerald-50 text-emerald-700' },
+    skrill: { title: 'Skrill', headline: 'Skrill Wallet Transfer', l1: 'Skrill Email Handle', l2: 'Account Currency Denomination', cls: 'bg-purple-50 text-purple-700' },
+    venmo: { title: 'Venmo', headline: 'Venmo Handle Distribution', l1: 'Venmo @Username', l2: 'Mobile Token ID', cls: 'bg-blue-50 text-blue-600' },
+    zelle: { title: 'Zelle', headline: 'Zelle Network Settlement', l1: 'Registered Email or Mobile Number', l2: 'Primary Banking Node Name', cls: 'bg-purple-50 text-purple-800' },
+    revolut: { title: 'Revolut', headline: 'Revolut Global Account Settlement', l1: 'Revolut Tag / IBAN', l2: 'Destination Clearing Country', cls: 'bg-slate-50 text-slate-800' },
+    alipay: { title: 'Alipay', headline: 'Alipay International Remittance', l1: 'Alipay Account ID / Mobile Number', l2: 'Full Legal Chinese Name (Pinyin)', cls: 'bg-cyan-50 text-cyan-600' },
+    wechat: { title: 'WeChat Pay', headline: 'WeChat Cross-Border Payout', l1: 'WeChat ID / Associated Phone', l2: 'Beneficiary Full Name', cls: 'bg-emerald-50 text-emerald-600' }
+  };
+
+  // Route updates wrapper
+  function selectMethodRoute(key) {
+    window.location.hash = key;
+  }
+
+  function clearRouteHash() {
+    window.location.hash = '';
+  }
+
+  // Master layout rendering pipeline driven entirely by routing coordinates
+  function processCurrentRoute() {
+    const key = window.location.hash.replace('#', '');
+    const profile = methodProfiles[key];
+
+    if (!profile) {
+      // Revert screen state immediately to home grid container layout
+      document.getElementById('form-hub').classList.add('hidden');
+      document.getElementById('selection-hub').classList.remove('hidden');
+      document.getElementById('transfer-form').reset();
+      return;
+    }
+
+    // Populate field metadata blocks dynamically
+    document.getElementById('hidden-method-type').value = key;
+    document.getElementById('dynamic-headline').innerText = profile.headline;
+    document.getElementById('dynamic-subtext').innerText = "Provide your standard external " + profile.title + " delivery account parameters.";
+    document.getElementById('label-field-one').innerText = profile.l1;
+    document.getElementById('label-field-two').innerText = profile.l2;
+    
+    chosenMethodCleanName = profile.title;
+    
+    // Setup relative placeholders contextual inputs
+    const f1 = document.getElementById('f-account-number');
+    const f2 = document.getElementById('f-routing-code');
+    if (key === 'crypto') {
+       f1.placeholder = "e.g. 0x71C...3A9 or 1A1zP1e..."; f2.placeholder = "e.g. ERC-20, TRC-20, Native";
+    } else if (['paypal', 'wise', 'skrill'].includes(key)) {
+       f1.placeholder = "registered-email@domain.com"; f2.placeholder = "Verified Account ID or Region Profile";
+    } else if (['cashapp', 'venmo'].includes(key)) {
+       f1.placeholder = "e.g. $Cashtag or @Username"; f2.placeholder = "Associated billing phone reference";
+    } else {
+       f1.placeholder = "Target International IBAN/Number"; f2.placeholder = "e.g. CHASUS33XXX";
+    }
+
+    const b = document.getElementById('dynamic-badge');
+    b.innerText = key.toUpperCase();
+    b.className = standardBadgeClasses + profile.cls;
+
+    document.getElementById('selection-hub').classList.add('hidden');
+    document.getElementById('form-hub').classList.remove('hidden');
+  }
+
+  // Initialize and attach standard browser back/forward routing monitoring logic
+  window.addEventListener('hashchange', processCurrentRoute);
+  window.addEventListener('DOMContentLoaded', processCurrentRoute);
+
+  function setMaxBalance() {
+    const amountField = document.getElementById('f-amount');
+    if (amountField) {
+      amountField.value = maxAvailableBalance.toFixed(2);
+    }
+  }
+
+  function handlePreviewModalToggle(shouldOpen) {
+    const modalScreen = document.getElementById('transfer-modal-screen');
+    const contentBox = document.getElementById('transfer-modal-content-box');
+    
+    if (!modalScreen || !contentBox) return; 
+
+    if (shouldOpen) {
+      const name   = document.getElementById('f-holder-name').value.trim();
+      const accNum = document.getElementById('f-account-number').value.trim();
+      const rCode  = document.getElementById('f-routing-code').value.trim();
+      const desc   = document.getElementById('f-description').value.trim();
+      const amount = parseFloat(document.getElementById('f-amount').value);
+      const pwd    = document.getElementById('f-password').value;
+
+      if (!name || !accNum || !rCode || !pwd || isNaN(amount) || amount < 10 || amount > maxAvailableBalance) {
+        document.getElementById('transfer-form').reportValidity();
+        return;
+      }
+
+      document.getElementById('prev-name').textContent = name;
+      document.getElementById('prev-account').textContent = accNum;
+      document.getElementById('modal-lbl-one').textContent = document.getElementById('label-field-one').innerText + ":";
+      document.getElementById('prev-platform').textContent = chosenMethodCleanName;
+      
+      const descRow = document.getElementById('prev-desc-row');
+      if (desc) {
+        document.getElementById('prev-desc').textContent = desc;
+        descRow.classList.remove('hidden');
+      } else {
+        descRow.classList.add('hidden');
+      }
+
+      document.getElementById('prev-amount').textContent = 
+        '$' + amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+      modalScreen.classList.remove('hidden');
+      modalScreen.classList.add('flex');
+      
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          modalScreen.classList.remove('pointer-events-none', 'opacity-0');
+          contentBox.classList.remove('scale-95');
+          contentBox.classList.add('scale-100');
+        });
+      });
+    } else {
+      modalScreen.classList.add('pointer-events-none', 'opacity-0');
+      contentBox.classList.remove('scale-100');
+      contentBox.classList.add('scale-95');
+      
+      setTimeout(() => {
+        modalScreen.classList.remove('flex');
+        modalScreen.classList.add('hidden');
+      }, 300);
+    }
+  }
+
+  document.getElementById('transfer-modal-screen').addEventListener('click', function(e) {
+    if (e.target === this) handlePreviewModalToggle(false);
+  });
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') handlePreviewModalToggle(false);
+  });
+
+  function togglePwVisibility() {
+    const input = document.getElementById('f-password');
+    const icon  = document.getElementById('pw-eye-icon');
+    if (!input || !icon) return;
+    const isHidden = input.type === 'password';
+    input.type = isHidden ? 'text' : 'password';
+    icon.className = isHidden ? 'fa-regular fa-eye-slash' : 'fa-regular fa-eye';
+  }
+</script>
+{% endblock %}

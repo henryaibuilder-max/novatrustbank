@@ -1,0 +1,358 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}About Us - NovaPlusBank{% endblock %}
+{% block meta_description %}Learn about NovaPlusBank — a member-owned credit union committed to competitive rates, community impact, and banking that puts people first.{% endblock %}
+
+{% block content %}
+
+<!-- ══════════════════════════════════════════
+     HERO
+══════════════════════════════════════════ -->
+<section class="bg-blue-700 pt-28 pb-20">
+  <div class="max-w-6xl mx-auto px-5 sm:px-8">
+    <div class="max-w-2xl">
+      <p class="text-blue-200 text-xs lg:text-sm font-semibold uppercase tracking-widest mb-4">Our Story</p>
+      <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight text-white mb-5">
+        Built by Members,<br>For Members.
+      </h1>
+      <p class="text-blue-100 text-sm lg:text-base leading-relaxed max-w-lg mb-8">
+        Since 1987, NovaPlusBank has been a full-service credit union dedicated to helping our members achieve financial strength — with better rates, personal service, and a genuine commitment to community.
+      </p>
+      <div class="flex flex-wrap gap-5 text-xs lg:text-sm text-blue-200">
+        <span class="flex items-center gap-1.5"><i class="fa-solid fa-calendar-check"></i> Est. 1987</span>
+        <span class="flex items-center gap-1.5"><i class="fa-solid fa-users"></i> 50,000+ Members</span>
+        <span class="flex items-center gap-1.5"><i class="fa-solid fa-hand-holding-heart"></i> Not-for-Profit</span>
+      </div>
+    </div>
+
+    <!-- Stats bar -->
+    <div class="mt-16 grid grid-cols-2 md:grid-cols-4 divide-x divide-blue-600 border-t border-blue-600 pt-8">
+      <div class="px-6 first:pl-0 text-center md:text-left">
+        <p class="text-xl lg:text-2xl font-bold text-white">37+</p>
+        <p class="text-blue-200 text-xs lg:text-sm mt-0.5">Years of Service</p>
+      </div>
+      <div class="px-6 text-center md:text-left">
+        <p class="text-xl lg:text-2xl font-bold text-white">12</p>
+        <p class="text-blue-200 text-xs lg:text-sm mt-0.5">Branch Locations</p>
+      </div>
+      <div class="px-6 text-center md:text-left">
+        <p class="text-xl lg:text-2xl font-bold text-white">$2.5B+</p>
+        <p class="text-blue-200 text-xs lg:text-sm mt-0.5">Assets Managed</p>
+      </div>
+      <div class="px-6 text-center md:text-left">
+        <p class="text-xl lg:text-2xl font-bold text-white">98%</p>
+        <p class="text-blue-200 text-xs lg:text-sm mt-0.5">Member Satisfaction</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     OUR STORY
+══════════════════════════════════════════ -->
+<section class="py-16 bg-white border-b border-gray-100">
+  <div class="max-w-6xl mx-auto px-5 sm:px-8">
+    <div class="grid lg:grid-cols-2 gap-14 items-center">
+
+      <div class="bg-gray-100 rounded aspect-[4/3] flex items-center justify-center overflow-hidden">
+        <img
+          src="{% static 'images/feature-family.avif' %}"
+          alt="NovaPlusBank members and community"
+          class="w-full h-full object-cover"
+          onerror="this.parentElement.classList.add('bg-blue-50'); this.remove();"
+        />
+      </div>
+
+      <div>
+        <p class="eyebrow">Who We Are</p>
+        <h2 class="section-heading mb-4">A Different Kind<br>of Financial Partner</h2>
+        <p class="text-gray-500 text-sm lg:text-base leading-relaxed mb-4">
+          NovaPlusBank started with a simple idea: banking should work for the people who use it, not the other way around. What began as a small group of employees pooling their savings has grown into one of the region's most trusted credit unions.
+        </p>
+        <p class="text-gray-500 text-sm lg:text-base leading-relaxed mb-6">
+          As a member-owned cooperative, every decision we make is guided by what's best for you — not outside shareholders. That means lower fees, better rates, and a team that actually knows your name.
+        </p>
+        <ul class="space-y-2.5">
+          <li class="flex items-center gap-2.5 text-sm lg:text-base text-gray-700">
+            <i class="fa-solid fa-check text-blue-600 text-xs"></i> Member-owned, not shareholder-driven
+          </li>
+          <li class="flex items-center gap-2.5 text-sm lg:text-base text-gray-700">
+            <i class="fa-solid fa-check text-blue-600 text-xs"></i> FDIC insured deposits up to $250,000
+          </li>
+          <li class="flex items-center gap-2.5 text-sm lg:text-base text-gray-700">
+            <i class="fa-solid fa-check text-blue-600 text-xs"></i> Serving communities across the Northeast
+          </li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     MISSION & VISION
+══════════════════════════════════════════ -->
+<section class="py-16 bg-gray-50 border-b border-gray-100">
+  <div class="max-w-6xl mx-auto px-5 sm:px-8">
+    <div class="grid md:grid-cols-2 gap-8 mb-14">
+
+      <div class="bg-white border border-gray-200 rounded-lg p-8">
+        <div class="w-10 h-10 bg-blue-50 flex items-center justify-center rounded mb-5">
+          <i class="fa-solid fa-bullseye text-blue-600 text-sm"></i>
+        </div>
+        <h3 class="text-lg lg:text-xl font-bold text-gray-900 mb-3">Our Mission</h3>
+        <p class="text-gray-500 text-sm lg:text-base leading-relaxed">
+          To empower our members with accessible financial tools, competitive products, and personalized guidance — so every person and business in our community can build lasting financial strength.
+        </p>
+      </div>
+
+      <div class="bg-white border border-gray-200 rounded-lg p-8">
+        <div class="w-10 h-10 bg-blue-50 flex items-center justify-center rounded mb-5">
+          <i class="fa-solid fa-eye text-blue-600 text-sm"></i>
+        </div>
+        <h3 class="text-lg lg:text-xl font-bold text-gray-900 mb-3">Our Vision</h3>
+        <p class="text-gray-500 text-sm lg:text-base leading-relaxed">
+          To be the most trusted financial partner in every community we serve — known for integrity, innovation, and an unwavering commitment to putting members first.
+        </p>
+      </div>
+
+    </div>
+
+    <div class="mb-10 text-center">
+      <p class="eyebrow">What Guides Us</p>
+      <h2 class="section-heading">Our Core Values</h2>
+      <p class="text-gray-500 text-sm lg:text-base mt-2 max-w-lg mx-auto">The principles behind every product, policy, and conversation.</p>
+    </div>
+
+    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+
+      <div class="rate-card">
+        <div class="rate-icon bg-blue-50">
+          <i class="fa-solid fa-scale-balanced text-blue-600"></i>
+        </div>
+        <h3 class="text-sm lg:text-base font-semibold text-gray-900 mb-2">Integrity</h3>
+        <p class="text-xs lg:text-sm text-gray-400 leading-relaxed">Honest advice and transparent pricing — always.</p>
+      </div>
+
+      <div class="rate-card">
+        <div class="rate-icon bg-gray-50">
+          <i class="fa-solid fa-people-group text-gray-600"></i>
+        </div>
+        <h3 class="text-sm lg:text-base font-semibold text-gray-900 mb-2">Community</h3>
+        <p class="text-xs lg:text-sm text-gray-400 leading-relaxed">Investing locally and giving back to the neighborhoods we serve.</p>
+      </div>
+
+      <div class="rate-card">
+        <div class="rate-icon bg-gray-50">
+          <i class="fa-solid fa-lightbulb text-gray-600"></i>
+        </div>
+        <h3 class="text-sm lg:text-base font-semibold text-gray-900 mb-2">Innovation</h3>
+        <p class="text-xs lg:text-sm text-gray-400 leading-relaxed">Modern digital tools paired with the warmth of in-person service.</p>
+      </div>
+
+      <div class="rate-card">
+        <div class="rate-icon bg-gray-50">
+          <i class="fa-solid fa-handshake text-gray-600"></i>
+        </div>
+        <h3 class="text-sm lg:text-base font-semibold text-gray-900 mb-2">Partnership</h3>
+        <p class="text-xs lg:text-sm text-gray-400 leading-relaxed">Your goals drive our decisions — we're in this together.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     TIMELINE
+══════════════════════════════════════════ -->
+<section class="py-16 bg-white border-b border-gray-100">
+  <div class="max-w-6xl mx-auto px-5 sm:px-8">
+
+    <div class="mb-10">
+      <p class="eyebrow">Our Journey</p>
+      <h2 class="section-heading">Milestones That Matter</h2>
+      <p class="text-gray-500 text-sm lg:text-base mt-2 max-w-lg">Key moments in our growth from a small credit union to a regional leader.</p>
+    </div>
+
+    <div class="space-y-3">
+      <div class="feature-row">
+        <div class="w-16 flex-shrink-0 text-center">
+          <p class="text-sm lg:text-base font-bold text-blue-600">1987</p>
+        </div>
+        <div>
+          <h4 class="text-sm lg:text-base font-semibold text-gray-900 mb-0.5">Founded as a Employee Credit Union</h4>
+          <p class="text-xs lg:text-sm text-gray-500">A group of 200 local employees pooled $50,000 to create a better banking alternative.</p>
+        </div>
+      </div>
+      <div class="feature-row">
+        <div class="w-16 flex-shrink-0 text-center">
+          <p class="text-sm lg:text-base font-bold text-blue-600">1998</p>
+        </div>
+        <div>
+          <h4 class="text-sm lg:text-base font-semibold text-gray-900 mb-0.5">Community Charter Expansion</h4>
+          <p class="text-xs lg:text-sm text-gray-500">Opened membership to all residents in the tri-state area, reaching 10,000 members.</p>
+        </div>
+      </div>
+      <div class="feature-row">
+        <div class="w-16 flex-shrink-0 text-center">
+          <p class="text-sm lg:text-base font-bold text-blue-600">2010</p>
+        </div>
+        <div>
+          <h4 class="text-sm lg:text-base font-semibold text-gray-900 mb-0.5">Digital Banking Launch</h4>
+          <p class="text-xs lg:text-sm text-gray-500">Introduced online and mobile banking, making member accounts accessible 24/7.</p>
+        </div>
+      </div>
+      <div class="feature-row">
+        <div class="w-16 flex-shrink-0 text-center">
+          <p class="text-sm lg:text-base font-bold text-blue-600">2020</p>
+        </div>
+        <div>
+          <h4 class="text-sm lg:text-base font-semibold text-gray-900 mb-0.5">Surpassed 50,000 Members</h4>
+          <p class="text-xs lg:text-sm text-gray-500">Crossed $2.5 billion in assets under management with 12 full-service branches.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     LEADERSHIP
+══════════════════════════════════════════ -->
+<section class="py-16 bg-blue-700">
+  <div class="max-w-6xl mx-auto px-5 sm:px-8">
+
+    <div class="mb-10 text-center">
+      <p class="text-blue-200 text-[11px] lg:text-xs font-semibold uppercase tracking-widest mb-3">Leadership</p>
+      <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-white">Meet the Team</h2>
+      <p class="text-blue-200 text-sm lg:text-base mt-2 max-w-md mx-auto">Experienced leaders committed to member success and community growth.</p>
+    </div>
+
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+
+      <div class="service-card">
+        <div class="w-14 h-14 bg-white/10 flex items-center justify-center rounded-full mx-auto mb-4">
+          <i class="fa-solid fa-user-tie text-white text-lg"></i>
+        </div>
+        <h3 class="text-sm lg:text-base font-semibold text-white mb-0.5">Margaret Chen</h3>
+        <p class="text-blue-300 text-xs lg:text-sm mb-3">President & CEO</p>
+        <p class="text-blue-200 text-xs lg:text-sm leading-relaxed">25 years in community banking. Led NovaPlusBank's digital transformation and member growth strategy.</p>
+      </div>
+
+      <div class="service-card">
+        <div class="w-14 h-14 bg-white/10 flex items-center justify-center rounded-full mx-auto mb-4">
+          <i class="fa-solid fa-user-tie text-white text-lg"></i>
+        </div>
+        <h3 class="text-sm lg:text-base font-semibold text-white mb-0.5">David Okonkwo</h3>
+        <p class="text-blue-300 text-xs lg:text-sm mb-3">Chief Financial Officer</p>
+        <p class="text-blue-200 text-xs lg:text-sm leading-relaxed">Former Big Four auditor. Ensures the financial health that lets us offer members the best rates.</p>
+      </div>
+
+      <div class="service-card">
+        <div class="w-14 h-14 bg-white/10 flex items-center justify-center rounded-full mx-auto mb-4">
+          <i class="fa-solid fa-user-tie text-white text-lg"></i>
+        </div>
+        <h3 class="text-sm lg:text-base font-semibold text-white mb-0.5">Sarah Williams</h3>
+        <p class="text-blue-300 text-xs lg:text-sm mb-3">VP of Member Experience</p>
+        <p class="text-blue-200 text-xs lg:text-sm leading-relaxed">Champions member-first service across all 12 branches and our 24/7 digital support channels.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     COMMUNITY IMPACT
+══════════════════════════════════════════ -->
+<section class="py-16 bg-white border-b border-gray-100">
+  <div class="max-w-6xl mx-auto px-5 sm:px-8">
+    <div class="grid lg:grid-cols-2 gap-14 items-center">
+
+      <div>
+        <p class="eyebrow">Community Impact</p>
+        <h2 class="section-heading mb-4">Giving Back<br>Where We Live</h2>
+        <p class="text-gray-500 text-sm lg:text-base leading-relaxed mb-6">
+          Banking isn't just about numbers — it's about people. Each year, NovaPlusBank reinvests in the communities our members call home through grants, financial literacy programs, and local partnerships.
+        </p>
+        <div class="space-y-3">
+          <div class="feature-row">
+            <div class="w-8 h-8 bg-blue-50 flex items-center justify-center rounded flex-shrink-0">
+              <i class="fa-solid fa-graduation-cap text-blue-600 text-xs"></i>
+            </div>
+            <div>
+              <h4 class="text-sm lg:text-base font-semibold text-gray-900 mb-0.5">Financial Literacy Programs</h4>
+              <p class="text-xs lg:text-sm text-gray-500">Free workshops in schools and community centers reaching 5,000+ people annually.</p>
+            </div>
+          </div>
+          <div class="feature-row">
+            <div class="w-8 h-8 bg-blue-50 flex items-center justify-center rounded flex-shrink-0">
+              <i class="fa-solid fa-seedling text-blue-600 text-xs"></i>
+            </div>
+            <div>
+              <h4 class="text-sm lg:text-base font-semibold text-gray-900 mb-0.5">Small Business Grants</h4>
+              <p class="text-xs lg:text-sm text-gray-500">$500K+ in annual grants to local entrepreneurs and minority-owned businesses.</p>
+            </div>
+          </div>
+          <div class="feature-row">
+            <div class="w-8 h-8 bg-blue-50 flex items-center justify-center rounded flex-shrink-0">
+              <i class="fa-solid fa-house-chimney text-blue-600 text-xs"></i>
+            </div>
+            <div>
+              <h4 class="text-sm lg:text-base font-semibold text-gray-900 mb-0.5">First-Time Homebuyer Support</h4>
+              <p class="text-xs lg:text-sm text-gray-500">Down payment assistance and counseling for members purchasing their first home.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div class="space-y-3">
+          <div class="rounded overflow-hidden aspect-square">
+            <img src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=400&q=80" alt="Community volunteers" class="w-full h-full object-cover" />
+          </div>
+          <div class="rounded overflow-hidden aspect-[4/3]">
+            <img src="https://images.unsplash.com/photo-1573167246312-6430e0060a5e?w=400&q=80" alt="Financial literacy workshop" class="w-full h-full object-cover" />
+          </div>
+        </div>
+        <div class="space-y-3 pt-6">
+          <div class="rounded overflow-hidden aspect-[4/3]">
+            <img src="https://images.unsplash.com/photo-1559027615-cd4628902d4a?w=400&q=80" alt="Community event" class="w-full h-full object-cover" />
+          </div>
+          <div class="rounded overflow-hidden aspect-square">
+            <img src="https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?w=400&q=80" alt="Local business support" class="w-full h-full object-cover" />
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     CTA BANNER
+══════════════════════════════════════════ -->
+<section class="py-16 bg-blue-700">
+  <div class="max-w-2xl mx-auto px-5 text-center">
+    <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-3">Become a Member Today</h2>
+    <p class="text-blue-100 text-sm lg:text-base mb-8 max-w-md mx-auto">
+      Join a financial institution that puts your interests first. Open an account in minutes — no minimum balance required.
+    </p>
+    <div class="flex flex-col sm:flex-row gap-3 justify-center">
+      <a href="{% url 'account_signup' %}" class="btn-white">
+        <i class="fa-solid fa-circle-plus text-xs"></i> Open Your Account - Free
+      </a>
+      <a href="{% url 'core:contact' %}" class="btn-ghost-white">
+        <i class="fa-solid fa-phone text-xs"></i> Talk to an Advisor
+      </a>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,254 @@
+{% extends "dashboard_base.html" %}
+{% load static %}
+
+{% block title %}Pay Bills — NovaPlusBank{% endblock %}
+{% block topbar_title %}Utility &amp; Bill Settlement{% endblock %}
+{% block nav_bills %}bg-white/10 text-white{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 xl:grid-cols-[1fr_360px] gap-6 items-start">
+
+  <div class="flex flex-col gap-6">
+    
+    <div class="bg-white rounded-lg border border-gray-200 p-5 shadow-sm">
+      <h1 class="text-sm font-bold text-gray-900">Select Bill Category</h1>
+      <p class="text-xs text-gray-400 mt-0.5">Choose a provider network to initialize utility settlement pipelines.</p>
+      
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mt-4 border-t border-gray-100 pt-4">
+        <button type="button" onclick="switchBillCategory('electricity')" id="cat-electricity" class="flex flex-col items-center gap-1.5 py-3 rounded-lg border text-xs font-bold transition-all bg-blue-50 border-blue-200 text-blue-700 cursor-pointer">
+          <i class="fa-solid fa-bolt text-lg"></i>
+          <span>Power &amp; Gas</span>
+        </button>
+        <button type="button" onclick="switchBillCategory('internet')" id="cat-internet" class="flex flex-col items-center gap-1.5 py-3 rounded-lg border border-gray-200 text-gray-500 bg-white hover:bg-gray-50 text-xs font-bold transition-all cursor-pointer">
+          <i class="fa-solid fa-wifi text-lg"></i>
+          <span>Internet/Telecom</span>
+        </button>
+        <button type="button" onclick="switchBillCategory('cable')" id="cat-cable" class="flex flex-col items-center gap-1.5 py-3 rounded-lg border border-gray-200 text-gray-500 bg-white hover:bg-gray-50 text-xs font-bold transition-all cursor-pointer">
+          <i class="fa-solid fa-tv text-lg"></i>
+          <span>TV &amp; Streaming</span>
+        </button>
+        <button type="button" onclick="switchBillCategory('government')" id="cat-government" class="flex flex-col items-center gap-1.5 py-3 rounded-lg border border-gray-200 text-gray-500 bg-white hover:bg-gray-50 text-xs font-bold transition-all cursor-pointer">
+          <i class="fa-solid fa-gavel text-lg"></i>
+          <span>Municipal &amp; IRS</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-lg border border-gray-200 p-5 md:p-6 shadow-sm">
+      <h2 class="text-sm font-bold text-gray-900 mb-4 pb-3 border-b border-gray-100 flex items-center gap-1.5">
+        <i class="fa-solid fa-receipt text-blue-700"></i> Dispatch Order File
+      </h2>
+
+      <!-- Form logic routes into verified support-desk confirmation rather than standalone submission -->
+      <form onsubmit="handleSupportRedirect(event)" class="flex flex-col gap-4 font-sans" id="bill-form">
+        
+        <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 flex items-center justify-between">
+          <div>
+            <p class="text-[0.65rem] font-bold text-gray-400 uppercase tracking-wider">Debit Source Ledger</p>
+            <p class="text-sm font-bold text-gray-900 mt-0.5">${{ account.balance|default:"0.00" }}</p>
+          </div>
+          <span class="text-[0.65rem] font-bold px-2 py-0.5 rounded bg-blue-900 text-white uppercase tracking-wide">USD Wallet</span>
+        </div>
+
+        <div class="flex flex-col gap-1">
+          <label class="text-xs font-semibold text-gray-700">Service Provider / Packager</label>
+          <select id="bill-provider" class="w-full px-3 py-2 border border-gray-300 rounded-md text-[0.8125rem] text-gray-900 outline-none focus:border-blue-500 bg-white cursor-pointer font-medium" required>
+            <option value="pge" selected>Pacific Gas and Electric (PG&amp;E)</option>
+            <option value="coned">Con Edison (Consolidated Edison)</option>
+            <option value="national_grid">National Grid USA</option>
+          </select>
+        </div>
+
+        <div class="flex flex-col gap-1">
+          <label id="identifier-label" class="text-xs font-semibold text-gray-700">Account / Statement Identifier Code</label>
+          <div class="relative flex items-center">
+            <input type="text" id="bill-identifier" class="w-full px-3 py-2 border border-gray-300 rounded-md text-[0.8125rem] text-gray-900 outline-none focus:border-blue-500 font-mono tracking-wider" placeholder="e.g. 10492817462" oninput="resetValidationUI()" required />
+            <button type="button" onclick="verifyUtilityIdentity()" class="absolute right-2 px-2.5 py-1 bg-gray-100 hover:bg-gray-200 border border-gray-200 rounded text-[0.65rem] font-bold text-gray-700 transition-colors cursor-pointer">
+              Verify ID
+            </button>
+          </div>
+          <div id="verification-banner" class="hidden mt-1.5 p-2 rounded text-[0.7rem] font-semibold flex items-center gap-1.5"></div>
+        </div>
+
+        <div class="flex flex-col gap-1">
+          <label class="text-xs font-semibold text-gray-700">Transaction Value ($)</label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400 font-bold text-xs">$</span>
+            <input type="number" step="0.01" min="5.00" class="w-full pl-7 pr-3 py-2 border border-gray-300 rounded-md text-[0.8125rem] text-gray-900 outline-none focus:border-blue-500 font-medium" placeholder="0.00" required />
+          </div>
+          <p class="text-[0.62rem] text-gray-400 mt-0.5">Minimum processing baseline criteria threshold: $5.00</p>
+        </div>
+
+        <!-- Alert Notification Layer -->
+        <div class="bg-amber-50 border border-amber-200 p-3 rounded-md flex gap-2">
+          <i class="fa-solid fa-circle-exclamation text-amber-600 text-xs mt-0.5 shrink-0"></i>
+          <div class="flex flex-col gap-0.5">
+            <h4 class="text-[0.7rem] font-bold text-amber-900">Clearing Validation Required</h4>
+            <p class="text-[0.65rem] text-amber-800 leading-normal font-medium">
+              Outbound third-party corporate utility processing from foreign/non-resident account types must be logged and manually authorized by an operations desk engineer.
+            </p>
+          </div>
+        </div>
+
+        <button type="submit" class="w-full mt-1 py-2.5 bg-blue-900 hover:bg-[#0e2645] text-white rounded-md text-xs font-bold transition-colors shadow-sm flex items-center justify-center gap-2 border-none cursor-pointer">
+          <i class="fa-solid fa-headset"></i> Connect to Support to Complete Pay
+        </button>
+
+      </form>
+    </div>
+
+  </div>
+
+  <div class="flex flex-col gap-5">
+    
+    <div class="bg-white rounded-lg border border-gray-200 p-5 shadow-sm">
+      <h2 class="text-sm font-bold text-gray-900 mb-3">Network Handling Fees</h2>
+      <div class="flex flex-col gap-2.5 text-[0.72rem] font-medium divide-y divide-gray-100">
+        <div class="flex justify-between items-center text-gray-500 pt-0">
+          <span>Processing Surcharge Tariff</span>
+          <span class="text-gray-900 font-bold">$1.50 Flat</span>
+        </div>
+        <div class="flex justify-between items-center text-gray-500 pt-2.5">
+          <span>Settlement Window Protocol</span>
+          <span class="text-emerald-700 font-bold">Instant ACH Verification</span>
+        </div>
+        <div class="flex justify-between items-center text-gray-500 pt-2.5">
+          <span>Daily Clearance Limit Remaining</span>
+          <span class="text-blue-700 font-bold">$50,000.00</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-lg border border-gray-200 p-5 shadow-sm">
+      <h2 class="text-sm font-bold text-gray-900 mb-2 flex items-center gap-1.5">
+        <i class="fa-solid fa-shield-halved text-blue-700"></i> Verification Protocol Notice
+      </h2>
+      <p class="text-[0.72rem] text-gray-500 leading-relaxed font-medium">
+        Always run the <strong>Verify ID</strong> validation sequence before submitting funding dispatches. NovaPlusBank clearing systems cannot reverse credits routing into incorrectly validated external terminal channels.
+      </p>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  // Structured Map Registry covering available US utility listings
+  const categoryRegistry = {
+    electricity: {
+      label: "Account / Statement Identifier Code",
+      placeholder: "e.g. 10492817462",
+      options: [
+        { value: "pge", text: "Pacific Gas and Electric (PG&E)" },
+        { value: "coned", text: "Con Edison (Consolidated Edison)" },
+        { value: "national_grid", text: "National Grid USA" }
+      ]
+    },
+    internet: {
+      label: "Service Account Number / Linked Billing ID",
+      placeholder: "e.g. 849503194",
+      options: [
+        { value: "comcast_xfinity", text: "Comcast Xfinity Home Internet" },
+        { value: "att_fiber", text: "AT&T Internet &amp; Fiber Operations" },
+        { value: "verizon_fios", text: "Verizon Fios Broadband Solutions" },
+        { value: "spectrum", text: "Charter Spectrum Telecommunications" }
+      ]
+    },
+    cable: {
+      label: "Subscriber Number / Device ID",
+      placeholder: "e.g. 5849301928",
+      options: [
+        { value: "dish_network", text: "Dish Network Subscription Tiers" },
+        { value: "directv", text: "DirecTV Stream / Satellite Bundles" },
+        { value: "youtube_tv", text: "YouTube TV Base Plan Settlement" }
+      ]
+    },
+    government: {
+      label: "Taxpayer ID (SSN/EIN) / Document Reference Code",
+      placeholder: "e.g. Form-1040-9941A",
+      options: [
+        { value: "irs_tax", text: "Internal Revenue Service (Federal Taxes)" },
+        { value: "nyc_finance", text: "NYC Department of Finance (Property/Municipal)" },
+        { value: "ca_ftb", text: "California Franchise Tax Board (FTB)" }
+      ]
+    }
+  };
+
+  function switchBillCategory(activeCategory) {
+    const categories = ['electricity', 'internet', 'cable', 'government'];
+    const configuration = categoryRegistry[activeCategory];
+
+    if (!configuration) return;
+
+    // 1. Refactor and repaint category button matrix states
+    categories.forEach(cat => {
+      const element = document.getElementById(`cat-${cat}`);
+      if (!element) return;
+      if (cat === activeCategory) {
+        element.className = "flex flex-col items-center gap-1.5 py-3 rounded-lg border text-xs font-bold transition-all bg-blue-50 border-blue-200 text-blue-700 cursor-pointer";
+      } else {
+        element.className = "flex flex-col items-center gap-1.5 py-3 rounded-lg border border-gray-200 text-gray-500 bg-white hover:bg-gray-50 text-xs font-bold transition-all cursor-pointer";
+      }
+    });
+
+    // 2. Refresh labels, inputs and mapping components
+    const label = document.getElementById('identifier-label');
+    const input = document.getElementById('bill-identifier');
+    const select = document.getElementById('bill-provider');
+
+    if (label) label.innerText = configuration.label;
+    if (input) {
+      input.placeholder = configuration.placeholder;
+      input.value = "";
+    }
+
+    if (select) {
+      select.innerHTML = "";
+      configuration.options.forEach(opt => {
+        const optionNode = document.createElement('option');
+        optionNode.value = opt.value;
+        optionNode.innerHTML = opt.text;
+        select.appendChild(optionNode);
+      });
+    }
+
+    resetValidationUI();
+  }
+
+  function verifyUtilityIdentity() {
+    const inputField = document.getElementById('bill-identifier');
+    const banner = document.getElementById('verification-banner');
+    
+    if (!inputField || !banner) return;
+
+    const codeValue = inputField.value.trim();
+
+    if (codeValue.length < 5) {
+      banner.className = "mt-1.5 p-2 rounded text-[0.7rem] font-semibold flex items-center gap-1.5 bg-red-50 text-red-700 border border-red-100";
+      banner.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> Missing string index attributes. Enter a valid account number.`;
+      banner.classList.remove('hidden');
+      return;
+    }
+
+    // Mock validation parsing check loop structures
+    banner.className = "mt-1.5 p-2 rounded text-[0.7rem] font-semibold flex items-center gap-1.5 bg-emerald-50 text-emerald-700 border border-emerald-100";
+    banner.innerHTML = `<i class="fa-solid fa-circle-check"></i> Connected Registry Profile Verified: <strong>METROPOLITAN SERVICES LLC</strong>`;
+    banner.classList.remove('hidden');
+  }
+
+  function resetValidationUI() {
+    const banner = document.getElementById('verification-banner');
+    if (banner) {
+      banner.classList.add('hidden');
+      banner.innerHTML = "";
+    }
+  }
+
+  function handleSupportRedirect(e) {
+    e.preventDefault();
+    // Safely shift current window frame reference directly to chat console
+    window.location.href = "/dashboard/support/chat/";
+  }
+</script>
+{% endblock %}

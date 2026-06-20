@@ -1,0 +1,449 @@
+@import "tailwindcss";
+
+/* ══════════════════════════════════════════════════
+   THEME — NovaPlusBank design tokens
+   Minimal. Clean. 2015-era banking restraint.
+══════════════════════════════════════════════════ */
+@theme {
+
+  /* ── Fonts ── */
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+  /* ── Brand blue: calm, professional, not electric ── */
+  --color-blue-50:  #f0f5fb;
+  --color-blue-100: #dce8f5;
+  --color-blue-200: #b8d1eb;
+  --color-blue-300: #8db4dc;
+  --color-blue-400: #5f92c8;
+  --color-blue-500: #3d74b4;
+  --color-blue-600: #2d5f9e;
+  --color-blue-700: #1e4a82;
+  --color-blue-800: #163867;
+  --color-blue-900: #0e2645;
+
+  /* ── Neutrals ── */
+  --color-gray-50:  #f9fafb;
+  --color-gray-100: #f3f4f6;
+  --color-gray-200: #e5e7eb;
+  --color-gray-300: #d1d5db;
+  --color-gray-400: #9ca3af;
+  --color-gray-500: #6b7280;
+  --color-gray-600: #4b5563;
+  --color-gray-700: #374151;
+  --color-gray-800: #1f2937;
+  --color-gray-900: #111827;
+
+  /* ── Shadows — subtle ── */
+  --shadow-card:       0 1px 4px 0 rgb(0 0 0 / 0.07), 0 4px 16px -4px rgb(0 0 0 / 0.05);
+  --shadow-card-hover: 0 2px 8px 0 rgb(0 0 0 / 0.10), 0 8px 24px -6px rgb(0 0 0 / 0.08);
+  --shadow-nav:        0 1px 0 0 rgb(0 0 0 / 0.08);
+}
+
+/* ══════════════════════════════════════════════════
+   BASE
+══════════════════════════════════════════════════ */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    font-size: 15px;
+  }
+
+  /* Desktop typography — aligns with lg: (1024px) nav/layout breakpoint */
+  @media (min-width: 1024px) {
+    html {
+      font-size: 17px;
+    }
+  }
+
+  body {
+    font-family: var(--font-sans);
+    color: var(--color-gray-800);
+    background: #fff;
+  }
+
+  h1, h2, h3, h4 {
+    letter-spacing: -0.01em;
+  }
+
+  ::-webkit-scrollbar       { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--color-gray-100); }
+  ::-webkit-scrollbar-thumb { background: var(--color-gray-300); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--color-gray-400); }
+}
+
+/* ══════════════════════════════════════════════════
+   COMPONENTS
+══════════════════════════════════════════════════ */
+@layer components {
+
+  /* ── Nav ── */
+  .nav-link {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--color-gray-600);
+    padding: 0.4rem 0.85rem;
+    border-radius: 4px;
+    transition: color 0.15s, background 0.15s;
+  }
+  @media (min-width: 1024px) {
+    .nav-link {
+      font-size: 0.875rem;
+      padding: 0.45rem 0.95rem;
+    }
+  }
+  .nav-link:hover { color: var(--color-blue-700); background: var(--color-blue-50); }
+  .nav-link.active { color: var(--color-blue-700); }
+
+  .dropdown-link {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.55rem 0.85rem;
+    font-size: 0.8125rem;
+    color: var(--color-gray-700);
+    border-radius: 4px;
+    transition: background 0.12s, color 0.12s;
+  }
+  @media (min-width: 1024px) {
+    .dropdown-link {
+      font-size: 0.875rem;
+    }
+  }
+  .dropdown-link:hover { background: var(--color-gray-50); color: var(--color-blue-700); }
+
+  .mobile-nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.65rem 0.85rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--color-gray-700);
+    border-radius: 4px;
+    transition: background 0.12s, color 0.12s;
+  }
+  .mobile-nav-link:hover { background: var(--color-gray-50); color: var(--color-blue-700); }
+
+  /* ── Buttons ── */
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.65rem 1.5rem;
+    background: var(--color-blue-600);
+    color: #fff;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    border-radius: 4px;
+    transition: background 0.15s;
+    white-space: nowrap;
+  }
+  @media (min-width: 1024px) {
+    .btn-primary,
+    .btn-outline,
+    .btn-white,
+    .btn-ghost-white {
+      font-size: 0.875rem;
+      padding: 0.7rem 1.65rem;
+    }
+  }
+  .btn-primary:hover { background: var(--color-blue-700); }
+
+  .btn-outline {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.65rem 1.5rem;
+    background: transparent;
+    color: var(--color-blue-600);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    border-radius: 4px;
+    border: 1.5px solid var(--color-blue-300);
+    transition: border-color 0.15s, color 0.15s;
+    white-space: nowrap;
+  }
+  .btn-outline:hover { border-color: var(--color-blue-600); color: var(--color-blue-700); }
+
+  .btn-white {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.65rem 1.5rem;
+    background: #fff;
+    color: var(--color-blue-700);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    border-radius: 4px;
+    transition: background 0.15s;
+    white-space: nowrap;
+  }
+  .btn-white:hover { background: var(--color-blue-50); }
+
+  .btn-ghost-white {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.65rem 1.5rem;
+    background: transparent;
+    color: rgba(255,255,255,0.88);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    border-radius: 4px;
+    border: 1.5px solid rgba(255,255,255,0.35);
+    transition: border-color 0.15s, color 0.15s;
+    white-space: nowrap;
+  }
+  .btn-ghost-white:hover { border-color: rgba(255,255,255,0.7); color: #fff; }
+
+  /* ── Section labels ── */
+  .eyebrow {
+    display: inline-block;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--color-blue-600);
+    margin-bottom: 0.85rem;
+  }
+  @media (min-width: 1024px) {
+    .eyebrow {
+      font-size: 0.75rem;
+    }
+  }
+
+  .section-heading {
+    font-size: clamp(1.5rem, 3vw, 2.25rem);
+    font-weight: 700;
+    color: var(--color-gray-900);
+    line-height: 1.2;
+  }
+  @media (min-width: 1024px) {
+    .section-heading {
+      font-size: clamp(1.75rem, 2.5vw, 2.625rem);
+    }
+  }
+
+  /* ── Rate cards ── */
+  .rate-card {
+    background: #fff;
+    border: 1px solid var(--color-gray-200);
+    border-radius: 6px;
+    padding: 1.75rem 1.5rem;
+    text-align: center;
+    transition: box-shadow 0.2s, transform 0.2s;
+  }
+  .rate-card:hover {
+    box-shadow: var(--shadow-card-hover);
+    transform: translateY(-3px);
+  }
+
+  .rate-icon {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.1rem;
+    font-size: 1.1rem;
+  }
+  .rate-icon-left {
+    margin-left: 0;
+    margin-right: auto;
+  }
+
+  /* ── Service cards ── */
+  .service-card {
+    padding: 1.75rem 1.5rem;
+    text-align: center;
+    border-radius: 4px;
+    border: 1px solid rgba(255,255,255,0.12);
+    transition: background 0.2s;
+  }
+  .service-card:hover { background: rgba(255,255,255,0.06); }
+
+  /* ── Feature rows ── */
+  .feature-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem 1.1rem;
+    border: 1px solid var(--color-gray-100);
+    border-radius: 6px;
+    background: var(--color-gray-50);
+    transition: border-color 0.15s;
+  }
+  .feature-row:hover { border-color: var(--color-blue-200); }
+
+  /* ── Testimonials ── */
+  .testimonial-card {
+    background: var(--color-gray-50);
+    border: 1px solid var(--color-gray-100);
+    border-radius: 6px;
+    padding: 1.5rem;
+  }
+
+  /* ── Forms ── */
+  .form-label {
+    display: block;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--color-gray-700);
+    margin-bottom: 0.4rem;
+  }
+  @media (min-width: 1024px) {
+    .form-label {
+      font-size: 0.875rem;
+    }
+  }
+
+  .form-input,
+  .form-select,
+  .form-textarea {
+    display: block;
+    width: 100%;
+    padding: 0.65rem 0.85rem;
+    font-size: 0.8125rem;
+    color: var(--color-gray-800);
+    background: #fff;
+    border: 1px solid var(--color-gray-200);
+    border-radius: 4px;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  @media (min-width: 1024px) {
+    .form-input,
+    .form-select,
+    .form-textarea {
+      font-size: 0.875rem;
+      padding: 0.7rem 0.95rem;
+    }
+  }
+  .form-input:focus,
+  .form-select:focus,
+  .form-textarea:focus {
+    outline: none;
+    border-color: var(--color-blue-400);
+    box-shadow: 0 0 0 3px rgb(61 116 180 / 0.12);
+  }
+  .form-input::placeholder,
+  .form-textarea::placeholder {
+    color: var(--color-gray-400);
+  }
+  .form-textarea {
+    resize: vertical;
+    min-height: 8rem;
+  }
+
+  .form-alert {
+    padding: 0.85rem 1rem;
+    border-radius: 4px;
+    font-size: 0.8125rem;
+    font-weight: 500;
+  }
+  @media (min-width: 1024px) {
+    .form-alert {
+      font-size: 0.875rem;
+    }
+  }
+  .form-alert-success {
+    background: #ecfdf5;
+    border: 1px solid #a7f3d0;
+    color: #065f46;
+  }
+  .form-alert-error {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #991b1b;
+  }
+
+  .form-error-list {
+    margin: 0;
+    font-size: 0.75rem;
+    line-height: 1.4;
+    color: #dc2626;
+    list-style: none;
+    padding: 0;
+  }
+  .form-error-list li + li {
+    margin-top: 0.15rem;
+  }
+  .form-input-error {
+    border-color: #fca5a5;
+  }
+  .form-help {
+    margin-top: 0.35rem;
+    font-size: 0.75rem;
+    color: var(--color-gray-500);
+  }
+
+  /* ── Password strength checklist ── */
+  .password-strength {
+    display: grid;
+    gap: 0.35rem;
+    margin-top: 0.5rem;
+    padding: 0.75rem 0.9rem;
+    background: var(--color-gray-50);
+    border: 1px solid var(--color-gray-100);
+    border-radius: 4px;
+  }
+  .password-strength-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    color: var(--color-gray-400);
+    transition: color 0.15s;
+  }
+  .password-strength-item i {
+    font-size: 0.65rem;
+    color: var(--color-gray-300);
+    transition: color 0.15s;
+  }
+  .password-strength-item.met {
+    color: var(--color-gray-700);
+  }
+  .password-strength-item.met i {
+    color: #16a34a;
+  }
+
+  /* ── Footer ── */
+  .footer-link {
+    font-size: 0.8125rem;
+    color: rgba(255,255,255,0.45);
+    transition: color 0.15s;
+  }
+  @media (min-width: 1024px) {
+    .footer-link {
+      font-size: 0.875rem;
+    }
+  }
+  .footer-link:hover { color: rgba(255,255,255,0.85); }
+
+  .footer-social {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 4px;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.10);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255,255,255,0.45);
+    font-size: 0.75rem;
+    transition: background 0.15s, color 0.15s;
+  }
+  .footer-social:hover {
+    background: var(--color-blue-600);
+    color: #fff;
+    border-color: var(--color-blue-600);
+  }
+}
+
+/* ══════════════════════════════════════════════════
+   UTILITIES
+══════════════════════════════════════════════════ */
+@layer utilities {
+  .text-balance { text-wrap: balance; }
+}

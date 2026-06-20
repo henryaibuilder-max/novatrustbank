@@ -1,0 +1,454 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" class="h-full scroll-smooth antialiased text-[15px] lg:text-[17px]">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Dashboard — NovaPlusBank{% endblock %}</title>
+  <meta name="description" content="{% block meta_description %}NovaPlusBank online banking dashboard{% endblock %}" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="{% static 'css/output.css' %}" />
+  {% block extra_head %}{% endblock %}
+</head>
+<body class="font-sans bg-gray-100 text-gray-800 min-h-screen flex antialiased">
+
+  <div id="db-overlay" class="fixed inset-0 bg-black/45 z-[99] hidden aria-expanded-false" onclick="closeSidebar()"></div>
+
+  <aside id="db-sidebar" class="w-[220px] min-h-screen bg-blue-900 flex flex-col shrink-0 fixed top-0 left-0 bottom-0 z-[100] -translate-x-full md:translate-x-0 transition-transform duration-250 ease-in-out">
+
+    <div class="p-5 pb-4 border-b border-white/5">
+      <a href="/" class="flex items-center gap-2.5 no-underline">
+        <div class="w-8 h-8 rounded-[6px] bg-blue-500 flex items-center justify-center text-white text-sm shrink-0">
+          <i class="fa-solid fa-building-columns"></i>
+        </div>
+        <span class="text-sm font-bold text-white tracking-tight">NovaPlusBank</span>
+      </a>
+    </div>
+
+    <nav class="flex-1 px-3 py-4 overflow-y-auto flex flex-col gap-0.5">
+      <p class="text-[0.6rem] font-bold tracking-widest uppercase text-white/30 px-2 pt-3 pb-1 mt-1 first:mt-0 first:pt-0">Main</p>
+      <a href="{% url 'banking:dashboard' %}" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-xs font-medium text-white/55 no-underline transition-colors hover:bg-white/10 hover:text-white {% block nav_dashboard %}{% endblock %}">
+        <i class="fa-solid fa-house w-4 text-center text-xs shrink-0"></i>
+        Dashboard
+      </a>
+      <a href="{% url 'banking:transactions' %}" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-xs font-medium text-white/55 no-underline transition-colors hover:bg-white/10 hover:text-white {% block nav_transactions %}{% endblock %}">
+        <i class="fa-solid fa-arrow-right-arrow-left w-4 text-center text-xs shrink-0"></i>
+        Transactions
+      </a>
+      <a href="{% url 'banking:cards' %}" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-xs font-medium text-white/55 no-underline transition-colors hover:bg-white/10 hover:text-white {% block nav_cards %}{% endblock %}">
+        <i class="fa-solid fa-credit-card w-4 text-center text-xs shrink-0"></i>
+        Cards
+      </a>
+
+      <p class="text-[0.6rem] font-bold tracking-widest uppercase text-white/30 px-2 pt-3 pb-1 mt-1">Transfers</p>
+      <a href="{% url 'banking:local_transfer' %}" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-xs font-medium text-white/55 no-underline transition-colors hover:bg-white/10 hover:text-white {% block nav_local %}{% endblock %}">
+        <i class="fa-solid fa-paper-plane w-4 text-center text-xs shrink-0"></i>
+        Local Transfer
+      </a>
+      <a href="{% url 'banking:international_transfer' %}" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-xs font-medium text-white/55 no-underline transition-colors hover:bg-white/10 hover:text-white {% block nav_intl %}{% endblock %}">
+        <i class="fa-solid fa-globe w-4 text-center text-xs shrink-0"></i>
+        International
+      </a>
+      <a href="{% url 'banking:deposit' %}" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-xs font-medium text-white/55 no-underline transition-colors hover:bg-white/10 hover:text-white {% block nav_deposit %}{% endblock %}">
+        <i class="fa-solid fa-plus w-4 text-center text-xs shrink-0"></i>
+        Deposit
+      </a>
+      <a href="{% url 'banking:currency_swap' %}" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-xs font-medium text-white/55 no-underline transition-colors hover:bg-white/10 hover:text-white {% block nav_swap %}{% endblock %}">
+        <i class="fa-solid fa-rotate w-4 text-center text-xs shrink-0"></i>
+        Currency Swap
+      </a>
+
+      <p class="text-[0.6rem] font-bold tracking-widest uppercase text-white/30 px-2 pt-3 pb-1 mt-1">Services</p>
+      <a href="{% url 'banking:loans' %}" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-xs font-medium text-white/55 no-underline transition-colors hover:bg-white/10 hover:text-white {% block nav_loans %}{% endblock %}">
+        <i class="fa-solid fa-landmark w-4 text-center text-xs shrink-0"></i>
+        Loans
+      </a>
+      <a href="{% url 'banking:pay_bills' %}" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-xs font-medium text-white/55 no-underline transition-colors hover:bg-white/10 hover:text-white {% block nav_bills %}{% endblock %}">
+        <i class="fa-solid fa-file-invoice w-4 text-center text-xs shrink-0"></i>
+        Pay Bills
+      </a>
+    </nav>
+
+    <div class="flex items-center gap-2.5 p-3.5 border-t border-white/5">
+      <div class="w-8 h-8 rounded-full bg-blue-500 text-white text-[0.65rem] font-bold flex items-center justify-center uppercase shrink-0">
+        {{ user.first_name|slice:":1" }}{{ user.last_name|slice:":1" }}
+      </div>
+      <div class="flex-1 min-w-0">
+        <p class="text-[0.75rem] font-semibold text-white truncate">{{ user.get_full_name }}</p>
+        <p class="text-[0.65rem] text-white/40 truncate">{{ user.email|truncatechars:22 }}</p>
+      </div>
+      <a href="/accounts/logout/" class="text-white/35 text-xs no-underline p-1 transition-colors hover:text-white shrink-0" title="Log out">
+        <i class="fa-solid fa-right-from-bracket"></i>
+      </a>
+    </div>
+
+  </aside>
+
+  <div class="md:ml-[220px] flex-1 min-h-screen flex flex-col">
+
+    <header class="h-[60px] bg-white border-b border-gray-200 flex items-center gap-4 px-6 sticky top-0 z-50">
+      <button class="md:hidden bg-none border-none cursor-pointer text-base text-gray-500 p-1 flex items-center justify-center" onclick="openSidebar()" aria-label="Open menu">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+      <div class="flex-1 text-[0.9375rem] font-semibold text-gray-900">
+        {% block topbar_title %}Dashboard{% endblock %}
+      </div>
+      
+      <div class="flex items-center gap-4">
+        
+        <button type="button" onclick="evaluateTopSupportAction()" class="relative bg-transparent border-none p-1.5 text-gray-500 hover:text-gray-900 transition-colors text-sm cursor-pointer flex items-center justify-center">
+          <i class="fa-regular fa-comment-dots text-base"></i>
+          <span id="support-badge-dot" class="hidden absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full ring-2 ring-white"></span>
+        </button>
+
+        <div class="relative inline-block">
+          <div id="avatar-trigger" class="w-[2.1rem] h-[2.1rem] rounded-full bg-blue-500 text-white text-[0.65rem] font-bold flex items-center justify-center uppercase cursor-pointer select-none" onclick="toggleDropdown(event)" role="button" aria-haspopup="true" aria-expanded="false">
+            {{ user.first_name|slice:":1" }}{{ user.last_name|slice:":1" }}
+          </div>
+
+          <div id="db-profile-menu" class="hidden absolute right-0 top-[calc(100%+10px)] w-[260px] max-xs:fixed max-xs:left-4 max-xs:right-4 max-xs:w-auto max-xs:top-[65px] bg-white rounded-xl shadow-card border border-gray-200 p-5 flex-col z-[110]">
+            <div class="flex items-center gap-3 mb-4">
+              <div class="w-[2.1rem] h-[2.1rem] rounded-full bg-blue-600 text-white text-sm font-bold flex items-center justify-center uppercase">
+                {{ user.first_name|slice:":1" }}{{ user.last_name|slice:":1" }}
+              </div>
+              <div class="flex flex-col min-w-0 text-sm">
+                <span class="text-sm font-bold text-gray-900">{{ user.first_name }}</span>
+                <span class="text-xs text-gray-500 truncate">{{ user.email }}</span>
+              </div>
+            </div>
+
+            {% if not user.account.is_verified %}
+            <a href="/dashboard/kyc/" class="flex items-center justify-center gap-2 bg-red-50 border border-red-100 text-red-600 text-xs font-semibold p-2.5 rounded-lg no-underline text-center transition-colors hover:bg-red-100 mb-1">
+              <i class="fa-solid fa-circle-exclamation"></i> Verify KYC
+            </a>
+            {% endif %}
+
+            <hr class="border-0 border-t border-gray-100 my-3" />
+
+            <div class="flex flex-col gap-1">
+              <a href="/dashboard/profile/" class="flex items-center gap-3.5 p-2 text-xs font-medium text-gray-600 no-underline rounded-md transition-colors hover:bg-gray-50 hover:text-gray-900">
+                <div class="w-7 h-7 rounded-full bg-gray-100 text-gray-500 flex items-center justify-center text-sm"><i class="fa-regular fa-user"></i></div>
+                <span>Profile Settings</span>
+              </a>
+              <a href="{% url 'banking:support_chat_list' %}" class="flex items-center gap-3.5 p-2 text-xs font-medium text-gray-600 no-underline rounded-md transition-colors hover:bg-gray-50 hover:text-gray-900">
+                <div class="w-7 h-7 rounded-full bg-gray-100 text-gray-500 flex items-center justify-center text-sm"><i class="fa-regular fa-comment-dots"></i></div>
+                <span>Help & Support</span>
+              </a>
+            </div>
+
+            <hr class="border-0 border-t border-gray-100 my-3" />
+
+            <a href="/accounts/logout/" class="flex items-center gap-3.5 p-2 text-xs font-medium text-red-600 no-underline rounded-md transition-colors hover:bg-red-50 hover:text-red-700 group">
+              <div class="w-7 h-7 rounded-full bg-red-50 text-red-500 flex items-center justify-center text-sm transition-colors group-hover:bg-red-100 group-hover:text-red-700"><i class="fa-solid fa-arrow-right-from-bracket"></i></div>
+              <span>Sign Out</span>
+            </a>
+          </div>
+        </div>
+
+      </div>
+    </header>
+
+    <main class="flex-1 p-4 md:p-6">
+      {% if messages %}
+        <div class="mb-4 flex flex-col gap-2">
+          {% for message in messages %}
+            <div class="flex items-center gap-2.5 px-4 py-3 rounded-md text-[0.8125rem] font-medium {% if 'error' in message.tags %}bg-red-50 text-red-800 border border-red-200{% elif 'success' in message.tags %}bg-emerald-50 text-emerald-800 border border-emerald-200{% else %}bg-blue-50 text-blue-800 border border-blue-200{% endif %}">
+              <i class="fa-solid {% if 'error' in message.tags %}fa-circle-exclamation{% else %}fa-circle-check{% endif %}"></i>
+              {{ message }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+
+  <div id="floating-support-container" class="fixed bottom-4 right-4 z-[999] flex flex-col items-end gap-3 font-sans max-xs:left-4 max-xs:right-4">
+    
+    <div id="support-chat-box" class="hidden flex-col w-[350px] max-xs:w-auto max-xs:flex-1 h-[440px] bg-white rounded-xl shadow-2xl border border-gray-200/90 overflow-hidden transform opacity-0 scale-95 transition-all duration-300">
+      
+      <div class="bg-blue-900 px-4 py-3.5 flex items-center justify-between text-white shrink-0">
+        <div class="flex items-center gap-2.5">
+          <div class="relative">
+            <div class="w-7 h-7 rounded-full bg-blue-600 text-[0.62rem] font-bold tracking-tight uppercase flex items-center justify-center border border-white/10">NP</div>
+            <span class="absolute bottom-0 right-0 w-2 h-2 bg-emerald-500 rounded-full ring-2 ring-blue-900"></span>
+          </div>
+          <div>
+            <h4 class="text-xs font-bold leading-none">NovaPlus Live Desk</h4>
+            <p class="text-[0.62rem] text-white/60 mt-0.5 font-medium">Operations Verification Agent</p>
+          </div>
+        </div>
+        <button type="button" onclick="toggleMiniSupportBox(false)" class="text-white/60 hover:text-white bg-transparent border-none text-xs p-1 cursor-pointer transition-colors">
+          <i class="fa-solid fa-minus"></i>
+        </button>
+      </div>
+
+      <div id="support-messages-window" class="flex-1 p-4 overflow-y-auto bg-gray-50 flex flex-col gap-3 text-xs">
+        <div class="bg-blue-50 text-blue-900 border border-blue-100 p-2.5 rounded-lg max-w-[85%] self-start font-medium leading-normal">
+          Hello! Welcome back. How can our operations clearing desk assist you with your active portfolio updates today?
+        </div>
+      </div>
+
+      <form id="support-message-input-form" onsubmit="dispatchSupportPacket(event)" class="p-3 border-t border-gray-100 bg-white flex items-center gap-2 shrink-0">
+        <input type="text" id="support-text-input" autocomplete="off" placeholder="Write message..." class="flex-1 px-3 py-2 border border-gray-200 rounded-md text-[0.78rem] text-gray-900 outline-none focus:border-blue-500 font-medium" />
+        <button type="submit" class="w-8 h-8 rounded-md bg-blue-900 text-white flex items-center justify-center text-xs hover:bg-blue-950 transition-colors border-none cursor-pointer">
+          <i class="fa-solid fa-paper-plane"></i>
+        </button>
+      </form>
+
+    </div>
+
+    <button type="button" onclick="toggleMiniSupportBox()" id="support-launcher-btn" class="w-13 h-13 rounded-full bg-blue-900 hover:bg-blue-950 text-white shadow-xl flex items-center justify-center transition-transform hover:scale-105 active:scale-95 border-none cursor-pointer relative">
+      <i class="fa-regular fa-comment-dots text-xl" id="launcher-icon-chat"></i>
+      <i class="fa-solid fa-xmark text-lg hidden" id="launcher-icon-close"></i>
+      <span id="support-badge-pulse" class="hidden absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-red-500 rounded-full border-2 border-white animate-pulse"></span>
+    </button>
+  </div>
+
+  <script>
+    function openSidebar() {
+      const sidebar = document.getElementById('db-sidebar');
+      const overlay = document.getElementById('db-overlay');
+      sidebar.classList.remove('-translate-x-full');
+      sidebar.classList.add('translate-x-0');
+      overlay.classList.remove('hidden');
+    }
+    
+    function closeSidebar() {
+      const sidebar = document.getElementById('db-sidebar');
+      const overlay = document.getElementById('db-overlay');
+      sidebar.classList.remove('translate-x-0');
+      sidebar.classList.add('-translate-x-full');
+      overlay.classList.add('hidden');
+    }
+
+    function toggleDropdown(event) {
+      event.stopPropagation();
+      const menu = document.getElementById('db-profile-menu');
+      const trigger = document.getElementById('avatar-trigger');
+      const isHidden = menu.classList.contains('hidden');
+      
+      if (isHidden) {
+        menu.classList.remove('hidden');
+        menu.classList.add('flex');
+        trigger.setAttribute('aria-expanded', 'true');
+      } else {
+        menu.classList.remove('flex');
+        menu.classList.add('hidden');
+        trigger.setAttribute('aria-expanded', 'false');
+      }
+    }
+
+    window.addEventListener('click', function(e) {
+      const menu = document.getElementById('db-profile-menu');
+      const trigger = document.getElementById('avatar-trigger');
+      if (menu && !menu.classList.contains('hidden')) {
+        if (!menu.contains(e.target) && e.target !== trigger) {
+          menu.classList.remove('flex');
+          menu.classList.add('hidden');
+          trigger.setAttribute('aria-expanded', 'false');
+        }
+      }
+    });
+
+    // -------------------------------------------------------------
+    // LIVE CHAT POLLING TRACKING CONTROLLERS (EVERY 10 SECONDS)
+    // -------------------------------------------------------------
+    let unreadMessageCount = 0;
+    let isChatBoxOpen = false;
+    let lastSeenMessageId = 0;
+    let pollingInterval = null;
+
+    // Helper: Safely grab an auth token for POST requests if provided by Django
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+
+    function toggleMiniSupportBox(forceState) {
+      const chatBox = document.getElementById('support-chat-box');
+      const iconChat = document.getElementById('launcher-icon-chat');
+      const iconClose = document.getElementById('launcher-icon-close');
+      
+      const shouldOpen = (forceState !== undefined) ? forceState : chatBox.classList.contains('hidden');
+      isChatBoxOpen = shouldOpen;
+
+      if (shouldOpen) {
+        chatBox.classList.remove('hidden');
+        chatBox.classList.add('flex');
+        iconChat.classList.add('hidden');
+        iconClose.classList.remove('hidden');
+        
+        clearUnreadNotificationBadges();
+
+        requestAnimationFrame(() => {
+          chatBox.classList.remove('opacity-0', 'scale-95');
+          scrollSupportMessagesToBottom();
+        });
+      } else {
+        chatBox.classList.add('opacity-0', 'scale-95');
+        iconClose.classList.add('hidden');
+        iconChat.classList.remove('hidden');
+        
+        setTimeout(() => {
+          chatBox.classList.remove('flex');
+          chatBox.classList.add('hidden');
+        }, 300);
+      }
+    }
+
+    function evaluateTopSupportAction() {
+      if (unreadMessageCount > 0) {
+        toggleMiniSupportBox(true);
+      } else {
+        window.location.href = "{% url 'banking:support_chat_list' %}";
+      }
+    }
+
+    function markIncomingUnreadMessage() {
+      unreadMessageCount++;
+      document.getElementById('support-badge-dot').classList.remove('hidden');
+      document.getElementById('support-badge-pulse').classList.remove('hidden');
+    }
+
+    function clearUnreadNotificationBadges() {
+      unreadMessageCount = 0;
+      document.getElementById('support-badge-dot').classList.add('hidden');
+      document.getElementById('support-badge-pulse').classList.add('hidden');
+    }
+
+    function scrollSupportMessagesToBottom() {
+      const windowNode = document.getElementById('support-messages-window');
+      if (windowNode) windowNode.scrollTop = windowNode.scrollHeight;
+    }
+
+    // -------------------------------------------------------------
+    // POLLING ENGINE WORKFLOW PIPELINE
+    // -------------------------------------------------------------
+    function fetchNewSupportMessages() {
+      // Look for a globally declared active target workspace reference mapping configuration
+      const activeId = window.activeSupportId || null;
+      if (!activeId) return;
+
+      const url = `/dashboard/support/poll/${activeId}/?last_id=${lastSeenMessageId}`;
+
+      fetch(url)
+        .then(response => {
+          if (!response.ok) throw new Error("Network logging query mismatch error");
+          return response.json();
+        })
+        .then(data => {
+          if (data.messages && data.messages.length > 0) {
+            data.messages.forEach(msg => {
+              renderMessageNode(msg.message_text, msg.is_from_staff);
+              if (msg.id > lastSeenMessageId) {
+                lastSeenMessageId = msg.id;
+              }
+              
+              // Only mark as unread if the agent sent it and the chat block is minimized
+              if (msg.is_from_staff && !isChatBoxOpen) {
+                markIncomingUnreadMessage();
+              }
+            });
+            scrollSupportMessagesToBottom();
+          }
+        })
+        .catch(err => console.warn("Polling thread connection cooloff cycle exception: ", err));
+    }
+
+    function renderMessageNode(textString, isAgent) {
+      const targetWindow = document.getElementById('support-messages-window');
+      if (!targetWindow) return;
+
+      // Avoid duplication if system audit logs or existing blocks match text signatures directly
+      const currentNodes = targetWindow.getElementsByTagName('div');
+      for (let node of currentNodes) {
+        if (node.innerText === textString) return;
+      }
+
+      const element = document.createElement('div');
+      if (isAgent) {
+        element.className = "bg-blue-50 text-blue-900 border border-blue-100 p-2.5 rounded-lg max-w-[85%] self-start font-medium leading-normal";
+      } else {
+        element.className = "bg-blue-900 text-white p-2.5 rounded-lg max-w-[85%] self-end font-medium leading-normal";
+      }
+      element.innerText = textString;
+      targetWindow.appendChild(element);
+    }
+
+    function dispatchSupportPacket(e) {
+      e.preventDefault();
+      const input = document.getElementById('support-text-input');
+      if (!input) return;
+
+      const messageText = input.value.trim();
+      if (!messageText) return;
+
+      const activeId = window.activeSupportId || null;
+
+      if (activeId) {
+        // Submit directly via POST polling architecture endpoint
+        const sendUrl = `/dashboard/support/send/${activeId}/`;
+        const csrftoken = getCookie('csrftoken');
+
+        fetch(sendUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken
+          },
+          body: JSON.stringify({ message: messageText })
+        })
+        .then(res => {
+          if (!res.ok) throw new Error("Submission rejected by application layer context loop");
+          renderMessageNode(messageText, false);
+          scrollSupportMessagesToBottom();
+          input.value = "";
+          // Refresh stream instantly following transmission dispatch context block execution
+          fetchNewSupportMessages();
+        })
+        .catch(err => {
+          console.error("Transmission layout exception state: ", err);
+        });
+
+      } else {
+        // Fallback placeholder message if pipeline workspace mapping is unassigned
+        renderMessageNode(messageText, false);
+        scrollSupportMessagesToBottom();
+        input.value = "";
+        
+        setTimeout(() => {
+          renderMessageNode("Your reference file token has been flagged for manual administrative evaluation. Please hold while a clearing specialist reviews your connection parameters.", true);
+          scrollSupportMessagesToBottom();
+        }, 1000);
+      }
+    }
+
+    function initializePollingEngine() {
+      // Poll message updates cleanly every 10 seconds (10000ms)
+      if (window.activeSupportId) {
+        fetchNewSupportMessages(); // Immediate invocation check execution
+        pollingInterval = setInterval(fetchNewSupportMessages, 10000);
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", initializePollingEngine);
+  </script>
+
+  {% block extra_scripts %}{% endblock %}
+</body>
+</html>

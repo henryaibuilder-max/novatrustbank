@@ -1,0 +1,247 @@
+{% extends "dashboard_base.html" %}
+{% load static %}
+
+{% block title %}Loans — NovaPlusBank{% endblock %}
+{% block topbar_title %}Credit &amp; Loans{% endblock %}
+{% block nav_loans %}bg-white/10 text-white{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 xl:grid-cols-[1fr_360px] gap-6 items-start">
+
+  <div class="flex flex-col gap-6">
+    
+    <div class="bg-white rounded-lg border border-gray-200 p-5 shadow-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div>
+        <h1 class="text-sm font-bold text-gray-900">Credit Facility Management</h1>
+        <p class="text-xs text-gray-400 mt-0.5">Monitor active financing structures, check real-time interest trajectories, or request instant equity lines.</p>
+      </div>
+      <button type="button" onclick="handleLoanModalToggle(true)" class="inline-flex items-center gap-1.5 px-4 py-2 bg-[#1e4a82] text-white rounded-md text-xs font-semibold transition-colors hover:bg-[#163867] whitespace-nowrap border-none cursor-pointer">
+        <i class="fa-solid fa-plus"></i> Request New Credit Line
+      </button>
+    </div>
+
+    {% if loans %}
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        {% for loan in loans %}
+          <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-5 flex flex-col justify-between min-h-[200px] relative overflow-hidden group">
+            
+            <div class="flex justify-between items-start z-10">
+              <div>
+                <span class="text-[0.6rem] font-bold px-1.5 py-0.5 rounded uppercase tracking-wide {% if loan.status == 'approved' %}bg-green-50 text-green-700 border border-green-100{% elif loan.status == 'pending' %}bg-amber-50 text-amber-700 border border-amber-100{% else %}bg-gray-50 text-gray-600{% endif %}">
+                  {{ loan.get_status_display|default:loan.status }}
+                </span>
+                <h3 class="text-xs font-bold text-gray-800 mt-2">{{ loan.loan_type|default:"Personal Term Facility" }}</h3>
+              </div>
+              <div class="text-right">
+                <p class="text-[0.6rem] text-gray-400 uppercase tracking-wider">Interest Rate</p>
+                <p class="text-xs font-mono font-bold text-gray-900">{{ loan.interest_rate|default:"14.5" }}% APR</p>
+              </div>
+            </div>
+
+            <div class="my-4 z-10">
+              <p class="text-[0.6rem] text-gray-400 uppercase tracking-wider">Remaining Outstanding Balance</p>
+              <p class="text-xl font-bold font-mono text-gray-900 mt-0.5">${{ loan.remaining_balance|default:"0.00" }}</p>
+              
+              <div class="w-full bg-gray-100 rounded-full h-1 mt-3 overflow-hidden">
+                <div class="bg-blue-600 h-1 rounded-full" style="width: {{ loan.repayment_percentage|default:'0' }}%"></div>
+              </div>
+            </div>
+
+            <div class="flex justify-between items-end pt-3 border-t border-gray-100 z-10 text-[0.68rem]">
+              <div>
+                <p class="text-[0.6rem] text-gray-400 uppercase tracking-wider">Next Settlement Due Date</p>
+                <p class="font-semibold text-gray-700 mt-0.5">{{ loan.next_payment_date|date:"M d, Y"|default:"--" }}</p>
+              </div>
+              <a href="/dashboard/support/chat/" class="px-3 py-1 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded text-[0.65rem] font-bold transition-colors text-gray-700 no-underline">
+                Contact Desk to Liquidate
+              </a>
+            </div>
+
+            <div class="absolute -right-4 -bottom-4 w-16 h-16 rounded-full bg-gray-50 group-hover:scale-110 transition-transform pointer-events-none z-0"></div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="bg-white rounded-lg border border-gray-200 shadow-sm text-center py-16 px-4 text-gray-400">
+        <i class="fa-solid fa-hand-holding-dollar text-4xl text-gray-300 mb-3 block"></i>
+        <h3 class="text-sm font-bold text-gray-700 mb-0.5">No Active Liabilities Registered</h3>
+        <p class="text-xs text-gray-400 max-w-sm mx-auto">You do not currently carry any operational loans or active lines of credit against your current primary portfolio indices.</p>
+        <button type="button" onclick="handleLoanModalToggle(true)" class="mt-4 inline-flex items-center gap-1.5 px-4 py-2 bg-[#1e4a82] text-white rounded-md text-xs font-semibold transition-colors hover:bg-[#163867] border-none cursor-pointer">
+          <i class="fa-solid fa-plus"></i> Initialize Application Matrix
+        </button>
+      </div>
+    {% endif %}
+
+  </div>
+
+  <div class="flex flex-col gap-5">
+    
+    <div class="bg-white rounded-lg border border-gray-200 p-5 shadow-sm">
+      <div class="flex justify-between items-center mb-3">
+        <h2 class="text-sm font-bold text-gray-900">Your Credit Index</h2>
+        <span class="text-[0.62rem] font-bold px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 uppercase tracking-wider font-sans">Excellent</span>
+      </div>
+      <div class="flex items-baseline gap-1 font-sans">
+        <span class="text-2xl font-black text-gray-900 tracking-tight">745</span>
+        <span class="text-xs font-bold text-gray-400">/ 850 Max</span>
+      </div>
+      <p class="text-[0.68rem] text-gray-400 mt-2 leading-relaxed">Your repayment metadata matches premium US eligibility tiers. Lower APR structures apply automatically to current funding options.</p>
+    </div>
+
+    <!-- Verification Notice Layer -->
+    <div class="bg-white rounded-lg border border-gray-200 p-5 shadow-sm">
+      <h2 class="text-sm font-bold text-gray-900 mb-2 flex items-center gap-1.5">
+        <i class="fa-solid fa-shield-halved text-blue-700"></i> Credit Evaluation Protocol
+      </h2>
+      <p class="text-[0.72rem] text-gray-500 leading-relaxed font-medium">
+        All newly initialized capital facility allocations undergo strict risk alignment clearing. To authorize baseline metrics and issue distribution tokens, please contact your account support manager.
+      </p>
+    </div>
+
+  </div>
+</div>
+
+<!-- CAPTURE APP MODAL DIALOG CONTAINER LAYER -->
+<div id="loan-modal-screen" class="hidden fixed inset-0 bg-gray-900/40 backdrop-blur-sm items-center justify-center z-50 p-4 opacity-0 pointer-events-none transition-opacity duration-300">
+  <div class="bg-white w-full max-w-md rounded-lg border border-gray-200 shadow-xl overflow-hidden scale-95 transition-transform duration-300" id="loan-modal-content-box">
+    
+    <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
+      <h3 class="text-xs font-bold text-gray-900 uppercase tracking-wider flex items-center gap-1.5">
+        <i class="fa-solid fa-calculator text-blue-700"></i> Initialize Credit Application
+      </h3>
+      <button type="button" onclick="handleLoanModalToggle(false)" class="text-gray-400 hover:text-gray-700 text-xs p-1 bg-transparent border-none cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+
+    <div class="p-5 flex flex-col gap-4 font-sans">
+
+      <div class="flex flex-col gap-1">
+        <label class="text-xs font-semibold text-gray-700">Select Financing Variant</label>
+        <select id="loan-type-select" class="w-full px-3 py-2 border border-gray-300 rounded-md text-[0.8125rem] text-gray-900 outline-none focus:border-blue-500 bg-white cursor-pointer font-medium" onchange="extrapolateAmortizationMetrics()">
+          <option value="personal" selected>Personal Capital Term Loan (14.5% APR)</option>
+          <option value="business">SME Expansion Credit Asset Line (12.0% APR)</option>
+          <option value="salary">Instant Payday Advance Bridge (18.0% APR)</option>
+        </select>
+      </div>
+
+      <div class="flex flex-col gap-1">
+        <label class="text-xs font-semibold text-gray-700">Requested Capital Capacity ($)</label>
+        <div class="relative">
+          <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400 font-bold text-xs">$</span>
+          <input type="number" min="500" max="250000" id="loan-requested-amount" class="w-full pl-7 pr-3 py-2 border border-gray-300 rounded-md text-[0.8125rem] text-gray-900 outline-none focus:border-blue-500 font-medium" placeholder="5,000.00" oninput="extrapolateAmortizationMetrics()" />
+        </div>
+      </div>
+
+      <div class="flex flex-col gap-1">
+        <label class="text-xs font-semibold text-gray-700">Repayment Duration Plan</label>
+        <select id="loan-duration-months" class="w-full px-3 py-2 border border-gray-300 rounded-md text-[0.8125rem] text-gray-900 outline-none focus:border-blue-500 bg-white cursor-pointer font-medium" onchange="extrapolateAmortizationMetrics()">
+          <option value="3" selected>3 Months Repayment Grid</option>
+          <option value="6">6 Months Repayment Grid</option>
+          <option value="12">12 Months Repayment Grid</option>
+          <option value="24">24 Months Repayment Grid</option>
+        </select>
+      </div>
+
+      <div class="bg-gray-50 border border-gray-200/60 p-3.5 rounded-lg flex items-center justify-between text-[0.72rem] font-medium text-gray-500">
+        <span>Estimated Monthly Installment:</span>
+        <span class="text-blue-900 font-black font-mono text-base" id="amortization-output">$0.00</span>
+      </div>
+
+      <!-- Support Redirection Warning Banner -->
+      <div class="bg-amber-50 border border-amber-200 p-3 rounded-md flex gap-2">
+        <i class="fa-solid fa-circle-exclamation text-amber-600 text-xs mt-0.5 shrink-0"></i>
+        <div class="flex flex-col gap-0.5">
+          <h4 class="text-[0.7rem] font-bold text-amber-900">Verification Screening Required</h4>
+          <p class="text-[0.65rem] text-amber-800 leading-normal font-medium">
+            To authorize baseline profile data and transmit secure amortization routing references, please connect with an active credit desk manager directly via our live support portal.
+          </p>
+        </div>
+      </div>
+
+      <div class="pt-1">
+  <a href="/dashboard/support/chat/" class="group block w-full bg-[#1e4a82] hover:bg-[#163867] text-white rounded-lg p-3.5 text-center no-underline transition-all shadow-sm hover:shadow-md">
+    <div class="flex items-center justify-center gap-2.5">
+      <i class="fa-solid fa-headset text-sm animate-pulse text-blue-200 group-hover:text-white transition-colors"></i>
+      <div class="text-left">
+        <p class="text-xs font-bold tracking-wide">Submit, Verify &amp; Finalize Application</p>
+        <p class="text-[0.62rem] text-blue-100/80 group-hover:text-blue-50 font-medium mt-0.5">Click here to transmit amortization indices directly to an active desk operator</p>
+      </div>
+    </div>
+  </a>
+  
+  <button type="button" onclick="handleLoanModalToggle(false)" class="w-full mt-2 py-2 bg-transparent text-gray-400 hover:text-gray-600 rounded-md text-[0.7rem] font-semibold transition-colors border-none cursor-pointer">
+    Discard Application
+  </button>
+</div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  function handleLoanModalToggle(shouldOpen) {
+    const modalScreen = document.getElementById('loan-modal-screen');
+    const contentBox = document.getElementById('loan-modal-content-box');
+    
+    if (!modalScreen || !contentBox) return; 
+    
+    if (shouldOpen) {
+      modalScreen.classList.remove('hidden');
+      modalScreen.classList.add('flex');
+      
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          modalScreen.classList.remove('pointer-events-none', 'opacity-0');
+          contentBox.classList.remove('scale-95');
+          contentBox.classList.add('scale-100');
+        });
+      });
+    } else {
+      modalScreen.classList.add('pointer-events-none', 'opacity-0');
+      contentBox.classList.remove('scale-100');
+      contentBox.classList.add('scale-95');
+      
+      setTimeout(() => {
+        modalScreen.classList.remove('flex');
+        modalScreen.classList.add('hidden');
+      }, 300);
+    }
+  }
+
+  document.getElementById('loan-modal-screen').addEventListener('click', function(e) {
+    if (e.target === this) handleLoanModalToggle(false);
+  });
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') handleLoanModalToggle(false);
+  });
+
+  const LOAN_RATES = {
+    personal: 0.145,
+    business: 0.120,
+    salary:   0.180,
+  };
+
+  function extrapolateAmortizationMetrics() {
+    const principalInput = document.getElementById('loan-requested-amount');
+    const monthsSelect   = document.getElementById('loan-duration-months');
+    const loanTypeSelect = document.getElementById('loan-type-select');
+    const outputField    = document.getElementById('amortization-output');
+    
+    if (!principalInput || !monthsSelect || !outputField) return;
+
+    const principal  = parseFloat(principalInput.value.trim());
+    const months     = parseInt(monthsSelect.value);
+    const annualRate = LOAN_RATES[loanTypeSelect?.value] ?? 0.145;
+    
+    if (!isNaN(principal) && principal > 0) {
+      const totalLiability     = principal + (principal * annualRate * (months / 12));
+      const monthlyInstallment = totalLiability / months;
+      outputField.innerText = "$" + monthlyInstallment.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    } else {
+      outputField.innerText = "$0.00";
+    }
+  }
+</script>
+{% endblock %}

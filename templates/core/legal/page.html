@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}{{ page.title }} - NovaPlusBank{% endblock %}
+{% block meta_description %}{{ page.meta_description }}{% endblock %}
+
+{% block content %}
+
+<!-- ══════════════════════════════════════════
+     HERO
+══════════════════════════════════════════ -->
+<section class="bg-blue-700 pt-28 pb-16">
+  <div class="max-w-6xl mx-auto px-5 sm:px-8">
+    <div class="max-w-2xl">
+      <p class="text-blue-200 text-xs lg:text-sm font-semibold uppercase tracking-widest mb-4">{{ page.eyebrow }}</p>
+      <h1 class="text-4xl sm:text-5xl lg:text-4xl font-bold leading-tight text-white mb-5">
+        {{ page.headline }}
+      </h1>
+      <p class="text-blue-100 text-sm lg:text-base leading-relaxed max-w-lg mb-4">
+        {{ page.intro }}
+      </p>
+      <p class="text-blue-200 text-xs lg:text-sm">Last updated: {{ page.last_updated }}</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     CONTENT
+══════════════════════════════════════════ -->
+<section class="py-16 bg-white border-b border-gray-100">
+  <div class="max-w-3xl mx-auto px-5 sm:px-8">
+    <div class="space-y-10">
+      {% for section in page.sections %}
+      <div>
+        <h2 class="text-lg lg:text-xl font-bold text-gray-900 mb-3">{{ section.heading }}</h2>
+        {% for paragraph in section.paragraphs %}
+        <p class="text-gray-500 text-sm lg:text-base leading-relaxed {% if not forloop.last %}mb-3{% endif %}">{{ paragraph }}</p>
+        {% endfor %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     CTA
+══════════════════════════════════════════ -->
+<section class="py-12 bg-gray-50">
+  <div class="max-w-2xl mx-auto px-5 text-center">
+    <p class="text-gray-500 text-sm lg:text-base mb-6">Have questions about this policy?</p>
+    <a href="{% url 'core:contact' %}" class="btn-primary">
+      <i class="fa-solid fa-envelope text-xs"></i> Contact Us
+    </a>
+  </div>
+</section>
+
+{% endblock %}

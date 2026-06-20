@@ -1,0 +1,337 @@
+{% extends "dashboard_base.html" %}
+{% load static %}
+
+{% block title %}Dashboard — NovaPlusBank{% endblock %}
+{% block topbar_title %}Dashboard{% endblock %}
+{% block nav_dashboard %}bg-white/10 text-white{% endblock %}
+
+{% block content %}
+
+<!-- ── Stats row ── -->
+<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-5">
+
+  <!-- Account Limit -->
+  <div class="bg-white rounded-lg p-[1.1rem] border border-gray-200 shadow-sm">
+    <div class="flex items-start gap-3">
+      <div class="w-9 h-9 rounded-[7px] flex items-center justify-center text-sm shrink-0 bg-blue-100 text-blue-700">
+        <i class="fa-solid fa-wallet"></i>
+      </div>
+      <div>
+        <p class="text-[0.7rem] text-gray-500 uppercase tracking-wider font-semibold mb-1">Account Limit</p>
+        <p class="text-ecd font-bold text-gray-900 text-[1.1rem]">${{ account.daily_limit|default:"5,000.00" }}</p>
+        <p class="text-[0.7rem] text-gray-400 mt-0.5">Available</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Monthly Deposits -->
+  <div class="bg-white rounded-lg p-[1.1rem] border border-gray-200 shadow-sm">
+    <div class="flex items-start gap-3">
+      <div class="w-9 h-9 rounded-[7px] flex items-center justify-center text-sm shrink-0 bg-green-100 text-green-700">
+        <i class="fa-solid fa-arrow-down"></i>
+      </div>
+      <div>
+        <p class="text-[0.7rem] text-gray-500 uppercase tracking-wider font-semibold mb-1">Monthly Deposits</p>
+        <p class="text-ecd font-bold text-gray-900 text-[1.1rem]">${{ stats.monthly_deposits|default:"0.00" }}</p>
+        <p class="text-[0.7rem] text-gray-400 mt-0.5">This month</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Monthly Expenses -->
+  <div class="bg-white rounded-lg p-[1.1rem] border border-gray-200 shadow-sm">
+    <div class="flex items-start gap-3">
+      <div class="w-9 h-9 rounded-[7px] flex items-center justify-center text-sm shrink-0 bg-red-100 text-red-700">
+        <i class="fa-solid fa-arrow-up"></i>
+      </div>
+      <div>
+        <p class="text-[0.7rem] text-gray-500 uppercase tracking-wider font-semibold mb-1">Monthly Expenses</p>
+        <p class="text-ecd font-bold text-gray-900 text-[1.1rem]">${{ stats.monthly_expenses|default:"0.00" }}</p>
+        <p class="text-[0.7rem] text-gray-400 mt-0.5">This month</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Total Volume -->
+  <div class="bg-white rounded-lg p-[1.1rem] border border-gray-200 shadow-sm">
+    <div class="flex items-start gap-3">
+      <div class="w-9 h-9 rounded-[7px] flex items-center justify-center text-sm shrink-0 bg-purple-100 text-purple-700">
+        <i class="fa-solid fa-chart-line"></i>
+      </div>
+      <div>
+        <p class="text-[0.7rem] text-gray-500 uppercase tracking-wider font-semibold mb-1">Total Volume</p>
+        <p class="text-ecd font-bold text-gray-900 text-[1.1rem]">${{ stats.total_volume|default:"0.00" }}</p>
+        <p class="text-[0.7rem] text-gray-400 mt-0.5">All time</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── Main grid ── -->
+<div class="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-5 items-start">
+
+  <!-- LEFT COLUMN -->
+  <div class="flex flex-col gap-5">
+
+    <!-- Account Card -->
+    <div class="bg-gradient-to-br from-[#1e4a82] via-[#2d5f9e] to-[#3d74b4] rounded-xl p-6 text-white shadow-[0_4px_20px_rgba(30,74,130,0.35)]">
+      <div class="flex items-start justify-between mb-6">
+        <div>
+          <p class="text-sm font-bold text-white flex items-center gap-1.5">
+            <i class="fa-solid fa-building-columns"></i>
+            NovaPlusBank
+          </p>
+          <p class="text-[0.7rem] text-white/55 mt-0.5 uppercase tracking-wider">Primary Account</p>
+        </div>
+        
+        <!-- Account Reveal Wrapper -->
+        <div class="flex flex-col items-end gap-0.5 text-right min-w-max whitespace-nowrap">
+          <p class="text-[0.65rem] text-white/45 uppercase tracking-wider">Account Number</p>
+          <div class="flex items-center gap-2">
+            <p id="acct-display" class="text-sm font-semibold font-mono tracking-wider">
+              ••••••&nbsp;<span id="acct-last">{{ user.account_number|slice:"-4:" }}</span>
+            </p>
+            <button class="bg-white/12 border-none rounded text-white/70 cursor-pointer text-[0.7rem] px-1.5 py-0.5 transition-colors hover:bg-white/22 hover:text-white shrink-0" onclick="toggleAccount()" id="reveal-btn" title="Reveal">
+              <i class="fa-regular fa-eye" id="reveal-icon"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-5">
+        <div>
+          <p class="text-[0.65rem] text-white/45 uppercase tracking-wider mb-1">Account Holder</p>
+          <p class="text-base font-bold">{{ user.get_full_name }}</p>
+          <div class="flex items-center gap-1.5 mt-2 flex-wrap">
+            <span class="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+            <span class="text-[0.7rem] text-white/65">Account Active</span>
+            
+            {% if not account.is_verified %}
+              <span class="w-1.5 h-1.5 rounded-full bg-amber-500 ml-3"></span>
+              <span class="text-[0.7rem] text-white/65">Verification Required</span>
+            {% else %}
+              <span class="w-1.5 h-1.5 rounded-full bg-blue-400 ml-3"></span>
+              <span class="text-[0.7rem] text-white/65">KYC Verified</span>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="flex gap-10">
+          <div>
+            <p class="text-[0.65rem] text-white/45 uppercase tracking-wider mb-1">Fiat Balance</p>
+            <p class="text-xl font-bold">${{ account.balance|default:"0.00" }}</p>
+            <p class="text-[0.65rem] text-white/45 mt-0.5">{{ account.currency }} Balance</p>
+          </div>
+          <div>
+            <p class="text-[0.65rem] text-white/45 uppercase tracking-wider mb-1">Bitcoin Balance</p>
+            <p class="text-xl font-bold">{{ account.btc_balance|default:"0.000000" }} BTC</p>
+            <p class="text-[0.65rem] text-white/45 mt-0.5">≈ ${{ account.btc_usd_value|default:"0.00" }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between gap-6 pt-4 border-t border-white/12 flex-wrap">
+        <div>
+          <p class="text-[0.65rem] text-white/45 uppercase tracking-wider">Total Portfolio</p>
+          <p class="text-lg font-bold">${{ account.total_portfolio|default:"0.00" }}</p>
+        </div>
+        <div class="flex gap-3 sm:ml-auto">
+          <a href="/dashboard/transfer/local/" class="inline-flex items-center gap-1.5 px-4 py-2 border-1.5 border-white/40 text-white bg-transparent rounded-md text-xs font-semibold no-underline transition-colors hover:border-white/80 whitespace-nowrap">
+            <i class="fa-solid fa-paper-plane"></i> Send Money
+          </a>
+          <a href="/dashboard/deposit/" class="inline-flex items-center gap-1.5 px-4 py-2 bg-white text-[#1e4a82] border-1.5 border-white rounded-md text-xs font-semibold no-underline transition-colors hover:bg-[#e0ecf8] whitespace-nowrap">
+            <i class="fa-solid fa-plus"></i> Add Money
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="bg-white rounded-lg border border-gray-200 p-5 shadow-sm">
+      <h2 class="text-sm font-bold text-gray-900 mb-4">Quick Actions</h2>
+      <div class="grid grid-cols-4 gap-3">
+
+        <a href="/dashboard/transfer/local/" class="flex flex-col items-center gap-2 p-3.5 rounded-lg border border-gray-100 no-underline text-gray-700 text-[0.72rem] font-semibold text-center transition-all hover:border-blue-200 hover:shadow-md max-xs:p-2_1 max-xs:text-[0.65rem]">
+          <div class="w-10 h-10 max-xs:w-8 max-xs:h-8 max-xs:text-sm rounded-lg flex items-center justify-center text-base bg-blue-50 text-blue-800">
+            <i class="fa-solid fa-arrow-right-arrow-left"></i>
+          </div>
+          <span>Transfer</span>
+        </a>
+
+        <a href="/dashboard/pay-bills/" class="flex flex-col items-center gap-2 p-3.5 rounded-lg border border-gray-100 no-underline text-gray-700 text-[0.72rem] font-semibold text-center transition-all hover:border-blue-200 hover:shadow-md max-xs:p-2_1 max-xs:text-[0.65rem]">
+          <div class="w-10 h-10 max-xs:w-8 max-xs:h-8 max-xs:text-sm rounded-lg flex items-center justify-center text-base bg-green-50 text-green-800">
+            <i class="fa-solid fa-file-invoice"></i>
+          </div>
+          <span>Pay Bills</span>
+        </a>
+
+        <a href="/dashboard/request/" class="flex flex-col items-center gap-2 p-3.5 rounded-lg border border-gray-100 no-underline text-gray-700 text-[0.72rem] font-semibold text-center transition-all hover:border-blue-200 hover:shadow-md max-xs:p-2_1 max-xs:text-[0.65rem]">
+          <div class="w-10 h-10 max-xs:w-8 max-xs:h-8 max-xs:text-sm rounded-lg flex items-center justify-center text-base bg-purple-50 text-purple-600">
+            <i class="fa-solid fa-hand-holding-dollar"></i>
+          </div>
+          <span>Request</span>
+        </a>
+
+        <a href="/dashboard/bank-details/" class="flex flex-col items-center gap-2 p-3.5 rounded-lg border border-gray-100 no-underline text-gray-700 text-[0.72rem] font-semibold text-center transition-all hover:border-blue-200 hover:shadow-md max-xs:p-2_1 max-xs:text-[0.65rem]">
+          <div class="w-10 h-10 max-xs:w-8 max-xs:h-8 max-xs:text-sm rounded-lg flex items-center justify-center text-base bg-orange-50 text-orange-700">
+            <i class="fa-solid fa-building-columns"></i>
+          </div>
+          <span>Details</span>
+        </a>
+
+        <a href="/dashboard/loans/" class="flex flex-col items-center gap-2 p-3.5 rounded-lg border border-gray-100 no-underline text-gray-700 text-[0.72rem] font-semibold text-center transition-all hover:border-blue-200 hover:shadow-md max-xs:p-2_1 max-xs:text-[0.65rem]">
+          <div class="w-10 h-10 max-xs:w-8 max-xs:h-8 max-xs:text-sm rounded-lg flex items-center justify-center text-base bg-yellow-50 text-yellow-700">
+            <i class="fa-solid fa-landmark"></i>
+          </div>
+          <span>Loans</span>
+        </a>
+
+        <a href="/dashboard/currency-swap/" class="flex flex-col items-center gap-2 p-3.5 rounded-lg border border-gray-100 no-underline text-gray-700 text-[0.72rem] font-semibold text-center transition-all hover:border-blue-200 hover:shadow-md max-xs:p-2_1 max-xs:text-[0.65rem]">
+          <div class="w-10 h-10 max-xs:w-8 max-xs:h-8 max-xs:text-sm rounded-lg flex items-center justify-center text-base bg-sky-50 text-sky-700">
+            <i class="fa-solid fa-rotate"></i>
+          </div>
+          <span>Swap</span>
+        </a>
+
+        <a href="/dashboard/cards/" class="flex flex-col items-center gap-2 p-3.5 rounded-lg border border-gray-100 no-underline text-gray-700 text-[0.72rem] font-semibold text-center transition-all hover:border-blue-200 hover:shadow-md max-xs:p-2_1 max-xs:text-[0.65rem]">
+          <div class="w-10 h-10 max-xs:w-8 max-xs:h-8 max-xs:text-sm rounded-lg flex items-center justify-center text-base bg-rose-50 text-rose-600">
+            <i class="fa-solid fa-credit-card"></i>
+          </div>
+          <span>Cards</span>
+        </a>
+
+        <a href="/dashboard/transfer/international/" class="flex flex-col items-center gap-2 p-3.5 rounded-lg border border-gray-100 no-underline text-gray-700 text-[0.72rem] font-semibold text-center transition-all hover:border-blue-200 hover:shadow-md max-xs:p-2_1 max-xs:text-[0.65rem]">
+          <div class="w-10 h-10 max-xs:w-8 max-xs:h-8 max-xs:text-sm rounded-lg flex items-center justify-center text-base bg-emerald-50 text-emerald-600">
+            <i class="fa-solid fa-globe"></i>
+          </div>
+          <span>Intl</span>
+        </a>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- RIGHT COLUMN -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-5">
+
+    <!-- Recent Transactions -->
+    <div class="bg-white rounded-lg border border-gray-200 p-5 shadow-sm">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-sm font-bold text-gray-900">Recent Transactions</h2>
+        <a href="/dashboard/transactions/" class="text-xs text-blue-700 no-underline font-semibold flex items-center gap-1 transition-colors hover:text-[#1e4a82]">View All <i class="fa-solid fa-arrow-right"></i></a>
+      </div>
+
+      {% if transactions %}
+        <div class="flex flex-col gap-0.5">
+          {% for tx in transactions %}
+            <div class="flex items-center gap-3 py-3 border-b border-gray-100 last:border-none">
+              <div class="w-8 h-8 rounded-full flex items-center justify-center text-[0.7rem] shrink-0 {% if tx.type == 'credit' %}bg-green-100 text-green-700{% else %}bg-red-100 text-red-700{% endif %}">
+                <i class="fa-solid {% if tx.type == 'credit' %}fa-arrow-down{% else %}fa-arrow-up{% endif %}"></i>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-[0.8125rem] font-semibold text-gray-900 truncate">{{ tx.description|default:"Transfer" }}</p>
+                <div class="flex items-center gap-1.5 mt-0.5">
+                  <p class="text-[0.7rem] text-gray-400">{{ tx.created_at|date:"M d, Y" }}</p>
+                  {% if tx.status == 'pending' %}
+                    <span class="inline-flex items-center px-1.5 py-0.2 rounded text-[0.6rem] font-medium bg-amber-50 text-amber-700 border border-amber-200/50">Pending</span>
+                  {% endif %}
+                </div>
+              </div>
+              <p class="text-[0.8125rem] font-bold shrink-0 {% if tx.type == 'credit' %}text-green-700{% else %}text-red-700{% endif %}">
+                {% if tx.type == 'credit' %}+{% else %}-{% endif %}${{ tx.amount }}
+              </p>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="text-center py-8 px-4 text-gray-400 text-[0.8125rem]">
+          <i class="fa-regular fa-rectangle-list text-3xl mb-2 block"></i>
+          <p>No recent transactions</p>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Account Statistics -->
+    <div class="bg-white rounded-lg border border-gray-200 p-5 shadow-sm">
+      <h2 class="text-sm font-bold text-gray-900 mb-2">Account Statistics</h2>
+
+      <div class="flex items-center gap-3 py-3 border-b border-gray-100">
+        <div class="w-8 h-8 rounded-md flex items-center justify-center text-xs shrink-0 bg-blue-50 text-blue-700">
+          <i class="fa-solid fa-circle-info"></i>
+        </div>
+        <div>
+          <p class="text-[0.7rem] text-gray-500 font-semibold uppercase tracking-wider">Transaction Limit</p>
+          <p class="text-[0.875rem] font-bold text-gray-900">${{ account.daily_limit|default:"5,000.00" }}</p>
+          <p class="text-[0.68rem] text-gray-400">Daily limit available</p>
+        </div>
+        <span class="w-2 h-2 rounded-full shrink-0 ml-auto bg-blue-500"></span>
+      </div>
+
+      <div class="flex items-center gap-3 py-3 border-b border-gray-100">
+        <div class="w-8 h-8 rounded-md flex items-center justify-center text-xs shrink-0 bg-yellow-50 text-yellow-600">
+          <i class="fa-solid fa-clock"></i>
+        </div>
+        <div>
+          <p class="text-[0.7rem] text-gray-500 font-semibold uppercase tracking-wider">Pending Transactions</p>
+          <p class="text-[0.875rem] font-bold text-gray-900">${{ stats.pending_total|default:"0.00" }}</p>
+          <p class="text-[0.68rem] text-gray-400">Awaiting verification</p>
+        </div>
+        <span class="w-2 h-2 rounded-full shrink-0 ml-auto bg-amber-500"></span>
+      </div>
+
+      <div class="flex items-center gap-3 py-3 border-none">
+        <div class="w-8 h-8 rounded-md flex items-center justify-center text-xs shrink-0 bg-green-50 text-green-700">
+          <i class="fa-solid fa-chart-bar"></i>
+        </div>
+        <div>
+          <p class="text-[0.7rem] text-gray-500 font-semibold uppercase tracking-wider">Total Volume</p>
+          <p class="text-[0.875rem] font-bold text-gray-900">${{ stats.total_volume|default:"0.00" }}</p>
+          <p class="text-[0.68rem] text-gray-400">All-time transactions</p>
+        </div>
+        <span class="w-2 h-2 rounded-full shrink-0 ml-auto bg-green-500"></span>
+      </div>
+
+      <p class="flex items-center gap-1.5 text-[0.7rem] text-gray-400 mt-3">
+        <span class="w-1 h-1 rounded-full bg-green-500 animate-pulse"></span>
+        Updated in real-time
+      </p>
+    </div>
+
+    <!-- Need Assistance -->
+    <div class="sm:col-span-2 lg:col-span-1 bg-gradient-to-br from-[#0e2645] to-[#1e4a82] rounded-lg p-6 text-center text-white">
+      <div class="w-12 h-12 rounded-full bg-white/12 flex items-center justify-center text-xl mx-auto mb-3">
+        <i class="fa-solid fa-headset"></i>
+      </div>
+      <h3 class="text-[0.9375rem] font-bold mb-1">Need Assistance?</h3>
+      <p class="text-xs text-white/60 mb-4">Our support team is online right now to issue required transfer tokens.</p>
+      <a href="/dashboard/support/chat/" class="inline-block px-5 py-2 bg-white text-[#1e4a82] rounded-md text-xs font-bold no-underline transition-colors hover:bg-blue-100">Open Support Chat</a>
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  const fullAcct = "{{ user.account_number }}";
+  let revealed = false;
+  
+  function toggleAccount() {
+    revealed = !revealed;
+    const el = document.getElementById('acct-last');
+    const icon = document.getElementById('reveal-icon');
+    const displayElement = document.getElementById('acct-display');
+    
+    if (revealed) {
+      displayElement.innerHTML = fullAcct;
+      icon.className = 'fa-regular fa-eye-slash';
+    } else {
+      displayElement.innerHTML = `••••••&nbsp;<span id="acct-last">${fullAcct.slice(-4)}</span>`;
+      icon.className = 'fa-regular fa-eye';
+    }
+  }
+</script>
+{% endblock %}

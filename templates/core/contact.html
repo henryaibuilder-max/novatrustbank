@@ -1,0 +1,293 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Contact Us - NovaPlusBank{% endblock %}
+{% block meta_description %}Get in touch with NovaPlusBank. Visit a branch, call our 24/7 phone banking line, or send us a message — we're here to help.{% endblock %}
+
+{% block content %}
+
+<!-- ══════════════════════════════════════════
+     HERO
+══════════════════════════════════════════ -->
+<section class="bg-blue-700 pt-28 pb-16">
+  <div class="max-w-6xl mx-auto px-5 sm:px-8">
+    <div class="max-w-2xl">
+      <p class="text-blue-200 text-xs lg:text-sm font-semibold uppercase tracking-widest mb-4">Get in Touch</p>
+      <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight text-white mb-5">
+        We're Here<br>When You Need Us.
+      </h1>
+      <p class="text-blue-100 text-sm lg:text-base leading-relaxed max-w-lg">
+        Have a question about your account, need advice on a loan, or want to visit a branch? Our team is ready to help — online, by phone, or in person.
+      </p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     FORM + CONTACT INFO
+══════════════════════════════════════════ -->
+<section class="py-16 bg-white border-b border-gray-100">
+  <div class="max-w-6xl mx-auto px-5 sm:px-8">
+    <div class="grid lg:grid-cols-5 gap-14">
+
+      <!-- Form -->
+      <div class="lg:col-span-3">
+        <p class="eyebrow">Send a Message</p>
+        <h2 class="section-heading mb-2">Contact Our Team</h2>
+        <p class="text-gray-500 text-sm lg:text-base mb-8">Fill out the form below and we'll get back to you within one business day.</p>
+
+        {% if messages %}
+          <div class="space-y-3 mb-6">
+            {% for message in messages %}
+              <div class="form-alert {% if message.tags == 'error' %}form-alert-error{% else %}form-alert-success{% endif %}">
+                {{ message }}
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        <form method="post" action="{% url 'core:contact' %}" class="space-y-5">
+          {% csrf_token %}
+
+          <div class="grid sm:grid-cols-2 gap-5">
+            <div>
+              <label for="name" class="form-label">Full Name <span class="text-red-500">*</span></label>
+              <input type="text" id="name" name="name" required class="form-input" placeholder="Jane Smith" />
+            </div>
+            <div>
+              <label for="email" class="form-label">Email Address <span class="text-red-500">*</span></label>
+              <input type="email" id="email" name="email" required class="form-input" placeholder="jane@example.com" />
+            </div>
+          </div>
+
+          <div class="grid sm:grid-cols-2 gap-5">
+            <div>
+              <label for="phone" class="form-label">Phone Number</label>
+              <input type="tel" id="phone" name="phone" class="form-input" placeholder="(555) 123-4567" />
+            </div>
+            <div>
+              <label for="subject" class="form-label">Subject</label>
+              <select id="subject" name="subject" class="form-select">
+                <option value="general">General Inquiry</option>
+                <option value="account">Account Support</option>
+                <option value="loans">Loans & Mortgages</option>
+                <option value="business">Business Banking</option>
+                <option value="cards">Credit Cards</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label for="message" class="form-label">Message <span class="text-red-500">*</span></label>
+            <textarea id="message" name="message" required class="form-textarea" placeholder="How can we help you today?"></textarea>
+          </div>
+
+          <button type="submit" class="btn-primary">
+            <i class="fa-solid fa-paper-plane text-xs"></i> Send Message
+          </button>
+        </form>
+      </div>
+
+      <!-- Contact details -->
+      <div class="lg:col-span-2">
+        <p class="eyebrow">Direct Contact</p>
+        <h2 class="text-xl lg:text-2xl font-bold text-gray-900 mb-6">Other Ways to Reach Us</h2>
+
+        <div class="space-y-3 mb-8">
+          <div class="feature-row">
+            <div class="w-8 h-8 bg-blue-50 flex items-center justify-center rounded flex-shrink-0">
+              <i class="fa-solid fa-phone text-blue-600 text-xs"></i>
+            </div>
+            <div>
+              <h4 class="text-sm lg:text-base font-semibold text-gray-900 mb-0.5">Phone Banking</h4>
+              <p class="text-xs lg:text-sm text-gray-500 mb-1">Available 24 hours a day, 7 days a week.</p>
+              <a href="tel:18002265464" class="text-xs lg:text-sm font-semibold text-blue-600 hover:text-blue-700">1-800-BANKING</a>
+            </div>
+          </div>
+
+          <div class="feature-row">
+            <div class="w-8 h-8 bg-blue-50 flex items-center justify-center rounded flex-shrink-0">
+              <i class="fa-solid fa-envelope text-blue-600 text-xs"></i>
+            </div>
+            <div>
+              <h4 class="text-sm lg:text-base font-semibold text-gray-900 mb-0.5">Email Support</h4>
+              <p class="text-xs lg:text-sm text-gray-500 mb-1">We respond to all emails within 24 hours.</p>
+              <a href="mailto:info@novaplusbank.com" class="text-xs lg:text-sm font-semibold text-blue-600 hover:text-blue-700">info@novaplusbank.com</a>
+            </div>
+          </div>
+
+          <div class="feature-row">
+            <div class="w-8 h-8 bg-blue-50 flex items-center justify-center rounded flex-shrink-0">
+              <i class="fa-solid fa-map-location-dot text-blue-600 text-xs"></i>
+            </div>
+            <div>
+              <h4 class="text-sm lg:text-base font-semibold text-gray-900 mb-0.5">Head Office</h4>
+              <p class="text-xs lg:text-sm text-gray-500">123 Banking Street<br>Financial District, NY 10001</p>
+            </div>
+          </div>
+
+          <div class="feature-row">
+            <div class="w-8 h-8 bg-blue-50 flex items-center justify-center rounded flex-shrink-0">
+              <i class="fa-solid fa-clock text-blue-600 text-xs"></i>
+            </div>
+            <div>
+              <h4 class="text-sm lg:text-base font-semibold text-gray-900 mb-0.5">Branch Hours</h4>
+              <p class="text-xs lg:text-sm text-gray-500">Mon–Fri: 9AM–5PM<br>Sat: 9AM–1PM · Sun: Closed</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-blue-50 border border-blue-100 rounded-lg p-5">
+          <div class="flex items-start gap-3">
+            <div class="w-8 h-8 bg-blue-600 flex items-center justify-center rounded flex-shrink-0">
+              <i class="fa-solid fa-headset text-white text-xs"></i>
+            </div>
+            <div>
+              <h4 class="text-sm lg:text-base font-semibold text-gray-900 mb-1">Need Immediate Help?</h4>
+              <p class="text-xs lg:text-sm text-gray-600 leading-relaxed mb-3">For lost or stolen cards, fraud alerts, or urgent account issues, call our 24/7 support line.</p>
+              <a href="tel:18002265464" class="text-xs lg:text-sm font-bold text-blue-700 hover:text-blue-800">
+                <i class="fa-solid fa-phone text-[10px] mr-1"></i> 1-800-BANKING
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     BRANCH LOCATIONS
+══════════════════════════════════════════ -->
+<section class="py-16 bg-gray-50 border-b border-gray-100">
+  <div class="max-w-6xl mx-auto px-5 sm:px-8">
+
+    <div class="mb-10">
+      <p class="eyebrow">Find a Branch</p>
+      <h2 class="section-heading">Visit Us In Person</h2>
+      <p class="text-gray-500 text-sm lg:text-base mt-2 max-w-lg">12 full-service branches across the Northeast. Walk-ins welcome — no appointment needed.</p>
+    </div>
+
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+
+      <div class="rate-card text-left">
+        <div class="rate-icon bg-blue-50 rate-icon-left">
+          <i class="fa-solid fa-building-columns text-blue-600"></i>
+        </div>
+        <h3 class="text-sm lg:text-base font-semibold text-gray-900 mb-1">Financial District</h3>
+        <p class="text-xs lg:text-sm text-gray-400 leading-relaxed mb-2">123 Banking Street<br>New York, NY 10001</p>
+        <p class="text-xs lg:text-sm text-gray-500"><i class="fa-solid fa-phone text-gray-400 text-[10px] mr-1"></i> (212) 555-0100</p>
+      </div>
+
+      <div class="rate-card text-left">
+        <div class="rate-icon bg-gray-50 rate-icon-left">
+          <i class="fa-solid fa-building-columns text-gray-600"></i>
+        </div>
+        <h3 class="text-sm lg:text-base font-semibold text-gray-900 mb-1">Midtown Manhattan</h3>
+        <p class="text-xs lg:text-sm text-gray-400 leading-relaxed mb-2">450 Park Avenue<br>New York, NY 10022</p>
+        <p class="text-xs lg:text-sm text-gray-500"><i class="fa-solid fa-phone text-gray-400 text-[10px] mr-1"></i> (212) 555-0101</p>
+      </div>
+
+      <div class="rate-card text-left">
+        <div class="rate-icon bg-gray-50 rate-icon-left">
+          <i class="fa-solid fa-building-columns text-gray-600"></i>
+        </div>
+        <h3 class="text-sm lg:text-base font-semibold text-gray-900 mb-1">Brooklyn Heights</h3>
+        <p class="text-xs lg:text-sm text-gray-400 leading-relaxed mb-2">88 Montague Street<br>Brooklyn, NY 11201</p>
+        <p class="text-xs lg:text-sm text-gray-500"><i class="fa-solid fa-phone text-gray-400 text-[10px] mr-1"></i> (718) 555-0102</p>
+      </div>
+
+      <div class="rate-card text-left">
+        <div class="rate-icon bg-gray-50 rate-icon-left">
+          <i class="fa-solid fa-building-columns text-gray-600"></i>
+        </div>
+        <h3 class="text-sm lg:text-base font-semibold text-gray-900 mb-1">Jersey City</h3>
+        <p class="text-xs lg:text-sm text-gray-400 leading-relaxed mb-2">200 Hudson Street<br>Jersey City, NJ 07302</p>
+        <p class="text-xs lg:text-sm text-gray-500"><i class="fa-solid fa-phone text-gray-400 text-[10px] mr-1"></i> (201) 555-0103</p>
+      </div>
+
+      <div class="rate-card text-left">
+        <div class="rate-icon bg-gray-50 rate-icon-left">
+          <i class="fa-solid fa-building-columns text-gray-600"></i>
+        </div>
+        <h3 class="text-sm lg:text-base font-semibold text-gray-900 mb-1">Stamford</h3>
+        <p class="text-xs lg:text-sm text-gray-400 leading-relaxed mb-2">1 Atlantic Street<br>Stamford, CT 06901</p>
+        <p class="text-xs lg:text-sm text-gray-500"><i class="fa-solid fa-phone text-gray-400 text-[10px] mr-1"></i> (203) 555-0104</p>
+      </div>
+
+      <div class="rate-card text-left">
+        <div class="rate-icon bg-gray-50 rate-icon-left">
+          <i class="fa-solid fa-building-columns text-gray-600"></i>
+        </div>
+        <h3 class="text-sm lg:text-base font-semibold text-gray-900 mb-1">White Plains</h3>
+        <p class="text-xs lg:text-sm text-gray-400 leading-relaxed mb-2">50 Main Street<br>White Plains, NY 10601</p>
+        <p class="text-xs lg:text-sm text-gray-500"><i class="fa-solid fa-phone text-gray-400 text-[10px] mr-1"></i> (914) 555-0105</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     FAQ
+══════════════════════════════════════════ -->
+<section class="py-16 bg-white border-b border-gray-100">
+  <div class="max-w-6xl mx-auto px-5 sm:px-8">
+
+    <div class="mb-10">
+      <p class="eyebrow">Common Questions</p>
+      <h2 class="section-heading">Frequently Asked</h2>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-5">
+
+      <div class="testimonial-card">
+        <h4 class="text-sm lg:text-base font-semibold text-gray-900 mb-2">How quickly will I hear back?</h4>
+        <p class="text-xs lg:text-sm text-gray-500 leading-relaxed">We aim to respond to all form submissions and emails within one business day. Urgent matters are handled immediately via our 24/7 phone line.</p>
+      </div>
+
+      <div class="testimonial-card">
+        <h4 class="text-sm lg:text-base font-semibold text-gray-900 mb-2">Can I schedule a branch appointment?</h4>
+        <p class="text-xs lg:text-sm text-gray-500 leading-relaxed">Walk-ins are always welcome. For mortgage consultations or business banking meetings, mention your preferred time in the message field and we'll confirm by email.</p>
+      </div>
+
+      <div class="testimonial-card">
+        <h4 class="text-sm lg:text-base font-semibold text-gray-900 mb-2">I'm not a member yet — can I still contact you?</h4>
+        <p class="text-xs lg:text-sm text-gray-500 leading-relaxed">Absolutely. Our advisors are happy to answer questions about membership, rates, and products before you open an account.</p>
+      </div>
+
+      <div class="testimonial-card">
+        <h4 class="text-sm lg:text-base font-semibold text-gray-900 mb-2">How do I report a lost or stolen card?</h4>
+        <p class="text-xs lg:text-sm text-gray-500 leading-relaxed">Call <strong class="text-gray-700">1-800-BANKING</strong> immediately — available 24/7. Do not use the contact form for time-sensitive security issues.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     CTA BANNER
+══════════════════════════════════════════ -->
+<section class="py-16 bg-blue-700">
+  <div class="max-w-2xl mx-auto px-5 text-center">
+    <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-3">Ready to Get Started?</h2>
+    <p class="text-blue-100 text-sm lg:text-base mb-8 max-w-md mx-auto">
+      Open a free account online in minutes — no minimum balance, no monthly fees on checking.
+    </p>
+    <div class="flex flex-col sm:flex-row gap-3 justify-center">
+      <a href="{% url 'account_signup' %}" class="btn-white">
+        <i class="fa-solid fa-circle-plus text-xs"></i> Open Your Account - Free
+      </a>
+      <a href="{% url 'core:about' %}" class="btn-ghost-white">
+        <i class="fa-solid fa-circle-info text-xs"></i> Learn About Us
+      </a>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
