@@ -7,8 +7,10 @@ django-allauth==65.18.0
 django-countries==9.0.0
 djlint==1.39.2
 editorconfig==0.17.1
+gunicorn==26.0.0
 jsbeautifier==1.15.4
 json5==0.14.0
+packaging==26.2
 pathspec==1.1.1
 psycopg2-binary==2.9.12
 python-dotenv==1.2.2
