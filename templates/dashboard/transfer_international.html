@@ -136,7 +136,7 @@
         </button>
       </div>
 
-      <form id="transfer-form" method="POST" action="{% url 'banking:submit_action_to_support' %}" class="flex flex-col gap-6 font-sans">
+      <form id="transfer-form" method="POST" action="{% url 'banking:international_transfer' %}" class="flex flex-col gap-6 font-sans">
         {% csrf_token %}
         <input type="hidden" name="payment_method_type" id="hidden-method-type" value="">
 

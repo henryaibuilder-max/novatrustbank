@@ -1,20 +1,22 @@
 from decimal import Decimal, InvalidOperation
+import json
 
 from django.contrib import messages
 from django.contrib.auth import authenticate
 from django.contrib.auth.decorators import login_required
+from django.contrib.contenttypes.models import ContentType
 from django.db import transaction as db_transaction
 from django.db.models import Sum
 from django.http import JsonResponse
-from django.shortcuts import redirect, render
-from django.shortcuts import get_object_or_404 as get_object_or_400
+from django.shortcuts import redirect, render, get_object_or_404
 from django.utils import timezone
-from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_protect
-import json
+from django.views.decorators.http import require_http_methods
+
 from .models import (
     Account,
     LocalTransfer,
+    InternationalTransfer,  # Added
     LoanApplication,
     Transaction,
     ChatMessage,
@@ -47,8 +49,50 @@ def _daily_used(account):
     )
 
 
+def _open_verification_session(account, transfer_obj, label):
+    """
+    Shared helper to initialize a verification chat thread linked generic polymorphic 
+    to a tracking asset transfer. Employs a strict allowlist to avoid leaking passwords.
+    """
+    content_type = ContentType.objects.get_for_model(transfer_obj)
+    
+    # Strict key allowlist mapping to avoid capturing password / raw session variables
+    safe_payload = {}
+    exposed_fields = [
+        'recipient_name', 'recipient_bank', 'recipient_account_number', 
+        'recipient_account', 'recipient_country', 'swift_code', 'swift_bic',
+        'iban', 'amount', 'amount_sent', 'source_currency', 'target_currency',
+        'exchange_rate', 'description', 'reference'
+    ]
+    
+    for field in exposed_fields:
+        if hasattr(transfer_obj, field):
+            val = getattr(transfer_obj, field)
+            safe_payload[field] = str(val) if isinstance(val, Decimal) else val
+
+    session_instance = ChatSession.objects.create(
+        account=account,
+        content_type=content_type,
+        object_id=transfer_obj.id,
+        linked_action=label,
+        meta_payload=safe_payload,
+        status=ChatSession.STATUS_PENDING
+    )
+
+    # Initialize systematic audit trail logging without sensitive info leakage
+    ChatMessage.objects.create(
+        session=session_instance,
+        message_text=(
+            f"[SYSTEM AUDIT LOG]: Transfer verification initiated for '{label}'. "
+            f"Reference: {transfer_obj.reference}. Awaiting administrative compliance screening."
+        ),
+        is_from_staff=True
+    )
+    return session_instance
+
+
 # ─────────────────────────────────────────────
-#  Dashboard
+#  Dashboard & Lists
 # ─────────────────────────────────────────────
 
 @login_required
@@ -91,8 +135,8 @@ def dashboard(request):
         'account': account,
         'transactions': transactions,
         'stats': {
-            'actual_balance':   f'{account.balance:,.2f}',  # Added to ensure template lookups don't fall back to 0.00
-            'balance':          f'{account.balance:,.2f}',  # Universal fallback alias
+            'actual_balance':   f'{account.balance:,.2f}',
+            'balance':          f'{account.balance:,.2f}',
             'monthly_deposits': f'{monthly_deposits:,.2f}',
             'monthly_expenses': f'{monthly_expenses:,.2f}',
             'pending_total':    f'{pending_total:,.2f}',
@@ -101,17 +145,11 @@ def dashboard(request):
     })
 
 
-# ─────────────────────────────────────────────
-#  Transactions
-# ─────────────────────────────────────────────
-
 @login_required
 def transactions(request):
     account = _get_account(request.user)
-
     qs = Transaction.objects.filter(account=account).order_by('-created_at')
 
-    # Optional filters via GET params
     tx_type   = request.GET.get('type', '').strip()
     category  = request.GET.get('category', '').strip()
     status    = request.GET.get('status', '').strip()
@@ -150,10 +188,6 @@ def transactions(request):
     })
 
 
-# ─────────────────────────────────────────────
-#  Cards
-# ─────────────────────────────────────────────
-
 @login_required
 def cards(request):
     account = _get_account(request.user)
@@ -175,9 +209,6 @@ def local_transfer(request):
         holder_name    = request.POST.get('account_holder_name', '').strip()
         account_number = request.POST.get('account_number', '').strip()
         bank_name      = request.POST.get('bank_name', '').strip()
-        account_type   = request.POST.get('account_type', '').strip()
-        routing_number = request.POST.get('routing_number', '').strip()
-        swift_code     = request.POST.get('swift_code', '').strip()
         description    = request.POST.get('description', '').strip()
         raw_amount     = request.POST.get('amount', '').strip()
         password       = request.POST.get('password', '')
@@ -195,34 +226,25 @@ def local_transfer(request):
 
         try:
             amount = Decimal(raw_amount)
-            if amount < Decimal('10.00'):  # Lowered from 100.00 to match your template's minimum $10 threshold layout rules
+            if amount < Decimal('10.00'):
                 errors.append('Minimum transfer amount is $10.00.')
         except (InvalidOperation, ValueError):
             amount = None
             errors.append('Enter a valid transfer amount.')
 
         if not errors:
-            user = authenticate(
-                request,
-                username=request.user.username,
-                password=password,
-            )
+            user = authenticate(email=request.user.email, password=password)
             if user is None:
                 errors.append('Incorrect password. Transfer not authorised.')
 
         if not errors:
             if amount > account.balance:
-                errors.append(
-                    f'Insufficient balance. Available: ${account.balance:,.2f}.'
-                )
+                errors.append(f'Insufficient balance. Available: ${account.balance:,.2f}.')
 
-            daily_used      = _daily_used(account)
+            daily_used = _daily_used(account)
             daily_remaining = account.daily_limit - daily_used
             if amount > daily_remaining:
-                errors.append(
-                    f'Daily transfer limit exceeded. '
-                    f'Remaining today: ${daily_remaining:,.2f}.'
-                )
+                errors.append(f'Daily transfer limit exceeded. Remaining today: ${daily_remaining:,.2f}.')
 
         if errors:
             for err in errors:
@@ -234,9 +256,7 @@ def local_transfer(request):
 
         try:
             with db_transaction.atomic():
-                account.balance -= amount
-                account.save(update_fields=['balance', 'updated_at'])
-
+                # Balance deduction removed; funds are reserved by the record state
                 transfer = LocalTransfer.objects.create(
                     sender=account,
                     recipient_account_number=account_number,
@@ -244,9 +264,10 @@ def local_transfer(request):
                     recipient_bank=bank_name,
                     amount=amount,
                     description=description,
-                    status=LocalTransfer.STATUS_PENDING,
+                    status=LocalTransfer.STATUS_PENDING_REVIEW,
                 )
 
+                # Reference pinned explicitly to match the transfer item mapping
                 Transaction.objects.create(
                     account=account,
                     type=Transaction.TYPE_DEBIT,
@@ -258,25 +279,17 @@ def local_transfer(request):
                     counterpart_name=holder_name,
                     counterpart_account=account_number,
                     status=Transaction.STATUS_PENDING,
+                    reference=transfer.reference,
                 )
 
-            messages.success(
-                request,
-                f'Transfer of ${amount:,.2f} to {holder_name} ({bank_name}) '
-                f'has been queued. Reference: {transfer.reference}.',
-            )
-            return redirect('banking:transactions')
+            session = _open_verification_session(account, transfer, "Local Transfer")
+            messages.success(request, f'Transfer tracking reference {transfer.reference} initiated. Verification mandatory.')
+            return redirect('banking:support_chat_detail', support_id=session.support_id)
 
         except Exception:
-            messages.error(
-                request,
-                'A system error occurred while processing the transfer. '
-                'Please try again or contact support.',
-            )
+            messages.error(request, 'A system error occurred while processing the transfer.')
 
-    return render(request, 'dashboard/transfer_local.html', {
-        'account': account,
-    })
+    return render(request, 'dashboard/transfer_local.html', {'account': account})
 
 
 # ─────────────────────────────────────────────
@@ -286,11 +299,304 @@ def local_transfer(request):
 @login_required
 def international_transfer(request):
     account = _get_account(request.user)
+
+    if request.method == 'POST':
+        recipient_name    = request.POST.get('recipient_name', '').strip()
+        recipient_bank    = request.POST.get('recipient_bank', '').strip()
+        recipient_account = request.POST.get('recipient_account', '').strip()
+        recipient_country = request.POST.get('recipient_country', '').strip()
+        swift_bic         = request.POST.get('swift_bic', '').strip()
+        iban              = request.POST.get('iban', '').strip()
+        description       = request.POST.get('description', '').strip()
+        raw_amount_sent   = request.POST.get('amount_sent', '').strip()
+        password          = request.POST.get('password', '')
+
+        errors = []
+
+        if not recipient_name or not recipient_bank or not recipient_account:
+            errors.append('Recipient layout credentials are fully required.')
+        if not swift_bic:
+            errors.append('SWIFT/BIC routing code is mandatory.')
+        if not password:
+            errors.append('Account password authorization signature required.')
+
+        try:
+            amount_sent = Decimal(raw_amount_sent)
+            if amount_sent < Decimal('50.00'):
+                errors.append('Minimum international ledger allocation is $50.00.')
+        except (InvalidOperation, ValueError):
+            amount_sent = None
+            errors.append('Enter a valid transmission execution amount.')
+
+        if not errors:
+            user = authenticate(email=request.user.email, password=password)
+            if user is None:
+                errors.append('Authentication validation challenge failed.')
+
+        if not errors:
+            if amount_sent > account.balance:
+                errors.append(f'Insufficient clear balance. Available: ${account.balance:,.2f}.')
+            
+            daily_used = _daily_used(account)
+            if amount_sent > (account.daily_limit - daily_used):
+                errors.append('Global structural velocity volume limits reached for today.')
+
+        if errors:
+            for err in errors:
+                messages.error(request, err)
+            return render(request, 'dashboard/transfer_international.html', {
+                'account': account,
+                'form_data': request.POST,
+            })
+
+        try:
+            with db_transaction.atomic():
+                transfer = InternationalTransfer.objects.create(
+                    sender=account,
+                    recipient_name=recipient_name,
+                    recipient_bank=recipient_bank,
+                    recipient_account=recipient_account,
+                    recipient_country=recipient_country,
+                    swift_bic=swift_bic,
+                    iban=iban,
+                    amount_sent=amount_sent,
+                    source_currency=account.currency,
+                    description=description,
+                    status=InternationalTransfer.STATUS_PENDING_REVIEW
+                )
+
+                Transaction.objects.create(
+                    account=account,
+                    type=Transaction.TYPE_DEBIT,
+                    category=Transaction.CATEGORY_TRANSFER,
+                    amount=amount_sent,
+                    currency=account.currency,
+                    balance_after=account.balance,
+                    description=description or f'International wire transfer to {recipient_name}',
+                    counterpart_name=recipient_name,
+                    counterpart_account=recipient_account,
+                    status=Transaction.STATUS_PENDING,
+                    reference=transfer.reference
+                )
+
+            session = _open_verification_session(account, transfer, "International Transfer")
+            messages.success(request, f'Wire transfer routing established. Reference: {transfer.reference}.')
+            return redirect('banking:support_chat_detail', support_id=session.support_id)
+
+        except Exception:
+            messages.error(request, 'Processing runtime error deploying wire parameters.')
+
     return render(request, 'dashboard/transfer_international.html', {'account': account})
 
 
 # ─────────────────────────────────────────────
-#  Deposit
+#  OTP Redemption View (Money Movement)
+# ─────────────────────────────────────────────
+
+@login_required
+@csrf_protect
+def verify_otp(request, reference):
+    """
+    Decoupled redemption terminal to clear verification holding locks inside a safe 48h window.
+    """
+    account = _get_account(request.user)
+    
+    # Context lookup spanning polymorphic targets safely verified against identity ownership
+    transfer = None
+    is_international = False
+    
+    local_lookup = LocalTransfer.objects.filter(reference=reference, sender=account).first()
+    if local_lookup:
+        transfer = local_lookup
+    else:
+        int_lookup = InternationalTransfer.objects.filter(reference=reference, sender=account).first()
+        if int_lookup:
+            transfer = int_lookup
+            is_international = True
+
+    if not transfer:
+        messages.error(request, 'Secured transfer reference context index not found.')
+        return redirect('banking:dashboard')
+
+    if request.method == 'POST':
+        submitted_code = request.POST.get('otp_code', '').strip()
+        
+        # Invoke inner business rules tracking window limits and validation flags
+        is_valid, error_msg = transfer.verify_otp(submitted_code)
+        
+        if is_valid:
+            try:
+                debit_amount = transfer.amount_sent if is_international else transfer.amount
+                with db_transaction.atomic():
+                
+                    account.refresh_from_db()
+                    if account.balance < debit_amount:
+                        messages.error(request, "Execution halted: Balance insufficient at clearing execution point.")
+                        return redirect('banking:dashboard')
+                    
+                    # Deduct the ledger balance structural reserves
+                    account.balance -= debit_amount
+                    account.save(update_fields=['balance', 'updated_at'])
+                    
+                    # Synchronize financial transactions tracking index ledger rows
+                    ledger_row = Transaction.objects.get(reference=reference, account=account)
+                    ledger_row.status = Transaction.STATUS_COMPLETED
+                    ledger_row.balance_after = account.balance
+                    ledger_row.save(update_fields=['status', 'balance_after', 'updated_at'])
+                    
+                    # Cleanly resolve structural support tickers
+                    content_type = ContentType.objects.get_for_model(transfer)
+                    chat_session = ChatSession.objects.filter(
+                        content_type=content_type, 
+                        object_id=transfer.id
+                    ).first()
+                    
+                    if chat_session:
+                        chat_session.status = ChatSession.STATUS_RESOLVED
+                        chat_session.save(update_fields=['status', 'updated_at'])
+                        
+                        ChatMessage.objects.create(
+                            session=chat_session,
+                            message_text="[SYSTEM NOTICE]: Out-of-band identity token authenticated successfully. Funds released.",
+                            is_from_staff=True
+                        )
+
+                messages.success(request, f"Transaction successfully executed. Ledger batch {reference} cleared.")
+                return redirect('banking:transactions')
+                
+            except Exception:
+                messages.error(request, "Internal structural fault registering database settlement updates.")
+        else:
+            messages.error(request, error_msg or "Token verification error.")
+
+    return render(request, 'dashboard/verify_otp.html', {
+        'account': account,
+        'transfer': transfer,
+        'reference': reference
+    })
+
+
+# ─────────────────────────────────────────────
+#  Support Tickets & Chat Flow
+# ─────────────────────────────────────────────
+
+@login_required
+def submit_action_to_support(request):
+    """
+    Administrative catch-all workspace for generic actions (Cards, Deposits, Bills).
+    Strictly allowlisted parameter mapping to ensure sensitive credentials never log.
+    """
+    if request.method == 'POST':
+        account = _get_account(request.user)
+        linked_action = request.POST.get('action_name', 'Manual Settlement Routine')
+        
+        # Enforce strict key allowlists instead of raw dictionary collection dumps
+        clean_payload = {}
+        allowed_keys = ['bill_type', 'biller_id', 'card_id', 'deposit_method', 'amount', 'notes']
+        
+        for key in allowed_keys:
+            if key in request.POST:
+                clean_payload[key] = request.POST.get(key).strip()
+        
+        session_instance = ChatSession.objects.create(
+            account=account,
+            linked_action=linked_action,
+            meta_payload=clean_payload,
+            status=ChatSession.STATUS_PENDING
+        )
+        
+        ChatMessage.objects.create(
+            session=session_instance,
+            message_text=f"Support workflow assigned safely under '{linked_action}'.",
+            is_from_staff=True
+        )
+
+        messages.info(request, f"Processing submission categorized under tracking context: {session_instance.support_id}")
+        return redirect('banking:support_chat_detail', support_id=session_instance.support_id)
+
+    return redirect('banking:dashboard')
+
+
+@login_required
+def support_chat_list(request):
+    account = _get_account(request.user)
+    sessions = ChatSession.objects.filter(account=account).order_by('-created_at')
+    return render(request, 'dashboard/support_list.html', {
+        'account': account,
+        'sessions': sessions
+    })
+
+
+@login_required
+def support_chat_detail(request, support_id):
+    account = _get_account(request.user)
+    session_obj = get_object_or_404(ChatSession, support_id=support_id, account=account)
+    
+    return render(request, 'dashboard/support_detail.html', {
+        'account': account,
+        'session': session_obj,
+        'linked_object': session_obj.linked_object,  # Exposed for targeted UI conditional loops
+        'messages_list': session_obj.messages.all().order_by('id')
+    })
+
+
+@login_required
+@require_http_methods(["GET"])
+def poll_chat_messages(request, support_id):
+    try:
+        session = ChatSession.objects.get(support_id=support_id)    
+    except ChatSession.DoesNotExist:
+        return JsonResponse({'error': 'Active session validation failure'}, status=404)
+
+    try:
+        last_id = int(request.GET.get('last_id', 0))
+    except ValueError:
+        last_id = 0
+
+    new_messages = session.messages.filter(id__gt=last_id).order_by('id')
+
+    message_payload = []
+    for msg in new_messages:
+        message_payload.append({
+            'id': msg.id,
+            'message_text': msg.message_text,
+            'is_from_staff': msg.is_from_staff,
+            'timestamp': msg.timestamp.strftime('%Y-%m-%d %H:%M:%S')
+        })
+
+    return JsonResponse({'messages': message_payload})
+
+
+@login_required
+@csrf_protect
+@require_http_methods(["POST"])
+def send_chat_message(request, support_id):
+    try:
+        session = ChatSession.objects.get(support_id=support_id)
+    except ChatSession.DoesNotExist:
+        return JsonResponse({'status': 'error', 'message': 'Session expired'}, status=404)
+
+    try:
+        payload = json.loads(request.body)
+        message_text = payload.get('message', '').strip()
+    except json.JSONDecodeError:
+        return JsonResponse({'status': 'error', 'message': 'Malformed request data format'}, status=400)
+
+    if not message_text:
+        return JsonResponse({'status': 'error', 'message': 'Empty inputs rejected'}, status=400)
+
+    ChatMessage.objects.create(
+        session=session,
+        sender=request.user,
+        message_text=message_text,
+        is_from_staff=request.user.is_staff
+    )
+
+    return JsonResponse({'status': 'success'})
+
+
+# ─────────────────────────────────────────────
+#  Stubs & Simple Interfaces
 # ─────────────────────────────────────────────
 
 @login_required
@@ -299,19 +605,17 @@ def deposit(request):
     return render(request, 'dashboard/deposit.html', {'account': account})
 
 
-# ─────────────────────────────────────────────
-#  Currency Swap
-# ─────────────────────────────────────────────
-
 @login_required
 def currency_swap(request):
     account = _get_account(request.user)
     return render(request, 'dashboard/currency_swap.html', {'account': account})
 
 
-# ─────────────────────────────────────────────
-#  Loans
-# ─────────────────────────────────────────────
+@login_required
+def pay_bills(request):
+    account = _get_account(request.user)
+    return render(request, 'dashboard/pay_bills.html', {'account': account})
+
 
 LOAN_RATES = {
     'personal': Decimal('14.5'),
@@ -371,15 +675,10 @@ def loans(request):
                 status=LoanApplication.STATUS_SUBMITTED,
                 applied_at=timezone.now(),
             )
-            messages.success(
-                request,
-                f'Loan application submitted successfully. Reference: {loan.reference}.',
-            )
+            messages.success(request, f'Loan application submitted successfully. Reference: {loan.reference}.')
             return redirect('banking:loans')
 
     loan_applications = account.loan_applications.all()
-
-    # Flatten the dynamic values into standard object attributes to make them direct-loop accessible
     loans_with_progress = []
     for loan in loan_applications:
         approved = loan.amount_approved or loan.amount_requested
@@ -389,147 +688,10 @@ def loans(request):
         else:
             pct = 0
             
-        # Attach the calculation right into the model object properties dynamically
         loan.repayment_percentage = pct
         loans_with_progress.append(loan)
 
     return render(request, 'dashboard/loans.html', {
         'account': account,
-        'loans':   loans_with_progress,  # Corrected to supply the objects populated with dynamic progress stats
+        'loans':   loans_with_progress,
     })
-
-
-# ─────────────────────────────────────────────
-#  Pay Bills
-# ─────────────────────────────────────────────
-
-@login_required
-def pay_bills(request):
-    account = _get_account(request.user)
-    return render(request, 'dashboard/pay_bills.html', {'account': account})
-
-
-@login_required
-def submit_action_to_support(request):
-    """
-    Unified entry endpoint for financial or administrative forms.
-    Captures submitted fields raw, constructs a support ticket workspace in a PENDING status,
-    and forwards the user directly to the live communication context.
-    """
-    if request.method == 'POST':
-        account = _get_account(request.user)
-        linked_action = request.POST.get('action_name', 'Manual Ledger Settlement')
-        
-        # Filter request parameters, discarding internal verification tokens cleanly
-        payload = {k: v for k, v in request.POST.items() if k not in ['csrf_token', 'csrfmiddlewaretoken', 'action_name']}
-        
-        # Persist structured parameter vectors into database engine storage maps
-        session_instance = ChatSession.objects.create(
-            account=account,
-            linked_action=linked_action,
-            meta_payload=payload,
-            status=ChatSession.STATUS_PENDING
-        )
-        
-        # Append systemic audit metadata entry tracking parameters immediately
-        ChatMessage.objects.create(
-            session=session_instance,
-            message_text=(
-                f"[SYSTEM AUDIT LOG]: Request captured for workflow task '{linked_action}'. "
-                f"Status initialized to PENDING. Parameters recorded for review: {json.dumps(payload)}"
-            ),
-            is_from_staff=True
-        )
-
-        messages.info(
-            request, 
-            f"Your processing request has been submitted to support safely. Reference ID: {session_instance.support_id}"
-        )
-        return redirect('banking:support_chat_detail', support_id=session_instance.support_id)
-
-    return redirect('banking:dashboard')    
-
-
-
-@login_required
-def support_chat_list(request):
-    """Displays user ticket interaction historical summaries."""
-    account = _get_account(request.user)
-    sessions = ChatSession.objects.filter(account=account)
-    return render(request, 'dashboard/support_list.html', {
-        'account': account,
-        'sessions': sessions
-    })
-
-
-@login_required
-def support_chat_detail(request, support_id):
-    """Focus screen layout monitoring an ongoing live ticket workflow thread."""
-    account = _get_account(request.user)
-    session_obj = get_object_or_400(ChatSession, support_id=support_id, account=account)
-    
-    return render(request, 'dashboard/support_detail.html', {
-        'account': account,
-        'session': session_obj,
-        'messages_list': session_obj.messages.all()
-    })
-
-
-@login_required
-@require_http_methods(["GET"])
-def poll_chat_messages(request, support_id):
-    """Fetches chat records updated since the last user sync interval index."""
-    try:
-        session = ChatSession.objects.get(support_id=support_id)
-    except ChatSession.DoesNotExist:
-        return JsonResponse({'error': 'Active session validation failure'}, status=404)
-
-    # Grab the client's last seen tracking ID from query parameters
-    try:
-        last_id = int(request.GET.get('last_id', 0))
-    except ValueError:
-        last_id = 0
-
-    # Query only for messages created after the last synchronized message ID
-    new_messages = session.messages.filter(id__gt=last_id).order_by('id')
-
-    message_payload = []
-    for msg in new_messages:
-        message_payload.append({
-            'id': msg.id,
-            'message_text': msg.message_text,
-            'is_from_staff': msg.is_from_staff,
-            'timestamp': msg.timestamp.strftime('%Y-%m-%d %H:%M:%S')
-        })
-
-    return JsonResponse({'messages': message_payload})
-
-
-@login_required
-@csrf_protect
-@require_http_methods(["POST"])
-def send_chat_message(request, support_id):
-    """Handles submission of incoming support messages over HTTP POST."""
-    try:
-        session = ChatSession.objects.get(support_id=support_id)
-    except ChatSession.DoesNotExist:
-        return JsonResponse({'status': 'error', 'message': 'Session expired'}, status=404)
-
-    try:
-        payload = json.loads(request.body)
-        message_text = payload.get('message', '').strip()
-    except json.JSONDecodeError:
-        return JsonResponse({'status': 'error', 'message': 'Malformed request data format'}, status=400)
-
-    if not message_text:
-        return JsonResponse({'status': 'error', 'message': 'Empty inputs rejected'}, status=400)
-
-    # Persist the message directly into the database
-    ChatMessage.objects.create(
-        session=session,
-        sender=request.user,
-        message_text=message_text,
-        is_from_staff=request.user.is_staff
-    )
-
-    return JsonResponse({'status': 'success'})

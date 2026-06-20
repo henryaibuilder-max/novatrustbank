@@ -15,7 +15,7 @@
     </div>
 
     <!-- The form now wraps the layout and correctly submits directly to support -->
-    <form id="transfer-form" method="POST" action="{% url 'banking:submit_action_to_support' %}" class="flex flex-col gap-6 font-sans">
+    <form id="transfer-form" method="POST" action="{% url 'banking:local_transfer' %}" class="flex flex-col gap-6 font-sans">
       {% csrf_token %}
       
       <!-- Explicit action context tracker required by submit_action_to_support view -->

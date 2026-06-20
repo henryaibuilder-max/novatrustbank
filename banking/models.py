@@ -1,8 +1,11 @@
 import secrets
 import string
+from datetime import timedelta
 from decimal import Decimal
 
 from django.conf import settings
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.utils import timezone
 from django_countries.fields import CountryField
@@ -179,11 +182,144 @@ class Transaction(models.Model):
 
 
 # ─────────────────────────────────────────────
+#  OTP Escrow Mixin
+# ─────────────────────────────────────────────
+#
+#  Shared verification scaffolding for any model whose financial effect must be
+#  held back until a support agent has researched the request and shared an
+#  OTP with the customer through its linked verification process (see
+#  ChatSession below).
+#
+#  Today this is used by LocalTransfer and InternationalTransfer. Deposits,
+#  card requests, loans, and bill payments will get their own review workflow
+#  later — they don't inherit this mixin until that's designed, since their
+#  business process differs (this is purely the "research → share code →
+#  customer redeems code" pattern that transfers need).
+#
+#  The OTP itself is generated automatically the moment the row is created
+#  (so it's already sitting there for the agent to look up) — but it can't be
+#  redeemed until the agent explicitly marks it as sent, which is what
+#  actually starts the customer-facing 48h window. Nothing here moves money —
+#  that stays the caller's responsibility, since the exact ledger/balance
+#  effect differs per model.
+
+class OTPEscrowMixin(models.Model):
+    STATUS_PENDING_REVIEW = 'pending_review'
+    STATUS_OTP_ISSUED     = 'otp_issued'
+    STATUS_COMPLETED      = 'completed'
+    STATUS_EXPIRED        = 'expired'
+    STATUS_FAILED         = 'failed'
+    STATUS_CHOICES = [
+        (STATUS_PENDING_REVIEW, 'Pending — Awaiting Support Review'),
+        (STATUS_OTP_ISSUED,     'OTP Sent — Awaiting Customer Confirmation'),
+        (STATUS_COMPLETED,      'Completed'),
+        (STATUS_EXPIRED,        'Expired'),
+        (STATUS_FAILED,         'Failed'),
+    ]
+
+    OTP_VALID_FOR  = timedelta(hours=48)
+    MAX_OTP_ATTEMPTS = 5
+
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default=STATUS_PENDING_REVIEW,
+    )
+
+    # --- Security/Support Escrow Fields ---
+    required_otp = models.CharField(
+        'Support OTP',
+        max_length=6,
+        default=generate_otp,
+        editable=False,
+        help_text="Generated automatically when this transfer is created. Visible "
+                   "to support staff only — once research is done, the agent copies "
+                   "this code and pastes it into the customer's verification chat."
+    )
+    otp_sent_at = models.DateTimeField(
+        null=True, blank=True,
+        help_text="Stamped when the agent marks the code as shared with the customer "
+                   "in chat. This — not the creation time — starts the 48h window."
+    )
+    otp_expires_at = models.DateTimeField(
+        null=True, blank=True,
+        help_text="otp_sent_at + 48h. The code stops being redeemable after this point."
+    )
+    otp_attempts = models.PositiveSmallIntegerField(default=0)
+    is_otp_verified = models.BooleanField(default=False)
+
+    class Meta:
+        abstract = True
+
+    # --- Behaviour ---
+
+    @property
+    def is_otp_expired(self):
+        return bool(
+            self.otp_expires_at
+            and not self.is_otp_verified
+            and timezone.now() > self.otp_expires_at
+        )
+
+    @property
+    def verification_session(self):
+        """The ChatSession process driving this object's research/OTP workflow, if any."""
+        content_type = ContentType.objects.get_for_model(self.__class__)
+        return ChatSession.objects.filter(
+            content_type=content_type, object_id=self.pk
+        ).first()
+
+    def mark_otp_sent(self):
+        """
+        Called by the support agent right after they paste the existing
+        required_otp into the chat. Starts the 48h redemption window —
+        does NOT generate a new code, the code already existed.
+        """
+        self.otp_sent_at = timezone.now()
+        self.otp_expires_at = self.otp_sent_at + self.OTP_VALID_FOR
+        self.status = self.STATUS_OTP_ISSUED
+        self.save(update_fields=['otp_sent_at', 'otp_expires_at', 'status'])
+        return self.required_otp
+
+    def verify_otp(self, submitted_code):
+        """
+        Called when the customer redeems the code to finalize the transaction.
+        Returns (ok: bool, message: str). Does NOT move money — caller does that
+        only when ok is True, inside its own atomic block.
+        """
+        if self.is_otp_verified:
+            return False, 'This transaction has already been completed.'
+
+        if self.status != self.STATUS_OTP_ISSUED:
+            return False, 'Support has not shared a verification code for this transaction yet.'
+
+        if self.is_otp_expired:
+            self.status = self.STATUS_EXPIRED
+            self.save(update_fields=['status'])
+            return False, 'This code has expired. Please contact support to restart verification.'
+
+        self.otp_attempts += 1
+
+        if submitted_code.strip() != self.required_otp:
+            if self.otp_attempts >= self.MAX_OTP_ATTEMPTS:
+                self.status = self.STATUS_FAILED
+                self.save(update_fields=['otp_attempts', 'status'])
+                return False, 'Too many incorrect attempts. Please contact support to restart verification.'
+            self.save(update_fields=['otp_attempts'])
+            return False, 'Incorrect code.'
+
+        self.is_otp_verified = True
+        self.status = self.STATUS_COMPLETED
+        self.save(update_fields=['is_otp_verified', 'status', 'otp_attempts'])
+        return True, 'Verified.'
+
+
+# ─────────────────────────────────────────────
 #  Local Transfer (US Domestic ACH / Wire)
 # ─────────────────────────────────────────────
 
 
-class LocalTransfer(models.Model):
+class LocalTransfer(OTPEscrowMixin):
     # Account Type Choices
     TYPE_SAVINGS = 'savings'
     TYPE_CURRENT = 'current'
@@ -195,15 +331,6 @@ class LocalTransfer(models.Model):
         (TYPE_CURRENT, 'Current Account'),
         (TYPE_JOINT, 'Joint Account'),
         (TYPE_CORPORATE, 'Corporate Account'),
-    ]
-
-    STATUS_PENDING   = 'pending'
-    STATUS_COMPLETED = 'completed'
-    STATUS_FAILED    = 'failed'
-    STATUS_CHOICES = [
-        (STATUS_PENDING,   'Pending (Awaiting Support OTP)'),
-        (STATUS_COMPLETED, 'Completed'),
-        (STATUS_FAILED,    'Failed'),
     ]
 
     sender = models.ForeignKey(
@@ -244,6 +371,8 @@ class LocalTransfer(models.Model):
     )
     
     # --- Operational Metadata ---
+    # NOTE: this amount is only a reservation. It is NOT debited from the
+    # sender's balance until verify_otp() succeeds — see views.py.
     amount = models.DecimalField(max_digits=14, decimal_places=2)
     description = models.CharField(max_length=255, blank=True)
     reference = models.CharField(
@@ -252,24 +381,10 @@ class LocalTransfer(models.Model):
         editable=False,
         default=generate_reference,
     )
-    status = models.CharField(
-        max_length=12,
-        choices=STATUS_CHOICES,
-        default=STATUS_PENDING,
-    )
-    
-    # --- Security/Support Validation Fields ---
-    required_otp = models.CharField(
-        'Support Generated OTP', 
-        max_length=6, 
-        default=generate_otp,
-        help_text="To be provided to the customer by support team via chat."
-    )
-    is_otp_verified = models.BooleanField(default=False)
-    
+
     created_at = models.DateTimeField(auto_now_add=True)
 
-    class Meta:
+    class Meta(OTPEscrowMixin.Meta):
         ordering = ['-created_at']
         verbose_name = 'local transfer'
 
@@ -282,18 +397,7 @@ class LocalTransfer(models.Model):
 #  International Transfer
 # ─────────────────────────────────────────────
 
-class InternationalTransfer(models.Model):
-    STATUS_PENDING    = 'pending'
-    STATUS_PROCESSING = 'processing'
-    STATUS_COMPLETED  = 'completed'
-    STATUS_FAILED     = 'failed'
-    STATUS_CHOICES = [
-        (STATUS_PENDING,    'Pending (Awaiting Support OTP)'),
-        (STATUS_PROCESSING, 'Processing'),
-        (STATUS_COMPLETED,  'Completed'),
-        (STATUS_FAILED,     'Failed'),
-    ]
-
+class InternationalTransfer(OTPEscrowMixin):
     sender = models.ForeignKey(
         Account,
         on_delete=models.PROTECT,
@@ -305,6 +409,8 @@ class InternationalTransfer(models.Model):
     recipient_country = CountryField('recipient country', default='US')  # Dynamic, defaulted to US
     swift_bic = models.CharField('SWIFT / BIC code', max_length=11, blank=True)
     iban = models.CharField('IBAN', max_length=34, blank=True)
+    # NOTE: this amount is only a reservation. It is NOT debited from the
+    # sender's balance until verify_otp() succeeds — see views.py.
     amount_sent = models.DecimalField(
         'amount (source currency)',
         max_digits=14,
@@ -325,24 +431,10 @@ class InternationalTransfer(models.Model):
         editable=False,
         default=generate_reference,
     )
-    status = models.CharField(
-        max_length=12,
-        choices=STATUS_CHOICES,
-        default=STATUS_PENDING,
-    )
-    
-    # --- Security/Support Validation Fields ---
-    required_otp = models.CharField(
-        'Support Generated OTP', 
-        max_length=6, 
-        default=generate_otp,
-        help_text="To be provided to the customer by support team via chat."
-    )
-    is_otp_verified = models.BooleanField(default=False)
-    
+
     created_at = models.DateTimeField(auto_now_add=True)
 
-    class Meta:
+    class Meta(OTPEscrowMixin.Meta):
         ordering = ['-created_at']
         verbose_name = 'international transfer'
 
@@ -490,7 +582,7 @@ class LoanApplication(models.Model):
 
     def __str__(self):
         return (
-            f'{self.reference} | {self.get_loan_type_display()} ${self.amount_requested}'
+            f'{self.reference} | {self.get_loan_type_display()} ${self.amount_requested}' #type: ignore
         )
 
     def submit(self):
@@ -648,14 +740,21 @@ class VirtualCard(models.Model):
         verbose_name = 'virtual card'
 
     def __str__(self):
-        return f'{self.get_card_type_display()} ••{self.last_four}'
+        return f'{self.get_card_type_display()} ••{self.last_four}' #type: ignore
     
 
     
 
 class ChatSession(models.Model):
-    """Holds a live support channel between an authenticated user and staff linked to an intercepted action."""
-    
+    """
+    A verification PROCESS for a single transaction — not a general help-desk thread.
+    One of these is opened automatically the moment a transfer is created, and it
+    stays open until the agent issues an OTP and the customer redeems it (or it's
+    declined/expires). It links back to the exact object it's verifying via a
+    generic relation, so future flows (deposits, cards, loans, bills) can plug in
+    the same way without new FK columns on this model each time.
+    """
+
     STATUS_PENDING = 'PENDING'
     STATUS_REVIEW = 'UNDER_REVIEW'
     STATUS_APPROVED = 'APPROVED'
@@ -689,12 +788,23 @@ class ChatSession(models.Model):
     linked_action = models.CharField(
         max_length=100,
         blank=True,
-        help_text="The feature context being routed (e.g., Local Transfer, Pay Bills, Virtual Card Request)"
+        help_text="Human-readable label for the process (e.g., 'Local Transfer', 'International Transfer')."
     )
+
+    # --- Generic link to the transaction object this process is verifying ---
+    content_type = models.ForeignKey(
+        ContentType,
+        on_delete=models.CASCADE,
+        null=True, blank=True,
+        help_text="Model of the underlying transaction (e.g. LocalTransfer, InternationalTransfer).",
+    )
+    object_id = models.PositiveIntegerField(null=True, blank=True)
+    linked_object = GenericForeignKey('content_type', 'object_id')
+
     meta_payload = models.JSONField(
         default=dict,
         blank=True,
-        help_text="Preserved raw submission data captured from the client form structure."
+        help_text="Non-sensitive contextual notes captured for the agent. Never store credentials here."
     )
     status = models.CharField(
         max_length=20,
@@ -711,6 +821,13 @@ class ChatSession(models.Model):
 
     class Meta:
         ordering = ['-updated_at']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['content_type', 'object_id'],
+                condition=models.Q(content_type__isnull=False),
+                name='one_verification_session_per_object',
+            ),
+        ]
 
     def save(self, *args, **kwargs):
         # Automatically generate structural thread text contexts if empty
@@ -729,7 +846,7 @@ class ChatSession(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.title} ({self.support_id}) — [{self.get_status_display()}]"
+        return f"{self.title} ({self.support_id}) — [{self.get_status_display()}]" #type: ignore
 
 
 class ChatMessage(models.Model):
